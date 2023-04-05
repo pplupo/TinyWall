@@ -16,7 +16,7 @@ namespace Microsoft.Samples
         /// <summary>
         /// What the TaskDialog callback is a notification of.
         /// </summary>
-        private TaskDialogueNotification notification;
+        private TaskDialogNotification notification;
 
         /// <summary>
         /// The button ID if the notification is about a button. This a DialogResult
@@ -49,7 +49,7 @@ namespace Microsoft.Samples
         /// <summary>
         /// What the TaskDialog callback is a notification of.
         /// </summary>
-        internal TaskDialogueNotification Notification
+        internal TaskDialogNotification Notification
         {
             get { return this.notification; }
             set { this.notification = value; }

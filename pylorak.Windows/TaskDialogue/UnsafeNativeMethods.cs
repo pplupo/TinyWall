@@ -328,7 +328,7 @@ namespace Microsoft.Samples
             /// <summary>
             /// Bit flags for commonly used buttons.
             /// </summary>
-            internal TaskDialogueCommonButtons dwCommonButtons;    // TASKDIALOG_COMMON_BUTTON (TDCBF_XXX) flags
+            internal TaskDialogCommonButtons dwCommonButtons;    // TASKDIALOG_COMMON_BUTTON (TDCBF_XXX) flags
 
             /// <summary>
             /// Window title.

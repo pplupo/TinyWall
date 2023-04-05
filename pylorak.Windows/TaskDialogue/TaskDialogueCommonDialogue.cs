@@ -22,7 +22,7 @@ namespace Microsoft.Samples
         /// <summary>
         /// The TaskDialog we will display.
         /// </summary>
-        private readonly TaskDialogue _taskDialogue;
+        private readonly TaskDialog _taskDialogue;
 
         /// <summary>
         /// The result of the dialog, either a DialogResult value for common push buttons set in the TaskDialog.CommonButtons
@@ -43,7 +43,7 @@ namespace Microsoft.Samples
         /// to the results of the TaskDialog.
         /// </summary>
         /// <param name="taskDialogue">The TaskDialog to show.</param>
-        internal TaskDialogueCommonDialogue(TaskDialogue taskDialogue)
+        internal TaskDialogueCommonDialogue(TaskDialog taskDialogue)
         {
             this._taskDialogue = taskDialogue ?? throw new ArgumentNullException(nameof(taskDialogue));
         }
@@ -51,7 +51,7 @@ namespace Microsoft.Samples
         /// <summary>
         /// The TaskDialog to show.
         /// </summary>
-        internal TaskDialogue TaskDialogue
+        internal TaskDialog TaskDialogue
         {
             get { return this._taskDialogue; }
         }

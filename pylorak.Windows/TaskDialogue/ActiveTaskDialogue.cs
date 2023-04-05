@@ -362,7 +362,7 @@ namespace Microsoft.Samples
         /// custom via Icon type) must be used when upating the icon.
         /// </summary>
         /// <param name="icon">Task Dialog standard icon.</param>
-        internal void UpdateMainIcon(TaskDialogueIcon icon)
+        internal void UpdateMainIcon(TaskDialogIcon icon)
         {
             // TDM_UPDATE_ICON = WM_USER+116  // wParam = icon element (TASKDIALOG_ICON_ELEMENTS), lParam = new icon (hIcon if TDF_USE_HICON_* was set, PCWSTR otherwise)
             UnsafeNativeMethods.SendMessage(
@@ -392,7 +392,7 @@ namespace Microsoft.Samples
         /// custom via Icon type) must be used when upating the icon.
         /// </summary>
         /// <param name="icon">Task Dialog standard icon.</param>
-        internal void UpdateFooterIcon(TaskDialogueIcon icon)
+        internal void UpdateFooterIcon(TaskDialogIcon icon)
         {
             // TDM_UPDATE_ICON = WM_USER+116  // wParam = icon element (TASKDIALOG_ICON_ELEMENTS), lParam = new icon (hIcon if TDF_USE_HICON_* was set, PCWSTR otherwise)
             UnsafeNativeMethods.SendMessage(

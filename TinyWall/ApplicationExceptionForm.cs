@@ -184,12 +184,6 @@ namespace pylorak.TinyWall
             {
                 case SubjectType.Global:
                     //txtSrvName.Text = Resources.Messages.SubjectTypeGlobal;
-
-                    listViewAppPath.Columns.AddRange(new ColumnHeader[]
-                    {
-                        new ColumnHeader() { Text = @"Application", Width = 100 },
-                        new ColumnHeader() { Text = @"Type", Width = 100 }
-                    });
                     break;
                 case SubjectType.Executable:
                     listViewAppPath.Items.Add(new ListViewItem()
@@ -362,8 +356,8 @@ namespace pylorak.TinyWall
                     Utils.ShowMessageBox(
                         Resources.Messages.PortListInvalid,
                         Resources.Messages.TinyWall,
-                        Microsoft.Samples.TaskDialogueCommonButtons.Ok,
-                        Microsoft.Samples.TaskDialogueIcon.Warning,
+                        Microsoft.Samples.TaskDialogCommonButtons.Ok,
+                        Microsoft.Samples.TaskDialogIcon.Warning,
                         this);
 
                     return;
@@ -527,8 +521,13 @@ namespace pylorak.TinyWall
         {
             if (listViewAppPath.Items.Count <= 0 || listViewAppPath.SelectedItems.Count <= 0)
             {
-                MessageBox.Show(Resources.Messages.RemoveSoftwareDialogueText, Resources.Messages.RemoveSoftwareDialogueCaption, MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
+                Utils.ShowMessageBox(
+                    Resources.Messages.RemoveSoftwareDialogueText,
+                    Resources.Messages.RemoveSoftwareDialogueCaption,
+                    Microsoft.Samples.TaskDialogCommonButtons.Ok,
+                    Microsoft.Samples.TaskDialogIcon.Warning,
+                    this);
+
                 return;
             }
 

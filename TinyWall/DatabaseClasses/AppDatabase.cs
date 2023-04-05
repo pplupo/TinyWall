@@ -146,7 +146,7 @@ namespace pylorak.TinyWall.DatabaseClasses
 
                     Utils.SplitFirstLine(string.Format(CultureInfo.InvariantCulture, Resources.Messages.UnblockApp, localisedAppName), out string firstLine, out string contentLines);
 
-                    var dialog = new TaskDialogue
+                    var dialog = new TaskDialog
                     {
                         CustomMainIcon = Resources.Icons.firewall,
                         WindowTitle = Resources.Messages.TinyWall,
@@ -159,10 +159,10 @@ namespace pylorak.TinyWall.DatabaseClasses
                         UseCommandLinks = true
                     };
 
-                    var button1 = new TaskDialogueButton(101, Resources.Messages.UnblockAppUnblockAllRecommended);
-                    var button2 = new TaskDialogueButton(102, Resources.Messages.UnblockAppUnblockOnlySelected);
-                    var button3 = new TaskDialogueButton(103, Resources.Messages.UnblockAppCancel);
-                    dialog.Buttons = new TaskDialogueButton[] { button1, button2, button3 };
+                    var button1 = new TaskDialogButton(101, Resources.Messages.UnblockAppUnblockAllRecommended);
+                    var button2 = new TaskDialogButton(102, Resources.Messages.UnblockAppUnblockOnlySelected);
+                    var button3 = new TaskDialogButton(103, Resources.Messages.UnblockAppCancel);
+                    dialog.Buttons = new TaskDialogButton[] { button1, button2, button3 };
 
                     var fileListStr = exceptions.Aggregate(string.Empty, (current, fwex) => current + (fwex.Subject.ToString() + Environment.NewLine));
                     dialog.ExpandedInformation = fileListStr.Trim();

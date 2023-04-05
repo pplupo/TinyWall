@@ -15,7 +15,7 @@ namespace Microsoft.Samples
     using System.Windows.Forms;
 
     /// <summary>
-    /// The signature of the callback that recieves notificaitons from the Task Dialog.
+    /// The signature of the callback that receives notifications from the Task Dialog.
     /// </summary>
     /// <param name="taskDialogue">The active task dialog which has methods that can be performed on an active Task Dialog.</param>
     /// <param name="args">The notification arguments including the type of notification and information for the notification.</param>
@@ -27,7 +27,7 @@ namespace Microsoft.Samples
     /// The TaskDialog common button flags used to specify the builtin bottons to show in the TaskDialog.
     /// </summary>
     [Flags]
-    internal enum TaskDialogueCommonButtons
+    internal enum TaskDialogCommonButtons
     {
         /// <summary>
         /// No common buttons.
@@ -69,7 +69,7 @@ namespace Microsoft.Samples
     /// <summary>
     /// The System icons the TaskDialog supports.
     /// </summary>
-    internal enum TaskDialogueIcon : uint
+    internal enum TaskDialogIcon : uint
     {
         /// <summary>
         /// No Icon.
@@ -100,7 +100,7 @@ namespace Microsoft.Samples
     /// <summary>
     /// Task Dialog callback notifications.
     /// </summary>
-    internal enum TaskDialogueNotification
+    internal enum TaskDialogNotification
     {
         /// <summary>
         /// Sent by the Task Dialog once the dialog has been created and before it is displayed.
@@ -207,7 +207,7 @@ namespace Microsoft.Samples
     /// A custom button for the TaskDialog.
     /// </summary>
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode, Pack = 1)]
-    internal struct TaskDialogueButton
+    internal struct TaskDialogButton
     {
         /// <summary>
         /// The ID of the button. This value is returned by TaskDialog.Show when the button is clicked.
@@ -226,7 +226,7 @@ namespace Microsoft.Samples
         /// <param name="id">The ID of the button. This value is returned by TaskDialog.Show when
         /// the button is clicked. Typically this will be a value in the DialogResult enum.</param>
         /// <param name="text">The string that appears on the button.</param>
-        internal TaskDialogueButton(int id, string text)
+        internal TaskDialogButton(int id, string text)
         {
             this.buttonId = id;
             this.buttonText = text;
@@ -254,7 +254,7 @@ namespace Microsoft.Samples
     /// <summary>
     /// A Task Dialog. This is like a MessageBox but with many more features. TaskDialog requires Windows Longhorn or later.
     /// </summary>
-    internal class TaskDialogue
+    internal class TaskDialog
     {
         /// <summary>
         /// The string to be used for the dialog box title. If this parameter is NULL, the filename of the executable program is used.
@@ -278,13 +278,13 @@ namespace Microsoft.Samples
         /// If no common buttons are specified and no custom buttons are specified using the Buttons member, the
         /// dialog box will contain the OK button by default.
         /// </summary>
-        private TaskDialogueCommonButtons commonButtons;
+        private TaskDialogCommonButtons commonButtons;
 
         /// <summary>
         /// Specifies a built in icon for the main icon in the dialog. If this is set to none
         /// and the CustomMainIcon is null then no main icon will be displayed.
         /// </summary>
-        private TaskDialogueIcon mainIcon;
+        private TaskDialogIcon mainIcon;
 
         /// <summary>
         /// Specifies a custom in icon for the main icon in the dialog. If this is set to none
@@ -297,7 +297,7 @@ namespace Microsoft.Samples
         /// dialog box. If this is set to none and the CustomFooterIcon member is null then no
         /// footer icon will be displayed.
         /// </summary>
-        private TaskDialogueIcon footerIcon;
+        private TaskDialogIcon footerIcon;
 
         /// <summary>
         /// Specifies a custom icon for the icon to be displayed in the footer area of the
@@ -311,12 +311,12 @@ namespace Microsoft.Samples
         /// common buttons; OK, Yes, No, Retry and Cancel, and Buttons when you want different text
         /// on the push buttons.
         /// </summary>
-        private TaskDialogueButton[] buttons;
+        private TaskDialogButton[] buttons;
 
         /// <summary>
         /// Specifies the radio buttons to display in the dialog.
         /// </summary>
-        private TaskDialogueButton[] radioButtons;
+        private TaskDialogButton[] radioButtons;
 
         /// <summary>
         /// The flags passed to TaskDialogIndirect.
@@ -398,7 +398,7 @@ namespace Microsoft.Samples
         /// <summary>
         /// Creates a default Task Dialog.
         /// </summary>
-        public TaskDialogue()
+        public TaskDialog()
         {
             this.Reset();
         }
@@ -417,7 +417,7 @@ namespace Microsoft.Samples
                     return false;
                 }
 
-                return (os.Version.CompareTo(TaskDialogue.RequiredOSVersion) >= 0);
+                return (os.Version.CompareTo(TaskDialog.RequiredOSVersion) >= 0);
             }
         }
 
@@ -463,7 +463,7 @@ namespace Microsoft.Samples
         /// If no common buttons are specified and no custom buttons are specified using the Buttons member, the
         /// dialog box will contain the OK button by default.
         /// </summary>
-        internal TaskDialogueCommonButtons CommonButtons
+        internal TaskDialogCommonButtons CommonButtons
         {
             get { return this.commonButtons; }
             set { this.commonButtons = value; }
@@ -473,7 +473,7 @@ namespace Microsoft.Samples
         /// Specifies a built in icon for the main icon in the dialog. If this is set to none
         /// and the CustomMainIcon is null then no main icon will be displayed.
         /// </summary>
-        internal TaskDialogueIcon MainIcon
+        internal TaskDialogIcon MainIcon
         {
             get { return this.mainIcon; }
             set { this.mainIcon = value; }
@@ -494,7 +494,7 @@ namespace Microsoft.Samples
         /// dialog box. If this is set to none and the CustomFooterIcon member is null then no
         /// footer icon will be displayed.
         /// </summary>
-        internal TaskDialogueIcon FooterIcon
+        internal TaskDialogIcon FooterIcon
         {
             get { return this.footerIcon; }
             set { this.footerIcon = value; }
@@ -516,7 +516,7 @@ namespace Microsoft.Samples
         /// common buttons; OK, Yes, No, Retry and Cancel, and Buttons when you want different text
         /// on the push buttons.
         /// </summary>
-        internal TaskDialogueButton[] Buttons
+        internal TaskDialogButton[] Buttons
         {
             get
             {
@@ -532,7 +532,7 @@ namespace Microsoft.Samples
         /// <summary>
         /// Specifies the radio buttons to display in the dialog.
         /// </summary>
-        internal TaskDialogueButton[] RadioButtons
+        internal TaskDialogButton[] RadioButtons
         {
             get
             {
@@ -814,12 +814,12 @@ namespace Microsoft.Samples
             this.mainInstruction = null;
             this.content = null;
             this.commonButtons = 0;
-            this.mainIcon = TaskDialogueIcon.None;
+            this.mainIcon = TaskDialogIcon.None;
             this.customMainIcon = null;
-            this.footerIcon = TaskDialogueIcon.None;
+            this.footerIcon = TaskDialogIcon.None;
             this.customFooterIcon = null;
-            this.buttons = Array.Empty<TaskDialogueButton>();
-            this.radioButtons = Array.Empty<TaskDialogueButton>();
+            this.buttons = Array.Empty<TaskDialogButton>();
+            this.radioButtons = Array.Empty<TaskDialogButton>();
             this.flags = 0;
             this.defaultButton = 0;
             this.defaultRadioButton = 0;
@@ -984,11 +984,11 @@ namespace Microsoft.Samples
                     config.pszContent = this.content;
                 }
 
-                TaskDialogueButton[] customButtons = this.buttons;
+                TaskDialogButton[] customButtons = this.buttons;
                 if (customButtons.Length > 0)
                 {
                     // Hand marshal the buttons array.
-                    int elementSize = Marshal.SizeOf(typeof(TaskDialogueButton));
+                    int elementSize = Marshal.SizeOf(typeof(TaskDialogButton));
                     config.pButtons = Marshal.AllocHGlobal(elementSize * (int)customButtons.Length);
                     for (int i = 0; i < customButtons.Length; i++)
                     {
@@ -1002,11 +1002,11 @@ namespace Microsoft.Samples
                     }
                 }
 
-                TaskDialogueButton[] customRadioButtons = this.radioButtons;
+                TaskDialogButton[] customRadioButtons = this.radioButtons;
                 if (customRadioButtons.Length > 0)
                 {
                     // Hand marshal the buttons array.
-                    int elementSize = Marshal.SizeOf(typeof(TaskDialogueButton));
+                    int elementSize = Marshal.SizeOf(typeof(TaskDialogButton));
                     config.pRadioButtons = Marshal.AllocHGlobal(elementSize * (int)customRadioButtons.Length);
                     for (int i = 0; i < customRadioButtons.Length; i++)
                     {
@@ -1076,13 +1076,13 @@ namespace Microsoft.Samples
                 // that are not required for the users of this class.
                 if (config.pButtons != IntPtr.Zero)
                 {
-                    int elementSize = Marshal.SizeOf(typeof(TaskDialogueButton));
+                    int elementSize = Marshal.SizeOf(typeof(TaskDialogButton));
                     for (int i = 0; i < config.cButtons; i++)
                     {
                         unsafe
                         {
                             byte* p = (byte*)config.pButtons;
-                            Marshal.DestroyStructure((IntPtr)(p + (elementSize * i)), typeof(TaskDialogueButton));
+                            Marshal.DestroyStructure((IntPtr)(p + (elementSize * i)), typeof(TaskDialogButton));
                         }
                     }
 
@@ -1091,13 +1091,13 @@ namespace Microsoft.Samples
 
                 if (config.pRadioButtons != IntPtr.Zero)
                 {
-                    int elementSize = Marshal.SizeOf(typeof(TaskDialogueButton));
+                    int elementSize = Marshal.SizeOf(typeof(TaskDialogButton));
                     for (int i = 0; i < config.cRadioButtons; i++)
                     {
                         unsafe
                         {
                             byte* p = (byte*)config.pRadioButtons;
-                            Marshal.DestroyStructure((IntPtr)(p + (elementSize * i)), typeof(TaskDialogueButton));
+                            Marshal.DestroyStructure((IntPtr)(p + (elementSize * i)), typeof(TaskDialogButton));
                         }
                     }
 
@@ -1127,23 +1127,23 @@ namespace Microsoft.Samples
                 // Future: Consider reusing a single ActiveTaskDialog object and mark it as destroyed on the destry notification.
                 var activeDialog = new ActiveTaskDialogue(hwnd);
                 var args = new TaskDialogueNotificationArgs();
-                args.Notification = (TaskDialogueNotification)msg;
+                args.Notification = (TaskDialogNotification)msg;
                 switch (args.Notification)
                 {
-                    case TaskDialogueNotification.ButtonClicked:
-                    case TaskDialogueNotification.RadioButtonClicked:
+                    case TaskDialogNotification.ButtonClicked:
+                    case TaskDialogNotification.RadioButtonClicked:
                         args.ButtonId = (int)wparam;
                         break;
-                    case TaskDialogueNotification.HyperlinkClicked:
+                    case TaskDialogNotification.HyperlinkClicked:
                         args.Hyperlink = Marshal.PtrToStringUni(lparam);
                         break;
-                    case TaskDialogueNotification.Timer:
+                    case TaskDialogNotification.Timer:
                         args.TimerTickCount = (uint)wparam;
                         break;
-                    case TaskDialogueNotification.VerificationClicked:
+                    case TaskDialogNotification.VerificationClicked:
                         args.VerificationFlagChecked = (wparam != UIntPtr.Zero);
                         break;
-                    case TaskDialogueNotification.ExpandoButtonClicked:
+                    case TaskDialogNotification.ExpandoButtonClicked:
                         args.Expanded = (wparam != UIntPtr.Zero);
                         break;
                 }
