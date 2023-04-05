@@ -326,7 +326,7 @@ namespace pylorak.TinyWall
             return res;
         }
 
-        private void btnOK_Click(object sender, EventArgs e)
+        private async void btnOK_Click(object sender, EventArgs e)
         {
             Parallel.For(0, ExceptionSettings.Count - 1, (i, state) =>
             {
@@ -347,11 +347,10 @@ namespace pylorak.TinyWall
                 try
                 {
                     pol.LocalNetworkOnly = chkRestrictToLocalNetwork.Checked;
-                    pol.AllowedRemoteTcpConnectPorts = CleanupPortsList(txtOutboundPortTCP.Text);
-                    pol.AllowedRemoteUdpConnectPorts = CleanupPortsList(txtOutboundPortUDP.Text);
-                    pol.AllowedLocalTcpListenerPorts = CleanupPortsList(txtListenPortTCP.Text);
-                    pol.AllowedLocalUdpListenerPorts = CleanupPortsList(txtListenPortUDP.Text);
-                    //_tmpExceptionSettings[0].Policy = pol;
+                    pol.AllowedRemoteTcpConnectPorts = await Task.Run(() => CleanupPortsList(txtOutboundPortTCP.Text));
+                    pol.AllowedRemoteUdpConnectPorts = await Task.Run(() => CleanupPortsList(txtOutboundPortUDP.Text));
+                    pol.AllowedLocalTcpListenerPorts = await Task.Run(() => CleanupPortsList(txtListenPortTCP.Text));
+                    pol.AllowedLocalUdpListenerPorts = await Task.Run(() => CleanupPortsList(txtListenPortUDP.Text));
 
                     Parallel.For(0, ExceptionSettings.Count - 1, (i, state) =>
                     {
@@ -401,6 +400,7 @@ namespace pylorak.TinyWall
         private void btnProcess_Click(object sender, EventArgs e)
         {
             var procList = new List<ProcessInfo>();
+
             using (var pf = new ProcessesForm(false))
             {
                 if (pf.ShowDialog(this) == DialogResult.Cancel) return;
