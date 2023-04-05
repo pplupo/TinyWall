@@ -285,9 +285,9 @@
   <data name="&gt;&gt;btnChooseService.ZOrder" xml:space="preserve">
     <value>7</value>
   </data>
-  <metadata name="ofd.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+  <data name="ofd.TrayLocation" type="System.Drawing.Point, System.Drawing">
     <value>17, 17</value>
-  </metadata>
+  </data>
   <data name="ofd.Filter" xml:space="preserve">
     <value>*.exe|*.exe|*.*|*.*</value>
   </data>
@@ -1140,9 +1140,9 @@
   <data name="&gt;&gt;chkInheritToChildren.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
-  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+  <data name="$this.Localizable" type="System.Boolean, mscorlib">
     <value>True</value>
-  </metadata>
+  </data>
   <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
     <value>12, 25</value>
   </data>

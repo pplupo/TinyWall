@@ -481,19 +481,19 @@
     <value>Application</value>
   </data>
   <data name="columnApp.Width" type="System.Int32, mscorlib">
-    <value>132</value>
+    <value>260</value>
   </data>
   <data name="columnType.Text" xml:space="preserve">
     <value>Type</value>
   </data>
   <data name="columnType.Width" type="System.Int32, mscorlib">
-    <value>102</value>
+    <value>200</value>
   </data>
   <data name="columnDetails.Text" xml:space="preserve">
     <value>Details</value>
   </data>
   <data name="columnDetails.Width" type="System.Int32, mscorlib">
-    <value>356</value>
+    <value>400</value>
   </data>
   <data name="listApplications.Location" type="System.Drawing.Point, System.Drawing">
     <value>52, 187</value>

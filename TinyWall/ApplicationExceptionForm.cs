@@ -15,9 +15,9 @@ namespace pylorak.TinyWall
 
         internal List<FirewallExceptionV3> ExceptionSettings => _tmpExceptionSettings;
 
-        internal ApplicationExceptionForm(FirewallExceptionV3 fwex)
+        internal ApplicationExceptionForm(FirewallExceptionV3 firewallExceptionV3)
         {
-            ApplicationExceptionFormInitialise(fwex);
+            ApplicationExceptionFormInitialise(firewallExceptionV3);
         }
 
         internal ApplicationExceptionForm()
@@ -25,7 +25,7 @@ namespace pylorak.TinyWall
             ApplicationExceptionFormInitialise(null);
         }
 
-        private void ApplicationExceptionFormInitialise(FirewallExceptionV3? fwex)
+        private void ApplicationExceptionFormInitialise(FirewallExceptionV3? firewallExceptionV3)
         {
             InitializeComponent();
             Utils.SetRightToLeft(this);
@@ -51,9 +51,9 @@ namespace pylorak.TinyWall
             btnOK.Image = GlobalInstances.ApplyBtnIcon;
             btnCancel.Image = GlobalInstances.CancelBtnIcon;
 
-            if (fwex is not null)
+            if (firewallExceptionV3 is not null)
             {
-                _tmpExceptionSettings.Add(fwex);
+                _tmpExceptionSettings.Add(firewallExceptionV3);
                 UpdateUI();
             }
 
@@ -121,8 +121,6 @@ namespace pylorak.TinyWall
 
         private void ApplicationExceptionForm_Load(object sender, EventArgs e)
         {
-            //UpdateUI();
-
             //BUG: ??? - Have to add columns in ListView by using code below otherwise they don't appear when using the UI method
             listViewAppPath.Columns.AddRange(new ColumnHeader[]
             {
@@ -390,7 +388,6 @@ namespace pylorak.TinyWall
                 {
                     LocalNetworkOnly = chkRestrictToLocalNetwork.Checked
                 };
-                //_tmpExceptionSettings[0].Policy = pol;
 
                 Parallel.For(0, _tmpExceptionSettings.Count - 1, (i, state) =>
                 {
@@ -399,7 +396,6 @@ namespace pylorak.TinyWall
 
             }
 
-            //this._tmpExceptionSettings[0].CreationDate = DateTime.Now;
             var dateTimeNow = DateTime.Now;
             Parallel.For(0, _tmpExceptionSettings.Count - 1, (i, state) =>
             {
@@ -469,13 +465,7 @@ namespace pylorak.TinyWall
 
             _tmpExceptionSettings.AddRange(exceptions);
 
-            //_tmpExceptionSettings = exceptions;
-
             UpdateUI();
-
-            //if (_tmpExceptionSettings.Any())
-            //    // Multiple known files, just accept them as is
-            //    this.DialogResult = DialogResult.OK;
         }
 
         private void cmbTimer_SelectedIndexChanged(object sender, EventArgs e)
