@@ -42,6 +42,8 @@
             this.panel2 = new System.Windows.Forms.Panel();
             this.btnRemoveSoftware = new System.Windows.Forms.Button();
             this.listViewAppPath = new System.Windows.Forms.ListView();
+            this.columnHeaderApplication = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeaderType = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.btnSelectUwpApp = new System.Windows.Forms.Button();
             this.chkRestrictToLocalNetwork = new System.Windows.Forms.CheckBox();
             this.radBlock = new System.Windows.Forms.RadioButton();
@@ -62,8 +64,6 @@
             this.radOnlySpecifiedPorts = new System.Windows.Forms.RadioButton();
             this.panel3 = new System.Windows.Forms.Panel();
             this.chkInheritToChildren = new System.Windows.Forms.CheckBox();
-            this.columnHeaderApplication = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeaderType = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -177,6 +177,14 @@
             this.listViewAppPath.Name = "listViewAppPath";
             this.listViewAppPath.UseCompatibleStateImageBehavior = false;
             this.listViewAppPath.View = System.Windows.Forms.View.Details;
+            // 
+            // columnHeaderApplication
+            // 
+            resources.ApplyResources(this.columnHeaderApplication, "columnHeaderApplication");
+            // 
+            // columnHeaderType
+            // 
+            resources.ApplyResources(this.columnHeaderType, "columnHeaderType");
             // 
             // btnSelectUwpApp
             // 
@@ -300,7 +308,9 @@
             this.panel3.Controls.Add(this.txtOutboundPortTCP);
             this.panel3.Controls.Add(this.txtOutboundPortUDP);
             this.panel3.Controls.Add(this.OutUDPLabel);
+            this.panel3.Controls.Add(this.btnCancel);
             this.panel3.Controls.Add(this.InUDPLabel);
+            this.panel3.Controls.Add(this.btnOK);
             this.panel3.Controls.Add(this.InTCPLabel);
             this.panel3.Controls.Add(this.txtListenPortTCP);
             this.panel3.Controls.Add(this.label9);
@@ -311,14 +321,6 @@
             resources.ApplyResources(this.chkInheritToChildren, "chkInheritToChildren");
             this.chkInheritToChildren.Name = "chkInheritToChildren";
             this.chkInheritToChildren.UseVisualStyleBackColor = true;
-            // 
-            // columnHeaderApplication
-            // 
-            resources.ApplyResources(this.columnHeaderApplication, "columnHeaderApplication");
-            // 
-            // columnHeaderType
-            // 
-            resources.ApplyResources(this.columnHeaderType, "columnHeaderType");
             // 
             // ApplicationExceptionForm
             // 
@@ -334,8 +336,6 @@
             this.Controls.Add(this.radTcpUdpOut);
             this.Controls.Add(this.radBlock);
             this.Controls.Add(this.chkRestrictToLocalNetwork);
-            this.Controls.Add(this.btnCancel);
-            this.Controls.Add(this.btnOK);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel3);
