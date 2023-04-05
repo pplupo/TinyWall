@@ -119,12 +119,6 @@ namespace pylorak.TinyWall
 
         private void ApplicationExceptionForm_Load(object sender, EventArgs e)
         {
-            //BUG: ??? - Have to add columns in ListView by using code below otherwise they don't appear when using the UI method
-            listViewAppPath.Columns.AddRange(new ColumnHeader[]
-            {
-                new ColumnHeader() { Text = Resources.Messages.Application, Width = 800 }, //Resources.Messages.AllApplications
-                new ColumnHeader() { Text = Resources.Messages.Type, Width = 200 }
-            });
         }
 
         private void UpdateUI()

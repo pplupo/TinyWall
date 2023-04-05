@@ -441,6 +441,15 @@ namespace pylorak.TinyWall.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to www.bing.co.uk?q={0}.
+        /// </summary>
+        internal static string SearchEngine {
+            get {
+                return ResourceManager.GetString("SearchEngine", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Searching: {0}.
         /// </summary>
         internal static string SearchingPath {

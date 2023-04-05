@@ -285,9 +285,9 @@
   <data name="&gt;&gt;btnChooseService.ZOrder" xml:space="preserve">
     <value>7</value>
   </data>
-  <data name="ofd.TrayLocation" type="System.Drawing.Point, System.Drawing">
+  <metadata name="ofd.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
-  </data>
+  </metadata>
   <data name="ofd.Filter" xml:space="preserve">
     <value>*.exe|*.exe|*.*|*.*</value>
   </data>
@@ -458,6 +458,18 @@
   </data>
   <data name="listViewAppPath.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Bottom, Left, Right</value>
+  </data>
+  <data name="columnHeaderApplication.Text" xml:space="preserve">
+    <value>Application</value>
+  </data>
+  <data name="columnHeaderApplication.Width" type="System.Int32, mscorlib">
+    <value>800</value>
+  </data>
+  <data name="columnHeaderType.Text" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="columnHeaderType.Width" type="System.Int32, mscorlib">
+    <value>200</value>
   </data>
   <data name="listViewAppPath.Location" type="System.Drawing.Point, System.Drawing">
     <value>43, 109</value>
@@ -1140,9 +1152,9 @@
   <data name="&gt;&gt;chkInheritToChildren.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
-  <data name="$this.Localizable" type="System.Boolean, mscorlib">
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
-  </data>
+  </metadata>
   <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
     <value>12, 25</value>
   </data>
@@ -1160,6 +1172,18 @@
   </data>
   <data name="&gt;&gt;ofd.Type" xml:space="preserve">
     <value>System.Windows.Forms.OpenFileDialog, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;columnHeaderApplication.Name" xml:space="preserve">
+    <value>columnHeaderApplication</value>
+  </data>
+  <data name="&gt;&gt;columnHeaderApplication.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ColumnHeader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;columnHeaderType.Name" xml:space="preserve">
+    <value>columnHeaderType</value>
+  </data>
+  <data name="&gt;&gt;columnHeaderType.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ColumnHeader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;$this.Name" xml:space="preserve">
     <value>ApplicationExceptionForm</value>

@@ -40,6 +40,7 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.transparentLabel1 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.btnRemoveSoftware = new System.Windows.Forms.Button();
             this.listViewAppPath = new System.Windows.Forms.ListView();
             this.btnSelectUwpApp = new System.Windows.Forms.Button();
             this.chkRestrictToLocalNetwork = new System.Windows.Forms.CheckBox();
@@ -61,7 +62,8 @@
             this.radOnlySpecifiedPorts = new System.Windows.Forms.RadioButton();
             this.panel3 = new System.Windows.Forms.Panel();
             this.chkInheritToChildren = new System.Windows.Forms.CheckBox();
-            this.btnRemoveSoftware = new System.Windows.Forms.Button();
+            this.columnHeaderApplication = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeaderType = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -155,9 +157,20 @@
             this.panel2.Controls.Add(this.btnChooseService);
             this.panel2.Name = "panel2";
             // 
+            // btnRemoveSoftware
+            // 
+            resources.ApplyResources(this.btnRemoveSoftware, "btnRemoveSoftware");
+            this.btnRemoveSoftware.BackColor = System.Drawing.Color.AliceBlue;
+            this.btnRemoveSoftware.Name = "btnRemoveSoftware";
+            this.btnRemoveSoftware.UseVisualStyleBackColor = false;
+            this.btnRemoveSoftware.Click += new System.EventHandler(this.btnRemoveSoftware_Click);
+            // 
             // listViewAppPath
             // 
             resources.ApplyResources(this.listViewAppPath, "listViewAppPath");
+            this.listViewAppPath.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeaderApplication,
+            this.columnHeaderType});
             this.listViewAppPath.FullRowSelect = true;
             this.listViewAppPath.GridLines = true;
             this.listViewAppPath.HideSelection = false;
@@ -299,13 +312,13 @@
             this.chkInheritToChildren.Name = "chkInheritToChildren";
             this.chkInheritToChildren.UseVisualStyleBackColor = true;
             // 
-            // btnRemoveSoftware
+            // columnHeaderApplication
             // 
-            resources.ApplyResources(this.btnRemoveSoftware, "btnRemoveSoftware");
-            this.btnRemoveSoftware.BackColor = System.Drawing.Color.AliceBlue;
-            this.btnRemoveSoftware.Name = "btnRemoveSoftware";
-            this.btnRemoveSoftware.UseVisualStyleBackColor = false;
-            this.btnRemoveSoftware.Click += new System.EventHandler(this.btnRemoveSoftware_Click);
+            resources.ApplyResources(this.columnHeaderApplication, "columnHeaderApplication");
+            // 
+            // columnHeaderType
+            // 
+            resources.ApplyResources(this.columnHeaderType, "columnHeaderType");
             // 
             // ApplicationExceptionForm
             // 
@@ -378,5 +391,7 @@
         private System.Windows.Forms.Button btnSelectUwpApp;
         private System.Windows.Forms.ListView listViewAppPath;
         private System.Windows.Forms.Button btnRemoveSoftware;
+        private System.Windows.Forms.ColumnHeader columnHeaderApplication;
+        private System.Windows.Forms.ColumnHeader columnHeaderType;
     }
 }
