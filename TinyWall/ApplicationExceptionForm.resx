@@ -187,7 +187,7 @@
     <value>Flat</value>
   </data>
   <data name="btnBrowse.Location" type="System.Drawing.Point, System.Drawing">
-    <value>542, 68</value>
+    <value>548, 68</value>
   </data>
   <data name="btnBrowse.Size" type="System.Drawing.Size, System.Drawing">
     <value>142, 34</value>
@@ -217,7 +217,7 @@
     <value>Flat</value>
   </data>
   <data name="btnProcess.Location" type="System.Drawing.Point, System.Drawing">
-    <value>542, 28</value>
+    <value>548, 28</value>
   </data>
   <data name="btnProcess.Size" type="System.Drawing.Size, System.Drawing">
     <value>142, 34</value>
@@ -247,7 +247,7 @@
     <value>Flat</value>
   </data>
   <data name="btnChooseService.Location" type="System.Drawing.Point, System.Drawing">
-    <value>542, 108</value>
+    <value>548, 108</value>
   </data>
   <data name="btnChooseService.Size" type="System.Drawing.Size, System.Drawing">
     <value>142, 34</value>
@@ -403,7 +403,7 @@
     <value>NoControl</value>
   </data>
   <data name="btnRemoveSoftware.Location" type="System.Drawing.Point, System.Drawing">
-    <value>542, 188</value>
+    <value>548, 188</value>
   </data>
   <data name="btnRemoveSoftware.Size" type="System.Drawing.Size, System.Drawing">
     <value>142, 34</value>
@@ -475,7 +475,7 @@
     <value>NoControl</value>
   </data>
   <data name="btnSelectUwpApp.Location" type="System.Drawing.Point, System.Drawing">
-    <value>542, 148</value>
+    <value>548, 148</value>
   </data>
   <data name="btnSelectUwpApp.Size" type="System.Drawing.Size, System.Drawing">
     <value>142, 34</value>
