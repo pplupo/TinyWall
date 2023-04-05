@@ -391,4 +391,18 @@ The selected executable could be part of {0}. To ensure that this application ca
   <data name="SubjectTypeUwpApp" xml:space="preserve">
     <value>UWP Package</value>
   </data>
+  <data name="Application" xml:space="preserve">
+    <value>Application</value>
+    <comment>Added due to issue of adding columns through the visual designer</comment>
+  </data>
+  <data name="RemoveSoftwareDialogueCaption" xml:space="preserve">
+    <value>Select an item to remove</value>
+  </data>
+  <data name="RemoveSoftwareDialogueText" xml:space="preserve">
+    <value>Select a software entry from the list!</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>Type</value>
+    <comment>Added due to issue of adding columns through the visual designer</comment>
+  </data>
 </root>

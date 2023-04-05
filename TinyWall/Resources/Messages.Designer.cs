@@ -79,6 +79,15 @@ namespace pylorak.TinyWall.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Application.
+        /// </summary>
+        internal static string Application {
+            get {
+                return ResourceManager.GetString("Application", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Are you sure you want to remove all firewall exceptions?.
         /// </summary>
         internal static string AreYouSureYouWantToRemoveAllExceptions {
@@ -414,6 +423,24 @@ namespace pylorak.TinyWall.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Select an item to remove.
+        /// </summary>
+        internal static string RemoveSoftwareDialogueCaption {
+            get {
+                return ResourceManager.GetString("RemoveSoftwareDialogueCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select a software entry from the list!.
+        /// </summary>
+        internal static string RemoveSoftwareDialogueText {
+            get {
+                return ResourceManager.GetString("RemoveSoftwareDialogueText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Searching: {0}.
         /// </summary>
         internal static string SearchingPath {
@@ -635,6 +662,15 @@ namespace pylorak.TinyWall.Resources {
         internal static string TrafficOut {
             get {
                 return ResourceManager.GetString("TrafficOut", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type.
+        /// </summary>
+        internal static string Type {
+            get {
+                return ResourceManager.GetString("Type", resourceCulture);
             }
         }
         
