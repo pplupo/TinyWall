@@ -308,9 +308,7 @@
             this.panel3.Controls.Add(this.txtOutboundPortTCP);
             this.panel3.Controls.Add(this.txtOutboundPortUDP);
             this.panel3.Controls.Add(this.OutUDPLabel);
-            this.panel3.Controls.Add(this.btnCancel);
             this.panel3.Controls.Add(this.InUDPLabel);
-            this.panel3.Controls.Add(this.btnOK);
             this.panel3.Controls.Add(this.InTCPLabel);
             this.panel3.Controls.Add(this.txtListenPortTCP);
             this.panel3.Controls.Add(this.label9);
@@ -336,6 +334,8 @@
             this.Controls.Add(this.radTcpUdpOut);
             this.Controls.Add(this.radBlock);
             this.Controls.Add(this.chkRestrictToLocalNetwork);
+            this.Controls.Add(this.btnCancel);
+            this.Controls.Add(this.btnOK);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel3);
