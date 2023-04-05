@@ -86,6 +86,34 @@
       <EmbedInteropTypes>true</EmbedInteropTypes>
     </COMReference>
 
+    <EmbeddedResource Update="AppFinderForm.ar.resx">
+      <DependentUpon>AppFinderForm.cs</DependentUpon>
+    </EmbeddedResource>
+
+    <EmbeddedResource Update="ApplicationExceptionForm.ar.resx">
+      <DependentUpon>ApplicationExceptionForm.cs</DependentUpon>
+    </EmbeddedResource>
+
+    <EmbeddedResource Update="ConnectionsForm.ar.resx">
+      <DependentUpon>ConnectionsForm.cs</DependentUpon>
+    </EmbeddedResource>
+
+    <EmbeddedResource Update="DevelToolForm.ar.resx">
+      <DependentUpon>DevelToolForm.cs</DependentUpon>
+    </EmbeddedResource>
+
+    <EmbeddedResource Update="MainForm.ar.resx">
+      <DependentUpon>TinyWallController.cs</DependentUpon>
+    </EmbeddedResource>
+
+    <EmbeddedResource Update="PasswordForm.ar.resx">
+      <DependentUpon>PasswordForm.cs</DependentUpon>
+    </EmbeddedResource>
+
+    <EmbeddedResource Update="Processes.ar.resx">
+      <DependentUpon>Processes.cs</DependentUpon>
+    </EmbeddedResource>
+
     <EmbeddedResource Update="Resources\Exceptions.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Exceptions.Designer.cs</LastGenOutput>
@@ -194,6 +222,9 @@
       <DependentUpon>PasswordForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Update="Services.ar.resx">
+      <DependentUpon>Services.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Update="Services.resx">
       <DependentUpon>Services.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -206,9 +237,15 @@
       <DependentUpon>Processes.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Update="SettingsForm.ar.resx">
+      <DependentUpon>SettingsForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Update="SettingsForm.resx">
       <DependentUpon>SettingsForm.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Update="UwpPackagesForm.ar.resx">
+      <DependentUpon>UwpPackagesForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Update="UwpPackagesForm.resx">
       <DependentUpon>UwpPackagesForm.cs</DependentUpon>
@@ -621,5 +658,8 @@
       <DependentUpon>UwpPackagesForm.cs</DependentUpon>
     </EmbeddedResource>
 
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
 </Project>

@@ -676,7 +676,7 @@ namespace pylorak.TinyWall.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unblock only selected file.
+        ///   Looks up a localized string similar to Unblock the selected file only.
         /// </summary>
         internal static string UnblockAppUnblockOnlySelected {
             get {

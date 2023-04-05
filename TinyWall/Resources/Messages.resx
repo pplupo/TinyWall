@@ -362,7 +362,7 @@ The selected executable could be part of {0}. To ensure that this application ca
     <value>Unblock all recommended files</value>
   </data>
   <data name="UnblockAppUnblockOnlySelected" xml:space="preserve">
-    <value>Unblock only selected file</value>
+    <value>Unblock the selected file only</value>
   </data>
   <data name="CompromisedApplication" xml:space="preserve">
     <value>{0}, possibly compromised</value>
