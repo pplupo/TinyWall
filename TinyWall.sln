@@ -24,6 +24,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pylorak.Windows", "pylorak.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pylorak.Utilities", "pylorak.Utilities\pylorak.Utilities.csproj", "{88626D1E-88C0-493A-AF9F-7ADF9AFFC661}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{13DB36F0-9AAE-42DE-B349-E27E474620ED}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{FCC40604-B187-4249-95B3-3CD5C10DC32D}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\Build-TinyWall-NETFramework.yml = .github\workflows\Build-TinyWall-NETFramework.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -107,6 +114,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{FCC40604-B187-4249-95B3-3CD5C10DC32D} = {13DB36F0-9AAE-42DE-B349-E27E474620ED}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A40C2CCE-1135-460A-8946-9BF82CE071EF}
