@@ -1,8 +1,8 @@
-﻿using System;
-using System.Threading;
+﻿using pylorak.Utilities;
+using System;
 using System.IO;
 using System.Net;
-using pylorak.Utilities;
+using System.Threading;
 
 namespace pylorak.TinyWall
 {
@@ -18,18 +18,19 @@ namespace pylorak.TinyWall
             System.Windows.Forms.Application.Run(new DevelToolForm());
             return 0;
         }
-        
+
         private static int StartService(TinyWallService tw)
         {
 #if DEBUG
             if (!Utils.RunningAsAdmin())
             {
-                Console.WriteLine("Error: Not started as an admin process.");
+                Console.WriteLine(@"Error: Not started as an admin process.");
                 return -1;
             }
 #endif
 
-            using var SingleInstanceMutex = new Mutex(true, @"Global\TinyWallService", out bool mutexok);
+            using var singleInstanceMutex = new Mutex(true, @"Global\TinyWallService", out bool mutexok);
+
             if (!mutexok)
             {
                 return -1;
@@ -49,11 +50,13 @@ namespace pylorak.TinyWall
             // Start controller application
             System.Windows.Forms.Application.EnableVisualStyles();
             System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
+
             do
             {
                 RestartOnQuit = false;
                 System.Windows.Forms.Application.Run(new TinyWallController(opts));
             } while (RestartOnQuit);
+
             return 0;
         }
 
@@ -78,20 +81,32 @@ namespace pylorak.TinyWall
 
             DefaultOsCulture ??= Thread.CurrentThread.CurrentUICulture;
 
-            // WerAddExcludedApplication will fail every time we are not running as admin, 
+            // WerAddExcludedApplication will fail every time we are not running as admin,
             // so wrap it around a try-catch.
             try
             {
                 // Prevent Windows Error Reporting running for us
                 Utils.SafeNativeMethods.WerAddExcludedApplication(Utils.ExecutablePath, true);
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
 
             // Setup TLS 1.2 & 1.3 support, if supported
             if (ServicePointManager.SecurityProtocol != 0)
             {
-                try { ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12; } catch { }
-                try { ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls13; } catch { }
+                try { ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12; }
+                catch
+                {
+                    // ignored
+                }
+
+                try { ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls13; }
+                catch
+                {
+                    // ignored
+                }
             }
 
             // Parse comman-line options
@@ -182,11 +197,13 @@ namespace pylorak.TinyWall
 #endif
                         StartService(srv);
 #if DEBUG
-                        Console.WriteLine("Kill process to terminate...");
+                        Console.WriteLine(@"Kill process to terminate...");
                         srv.StoppedEvent.WaitOne();
 #endif
                     }
                     return 0;
+                case StartUpMode.Invalid:
+                    return -1;
                 default:
                     return -1;
             } // switch

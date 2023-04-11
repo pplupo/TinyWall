@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.IO.Pipes;
+﻿using System.IO.Pipes;
 using System.Threading;
-using pylorak.Utilities;
 
 namespace pylorak.TinyWall
 {
@@ -43,7 +40,7 @@ namespace pylorak.TinyWall
         {
             try
             {
-                using var pipeClient = new NamedPipeClientStream (".", m_PipeName, PipeDirection.InOut, PipeOptions.WriteThrough);
+                using var pipeClient = new NamedPipeClientStream(".", m_PipeName, PipeDirection.InOut, PipeOptions.WriteThrough);
                 pipeClient.Connect(1000);
                 pipeClient.ReadMode = PipeTransmissionMode.Message;
 

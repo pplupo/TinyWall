@@ -1,8 +1,8 @@
-﻿using System;
+﻿using pylorak.Utilities;
+using System;
 using System.IO.Pipes;
 using System.Security.Principal;
 using System.Threading;
-using pylorak.Utilities;
 
 namespace pylorak.TinyWall
 {
@@ -10,21 +10,21 @@ namespace pylorak.TinyWall
 
     internal class PipeServerEndpoint : Disposable
     {
-        private readonly Thread m_PipeWorkerThread;
-        private readonly PipeDataReceived m_RcvCallback;
-        private readonly string m_PipeName;
+        private readonly Thread _mPipeWorkerThread;
+        private readonly PipeDataReceived _mRcvCallback;
+        private readonly string _mPipeName;
 
-        private bool m_Run = true;
+        private bool _mRun = true;
 
         protected override void Dispose(bool disposing)
         {
             if (IsDisposed)
                 return;
 
-            m_Run = false;
+            _mRun = false;
 
             // Create a dummy connection so that worker thread gets out of the infinite WaitForConnection()
-            using (var npcs = new NamedPipeClientStream(m_PipeName))
+            using (var npcs = new NamedPipeClientStream(_mPipeName))
             {
                 npcs.Connect(500);
             }
@@ -32,7 +32,7 @@ namespace pylorak.TinyWall
             if (disposing)
             {
                 // Release managed resources
-                m_PipeWorkerThread.Join(TimeSpan.FromMilliseconds(1000));
+                _mPipeWorkerThread.Join(TimeSpan.FromMilliseconds(1000));
             }
 
             // Release unmanaged resources.
@@ -43,13 +43,15 @@ namespace pylorak.TinyWall
 
         internal PipeServerEndpoint(PipeDataReceived recvCallback, string serverPipeName)
         {
-            m_RcvCallback = recvCallback;
-            m_PipeName = serverPipeName;
+            _mRcvCallback = recvCallback;
+            _mPipeName = serverPipeName;
 
-            m_PipeWorkerThread = new Thread(new ThreadStart(PipeServerWorker));
-            m_PipeWorkerThread.Name = "ServerPipeWorker";
-            m_PipeWorkerThread.IsBackground = true;
-            m_PipeWorkerThread.Start();
+            _mPipeWorkerThread = new Thread(new ThreadStart(PipeServerWorker))
+            {
+                Name = "ServerPipeWorker",
+                IsBackground = true
+            };
+            _mPipeWorkerThread.Start();
         }
 
         private void PipeServerWorker()
@@ -60,12 +62,12 @@ namespace pylorak.TinyWall
             PipeSecurity ps = new();
             ps.AddAccessRule(par);
 
-            while (m_Run)
+            while (_mRun)
             {
                 try
                 {
                     // Create pipe server
-                    using var pipeServer = new NamedPipeServerStream(m_PipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Message, PipeOptions.WriteThrough, 2048 * 10, 2048 * 10, ps);
+                    using var pipeServer = new NamedPipeServerStream(_mPipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Message, PipeOptions.WriteThrough, 2048 * 10, 2048 * 10, ps);
                     if (!pipeServer.IsConnected)
                     {
                         pipeServer.WaitForConnection();
@@ -76,7 +78,7 @@ namespace pylorak.TinyWall
                     }
 
                     var req = SerialisationHelper.DeserialiseFromPipe<TwMessage>(pipeServer, 3000, TwMessageComError.Instance);
-                    var resp = m_RcvCallback(req);
+                    var resp = _mRcvCallback(req);
                     SerialisationHelper.SerialiseToPipe(pipeServer, resp);
                 }
                 catch
