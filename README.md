@@ -1,3 +1,5 @@
+![GitHub Actions: Build TinyWall Workflow](https://github.com/github/docs/actions/workflows/Build-TinyWall-NETFramework.yml/badge.svg)
+
 <br />
 <div align="center">
   <h3 align="center">TinyWall</h3>
