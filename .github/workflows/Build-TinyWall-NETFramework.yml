@@ -26,6 +26,10 @@ jobs:
     - name: Build Solution
       run: |
         msbuild.exe TinyWall.sln /p:platform="Any CPU" /p:configuration="Release"
+        
+    - name: Build Installer
+      run: |
+        msbuild.exe MsiSetup\MsiSetup.wixproj
 
     #- name: Create Release
     #  id: create_release
