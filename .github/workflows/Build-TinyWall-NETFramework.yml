@@ -18,7 +18,9 @@ jobs:
       uses: NuGet/setup-nuget@v1.1.1
 
     - name: Navigate to Workspace
-      run: cd $GITHUB_WORKSPACE
+      run: |
+        cd $GITHUB_WORKSPACE
+        echo $GITHUB_WORKSPACE
 
     - name: Restore NuGet Packages
       run: nuget restore TinyWall.sln
