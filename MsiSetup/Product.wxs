@@ -52,8 +52,8 @@
     </Condition>
 
     <!-- .Net Framework detection -->
-    <PropertyRef Id="WIX_IS_NETFRAMEWORK_48_OR_LATER_INSTALLED"/>
-    <Condition Message="This application requires .NET Framework 4.8 to be installed.">
+    <PropertyRef Id="WIX_IS_NETFRAMEWORK_481_OR_LATER_INSTALLED"/>
+    <Condition Message="This application requires .NET Framework 4.8.1 to be installed.">
       <![CDATA[WIX_IS_NETFRAMEWORK_48_OR_LATER_INSTALLED]]>
     </Condition>
 
@@ -140,6 +140,7 @@
       <!-- Program Files -->
       <Directory Id="$(var.PlatformProgramFilesFolder)" Name="ProgramFiles">
         <Directory Id="INSTALLDIR" Name="TinyWall">
+
           <Component Id="MainExecutable" Guid="{D0A4DEC7-42C7-48F1-912D-76A4B33AC644}" Win64="$(var.Win64)">
             <File Id="TinyWallEXE" Source="Sources\ProgramFiles\TinyWall\TinyWall.exe" Vital="yes" KeyPath="yes" Checksum="yes" Assembly=".net" AssemblyApplication="TinyWallEXE" />
           </Component>
@@ -172,12 +173,6 @@
           </Component>
           <Component Id="System_ValueTuple_Lib" Guid="{1335CC77-A532-4F69-9811-FF9C83A7A01B}" Win64="$(var.Win64)">
             <File Id="System_ValueTuple_dll" Source="Sources\ProgramFiles\TinyWall\System.ValueTuple.dll" Vital="yes" KeyPath="yes" Checksum="yes" Assembly=".net" AssemblyApplication="TinyWallEXE" />
-          </Component>
-          <Component Id="License" Guid="{2F2FF77C-8900-406A-AB6E-6DCFF4B53463}" Win64="$(var.Win64)">
-            <File Id="LicenseRTF" Source="Sources\ProgramFiles\TinyWall\License.rtf" KeyPath="yes" />
-          </Component>
-          <Component Id="Attributions" Guid="{76058250-1331-4D79-B09C-2B6ADEC3E7E2}" Win64="$(var.Win64)">
-            <File Id="AttributionsTXT" Source="Sources\ProgramFiles\TinyWall\Attributions.txt" KeyPath="yes" />
           </Component>
           <Directory Id="LOCDIR_ar" Name="ar">
             <Component Id="LocSatelliteLib_ar" Guid="{39BDDB5F-8B93-4DA1-BEDD-D1E904F86094}" Win64="$(var.Win64)">
@@ -264,6 +259,14 @@
               <File Id="LocSatelliteDLL_zh" Source="Sources\ProgramFiles\TinyWall\zh\TinyWall.resources.dll" Vital="yes" KeyPath="yes" Checksum="yes" Assembly=".net" AssemblyApplication="TinyWallEXE" />
             </Component>
           </Directory>
+
+
+          <Component Id="License" Guid="{2F2FF77C-8900-406A-AB6E-6DCFF4B53463}" Win64="$(var.Win64)">
+            <File Id="LicenseRTF" Source="Sources\ProgramFiles\TinyWall\License.rtf" KeyPath="yes" />
+          </Component>
+          <Component Id="Attributions" Guid="{76058250-1331-4D79-B09C-2B6ADEC3E7E2}" Win64="$(var.Win64)">
+            <File Id="AttributionsTXT" Source="Sources\ProgramFiles\TinyWall\Attributions.txt" KeyPath="yes" />
+          </Component>
           <Directory Id="DOCDIR" Name="doc">
             <Component Id="DocWhatsNewComp" Win64="$(var.Win64)">
               <File Id="DocWhatsNewFile" Source="Sources\ProgramFiles\TinyWall\doc\whatsnew.html" Vital="yes" KeyPath="yes" Checksum="yes" />
