@@ -28,12 +28,12 @@ jobs:
 
     - name: Build Solution
       run: |
-        msbuild.exe TinyWall.sln /p:Platform="Any CPU" /p:Configuration="Release" /p:DeployOnBuild=true /p:PublishProfile=FolderProfile /p:PublishProfileRootFolder="$GITHUB_WORKSPACE\TinyWall\TinyWall\PublishProfiles" 
+        msbuild.exe TinyWall.sln /p:Platform="Any CPU" /p:Configuration="Release" /p:DeployOnBuild=true /p:PublishProfile=FolderProfile /p:PublishProfileRootFolder="TinyWall\PublishProfiles" 
 # /p:publish="\TinyWall\Publish"
     
 #    - name: Publish Software
 #      run: |
-#        msbuild publish -c Release --output ./TinyWall/Publish
+#        msbuild publish -c Release --output "TinyWall\TinyWall\Publish"
 
     - name: Build Installer
       run: |
