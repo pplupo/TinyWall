@@ -38,7 +38,7 @@ jobs:
 #        msbuild publish -c Release --output "TinyWall\TinyWall\Publish"
 
     - name: Copy Files
-      run: copy "bin\Publish\*" "..\MsiSetup\Sources\ProgramFiles\TinyWall\"
+      run: copy "bin\Release\*" "..\MsiSetup\Sources\ProgramFiles\TinyWall\"
 # pwsh.exe Copy-Item -Path "TinyWall\bin\Publish\*" -Destination "MsiSetup\Sources\ProgramFiles\TinyWall\" -Recurse
 
     - name: Build Installer
