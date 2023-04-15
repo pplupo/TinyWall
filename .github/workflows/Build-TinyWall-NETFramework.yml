@@ -28,7 +28,8 @@ jobs:
 
     - name: Build Solution
       run: |
-        msbuild.exe TinyWall.sln /p:Platform="Any CPU" /p:Configuration="Release" /p:DeployOnBuild="true" /p:PublishProfile="FolderProfile" /p:PublishProfileRootFolder="TinyWall\PublishProfiles" /p:PublishDestination="TinyWall\Publish" /t:PublishToFileSystem /t:restore /t:build
+        msbuild.exe TinyWall.sln /p:Platform="Any CPU" /p:Configuration="Release" /p:DeployOnBuild="true" /p:PublishProfile="FolderProfile" /p:PublishProfileRootFolder="TinyWall\PublishProfiles" /p:PublishDestination="TinyWall\Publish" /t:restore /t:build
+#  /t:PublishToFileSystem
 # /p:publish="TinyWall\Publish"
     
 #    - name: Publish Software
