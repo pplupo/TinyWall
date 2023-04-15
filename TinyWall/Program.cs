@@ -1,4 +1,5 @@
-﻿using pylorak.Utilities;
+﻿using Microsoft.Extensions.DependencyInjection;
+using pylorak.Utilities;
 using System;
 using System.IO;
 using System.Net;
@@ -9,6 +10,7 @@ namespace pylorak.TinyWall
     static class Program
     {
         internal static bool RestartOnQuit { get; set; }
+
         internal static System.Globalization.CultureInfo? DefaultOsCulture { get; set; }
 
         private static int StartDevelTool()
@@ -68,6 +70,24 @@ namespace pylorak.TinyWall
         private static int UninstallService()
         {
             return TinyWallDoctor.Uninstall();
+        }
+
+        public static IServiceProvider? ServiceProvider { get; set; }
+
+        private static void ConfigureServices()
+        {
+            var services = new ServiceCollection();
+
+            //Begin add services to the collection
+            //services.AddScoped<IUserService, UserService>();
+            //End adding services to the collection
+
+            ServiceProvider = services.BuildServiceProvider();
+        }
+
+        public static T? GetService<T>() where T : class
+        {
+            return (T?)ServiceProvider?.GetService(typeof(T));
         }
 
         /// <summary>

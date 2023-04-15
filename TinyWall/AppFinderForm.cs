@@ -11,9 +11,9 @@ namespace pylorak.TinyWall
 {
     internal sealed partial class AppFinderForm : Form
     {
-        private Thread? SearcherThread;
-        private bool RunSearch;
-        private Size IconSize = new((int)Math.Round(16 * Utils.DpiScalingFactor), (int)Math.Round(16 * Utils.DpiScalingFactor));
+        private Thread? _searcherThread;
+        private bool _runSearch;
+        private Size _iconSize = new((int)Math.Round(16 * Utils.DpiScalingFactor), (int)Math.Round(16 * Utils.DpiScalingFactor));
 
         internal List<FirewallExceptionV3> SelectedExceptions { get; } = new List<FirewallExceptionV3>();
 
@@ -21,7 +21,7 @@ namespace pylorak.TinyWall
         {
             InitialiseComponent();
             Utils.SetRightToLeft(this);
-            this.IconList.ImageSize = IconSize;
+            this.IconList.ImageSize = _iconSize;
             this.Icon = Resources.Icons.firewall;
             this.btnCancel.Image = GlobalInstances.CancelBtnIcon;
             this.btnOK.Image = GlobalInstances.ApplyBtnIcon;
@@ -32,22 +32,22 @@ namespace pylorak.TinyWall
 
         private void btnStartDetection_Click(object sender, EventArgs e)
         {
-            if (!RunSearch)
+            if (!_runSearch)
             {
                 btnStartDetection.Text = Resources.Messages.Stop;
                 this.btnStartDetection.Image = GlobalInstances.CancelBtnIcon;
                 list.Items.Clear();
 
-                RunSearch = true;
-                SearcherThread = new Thread(SearcherWorkerMethod);
-                SearcherThread.Name = "AppFinder";
-                SearcherThread.IsBackground = true;
-                SearcherThread.Start();
+                _runSearch = true;
+                _searcherThread = new Thread(SearcherWorkerMethod);
+                _searcherThread.Name = "AppFinder";
+                _searcherThread.IsBackground = true;
+                _searcherThread.Start();
             }
             else
             {
                 btnStartDetection.Enabled = false;
-                RunSearch = false;
+                _runSearch = false;
             }
         }
 
@@ -151,7 +151,7 @@ namespace pylorak.TinyWall
             // Perform search for each path
             foreach (string path in SearchPaths)
             {
-                if (!RunSearch)
+                if (!_runSearch)
                     break;
 
                 DoSearchPath(path, exts, GlobalInstances.AppDatabase);
@@ -160,7 +160,7 @@ namespace pylorak.TinyWall
             try
             {
                 // Update status
-                RunSearch = false;
+                _runSearch = false;
                 this.BeginInvoke((MethodInvoker)delegate ()
                 {
                     try
@@ -206,7 +206,7 @@ namespace pylorak.TinyWall
                     foreach (string file in files)
                     {
                         // Abort if asked to
-                        if (!RunSearch)
+                        if (!_runSearch)
                             break;
 
                         // Try to match file
@@ -230,7 +230,7 @@ namespace pylorak.TinyWall
                 foreach (string dir in dirs)
                 {
                     // Abort if asked to
-                    if (!RunSearch)
+                    if (!_runSearch)
                         break;
 
                     DoSearchPath(dir, exts, db);
@@ -254,7 +254,7 @@ namespace pylorak.TinyWall
                 if (!File.Exists(iconPath))
                     IconList.Images.Add(app.Name, Resources.Icons.window);
                 else
-                    IconList.Images.Add(app.Name, Utils.GetIconContained(iconPath, IconSize.Width, IconSize.Height));
+                    IconList.Images.Add(app.Name, Utils.GetIconContained(iconPath, _iconSize.Width, _iconSize.Height));
             }
 
             var li = new ListViewItem(app.Name);
@@ -267,9 +267,9 @@ namespace pylorak.TinyWall
 
         private void WaitForThread()
         {
-            RunSearch = false;
-            if (null != SearcherThread)
-                SearcherThread.Join();
+            _runSearch = false;
+            if (null != _searcherThread)
+                _searcherThread.Join();
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
