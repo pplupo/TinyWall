@@ -29,7 +29,7 @@ jobs:
     - name: Build Solution
       run: |
         msbuild.exe TinyWall.sln /p:Platform="Any CPU" /p:Configuration="Release" /p:DeployOnBuild=true /p:PublishProfile=FolderProfile /p:PublishProfileRootFolder="TinyWall\PublishProfiles" 
-# /p:publish="\TinyWall\Publish"
+# /p:publish="TinyWall\Publish"
     
 #    - name: Publish Software
 #      run: |
@@ -37,7 +37,7 @@ jobs:
 
     - name: Build Installer
       run: |
-        msbuild.exe MsiSetup\MsiSetup.wixproj
+        msbuild.exe MsiSetup\MsiSetup.wixproj /p:Platform="Any CPU" /p:Configuration="Release"
 
     - name: Create Release
       id: create_release
