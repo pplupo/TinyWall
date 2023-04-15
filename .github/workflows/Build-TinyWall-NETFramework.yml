@@ -1,4 +1,4 @@
-name: Build TinyWall
+name: Build TinyWall (.NET Framework 4.8.1)
 
 on: [push]
 
@@ -28,7 +28,7 @@ jobs:
 
     - name: Build Solution
       run: |
-        msbuild.exe TinyWall.sln /p:Platform="Any CPU" /p:Configuration="Release" /p:DeployOnBuild="true" /p:PublishProfile="FolderProfile" /p:PublishProfileRootFolder="PublishProfiles" /p:PublishDestination="bin\Publish" /t:restore /t:build /p:OutputPath="bin\Release\"
+        msbuild.exe TinyWall.sln /p:Platform="Any CPU" /p:Configuration="Release" /p:DeployOnBuild="true" /p:PublishProfile="FolderProfile" /p:PublishProfileRootFolder="TinyWall\PublishProfiles" /p:PublishDestination="TinyWall\bin\Publish" /t:restore /t:build /p:OutputPath="TinyWall\bin\Release\"
 
 #  /t:PublishToFileSystem
 # /p:publish="TinyWall\Publish"
@@ -38,7 +38,7 @@ jobs:
 #        msbuild publish -c Release --output "TinyWall\TinyWall\Publish"
 
     - name: Copy Files
-      run: copy "bin\Release\*" "MsiSetup\Sources\ProgramFiles\TinyWall\"
+      run: copy "TinyWall\bin\Release\*" "MsiSetup\Sources\ProgramFiles\TinyWall\"
 # pwsh.exe Copy-Item -Path "TinyWall\bin\Publish\*" -Destination "MsiSetup\Sources\ProgramFiles\TinyWall\" -Recurse
 
     - name: Build Installer
