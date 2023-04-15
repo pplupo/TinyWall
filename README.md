@@ -14,7 +14,7 @@
 
 ## About this repository
 
-This is the source code of TinyWall as found at its [website](https://tinywall.pados.hu). Upstream development is now largely inactive, but this repository is provided for anyone who would like to submit their own improvements or fork the project.
+This is the source code of TinyWall as found at its [website](https://tinywall.pados.hu). Upstream development is now largely inactive at the author's site, but this repository is being maintained by the owner and updated with his ideas and improvements.
 
 ## How to build
 

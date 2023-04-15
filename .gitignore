@@ -3,6 +3,7 @@
 *.msi
 *.zip
 *.suo
+*.user
 
 /.vs/
 /.tx/

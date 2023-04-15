@@ -19,7 +19,7 @@ jobs:
 
     - name: Navigate to Workspace
       run: cd $GITHUB_WORKSPACE
-      
+
     - name: Reveal Workspace
       run: echo $GITHUB_WORKSPACE
 
@@ -29,12 +29,16 @@ jobs:
     - name: Build Solution
       run: |
         msbuild.exe TinyWall.sln /p:Platform="Any CPU" /p:Configuration="Release" /p:DeployOnBuild="true" /p:PublishProfile="FolderProfile" /p:PublishProfileRootFolder="TinyWall\PublishProfiles" /p:PublishDestination="TinyWall\Publish" /t:restore /t:build
+
 #  /t:PublishToFileSystem
 # /p:publish="TinyWall\Publish"
-    
+
 #    - name: Publish Software
 #      run: |
 #        msbuild publish -c Release --output "TinyWall\TinyWall\Publish"
+
+    - name: Copy Files
+      run: pwsh.exe Copy-Item -Path "TinyWall\bin\Publish\*" -Destination "MsiSetup\Sources\ProgramFiles\TinyWall\" -Recurse
 
     - name: Build Installer
       run: |
@@ -60,7 +64,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}  # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        upload_url: ${{ steps.create_release.outputs.upload_url }}  # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
         asset_path: MsiSetup\bin\Release\TinyWallInstaller.msi
         asset_name: TinyWallInstaller.msi
         asset_content_type: application/x-msi
