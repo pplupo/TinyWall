@@ -92,7 +92,7 @@ namespace pylorak.TinyWall
 
         internal string? NewPassword => _mNewPassword;
 
-        private void InitSettingsUI()
+        private void InitSettingsUi()
         {
             _loadingSettings = true;
             try
@@ -242,7 +242,7 @@ namespace pylorak.TinyWall
 
             if (ex.Policy.PolicyType == PolicyType.HardBlock)
             {
-                li.BackColor = System.Drawing.Color.LightPink;
+                li.BackColor = Color.LightPink;
             }
 
             if (uwpSubj is not null)
@@ -250,7 +250,7 @@ namespace pylorak.TinyWall
                 if (!packageList.FindPackage(uwpSubj.Sid).HasValue)
                 {
                     li.ImageIndex = IconList.Images.IndexOfKey("deleted");
-                    li.BackColor = System.Drawing.Color.LightGray;
+                    li.BackColor = Color.LightGray;
                 }
             }
 
@@ -278,7 +278,7 @@ namespace pylorak.TinyWall
                 else
                 {
                     li.ImageIndex = IconList.Images.IndexOfKey("deleted");
-                    li.BackColor = System.Drawing.Color.LightGray;
+                    li.BackColor = Color.LightGray;
                 }
             }
 
@@ -452,7 +452,7 @@ namespace pylorak.TinyWall
         {
             try
             {
-                var psi = new ProcessStartInfo(Path.Combine(Path.GetDirectoryName(Utils.ExecutablePath), "License.rtf"))
+                var psi = new ProcessStartInfo(Path.Combine(Path.GetDirectoryName(Utils.ExecutablePath) ?? throw new InvalidOperationException(), "License.rtf"))
                 {
                     UseShellExecute = true
                 };
@@ -504,7 +504,7 @@ namespace pylorak.TinyWall
                 return;
             }
 
-            InitSettingsUI();
+            InitSettingsUi();
             MessageBox.Show(this, Resources.Messages.ConfigurationHasBeenImported, Resources.Messages.TinyWall, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
@@ -567,9 +567,9 @@ namespace pylorak.TinyWall
             IconList.Images.Add("store", Resources.Icons.store);
             IconList.Images.Add("system", Resources.Icons.windows_small);
 
-            lblVersion.Text = string.Format(CultureInfo.CurrentCulture, @"{0} {1}", lblVersion.Text, Application.ProductVersion.ToString());
+            lblVersion.Text = string.Format(CultureInfo.CurrentCulture, @"{0} {1}", lblVersion.Text, Application.ProductVersion);
 
-            InitSettingsUI();
+            InitSettingsUi();
 
 #if DEBUG
             //          DataCollection.StopProfile(ProfileLevel.Global, DataCollection.CurrentId);
@@ -608,7 +608,7 @@ namespace pylorak.TinyWall
         {
             try
             {
-                var psi = new ProcessStartInfo(Path.Combine(Path.GetDirectoryName(Utils.ExecutablePath), "Attributions.txt")) { UseShellExecute = true };
+                var psi = new ProcessStartInfo(Path.Combine(Path.GetDirectoryName(Utils.ExecutablePath) ?? throw new InvalidOperationException(), "Attributions.txt")) { UseShellExecute = true };
                 Process.Start(psi);
             }
             catch

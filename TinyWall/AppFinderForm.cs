@@ -53,19 +53,19 @@ namespace pylorak.TinyWall
 
         private sealed class SearchResults
         {
-            private readonly Dictionary<DatabaseClasses.Application, List<ExecutableSubject>> _List = new();
+            private readonly Dictionary<DatabaseClasses.Application, List<ExecutableSubject>> _list = new();
 
             public void Clear()
             {
-                _List.Clear();
+                _list.Clear();
             }
 
             public void AddEntry(DatabaseClasses.Application app, ExecutableSubject resolvedSubject)
             {
-                if (!_List.ContainsKey(app))
-                    _List.Add(app, new List<ExecutableSubject>());
+                if (!_list.ContainsKey(app))
+                    _list.Add(app, new List<ExecutableSubject>());
 
-                var subjList = _List[app];
+                var subjList = _list[app];
                 foreach (var subj in subjList)
                 {
                     if (subj.Equals(resolvedSubject))
@@ -73,25 +73,18 @@ namespace pylorak.TinyWall
                         return;
                 }
 
-                _List[app].Add(resolvedSubject);
-            }
-
-            public List<DatabaseClasses.Application> GetFoundApps()
-            {
-                List<DatabaseClasses.Application> ret = new();
-                ret.AddRange(_List.Keys);
-                return ret;
+                _list[app].Add(resolvedSubject);
             }
 
             public List<ExecutableSubject> GetFoundComponents(DatabaseClasses.Application app)
             {
-                return _List[app];
+                return _list[app];
             }
         }
 
         private void SearcherWorkerMethod()
         {
-            SearchResult.Clear();
+            _searchResult.Clear();
 
             // ------------------------------------
             //       First, do a fast search
@@ -101,20 +94,15 @@ namespace pylorak.TinyWall
                 if (app.HasFlag("TWUI:Special"))
                     continue;
 
-                foreach (DatabaseClasses.SubjectIdentity id in app.Components)
+                foreach (var subject in app.Components.Select(id => id.SearchForFile()).SelectMany(subjects => subjects))
                 {
-                    List<ExceptionSubject> subjects = id.SearchForFile();
-                    foreach (var subject in subjects)
+                    if (subject is not ExecutableSubject exe) continue;
+
+                    _searchResult.AddEntry(app, exe);
+                    this.BeginInvoke((MethodInvoker)delegate
                     {
-                        if (subject is ExecutableSubject exe)
-                        {
-                            SearchResult.AddEntry(app, exe);
-                            this.BeginInvoke((MethodInvoker)delegate ()
-                            {
-                                AddRecognisedAppToList(app, exe.ExecutablePath);
-                            });
-                        }
-                    }
+                        AddRecognisedAppToList(app, exe.ExecutablePath);
+                    });
                 }
             }
 
@@ -123,7 +111,7 @@ namespace pylorak.TinyWall
             // ------------------------------------
 
             // List of all possible paths to search
-            string[] SearchPaths = new string[]{
+            string[] searchPaths = new string[]{
                 Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
                 Utils.ProgramFilesx86(),
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
@@ -131,7 +119,7 @@ namespace pylorak.TinyWall
             };
 
             // Make sure we do not search the same path twice
-            SearchPaths = SearchPaths.Distinct().ToArray();
+            searchPaths = searchPaths.Distinct().ToArray();
 
             // Construct a list of all file extensions we are looking for
             var exts = new HashSet<string>();
@@ -149,7 +137,7 @@ namespace pylorak.TinyWall
             }
 
             // Perform search for each path
-            foreach (string path in SearchPaths)
+            foreach (string path in searchPaths)
             {
                 if (!_runSearch)
                     break;
@@ -161,7 +149,7 @@ namespace pylorak.TinyWall
             {
                 // Update status
                 _runSearch = false;
-                this.BeginInvoke((MethodInvoker)delegate ()
+                this.BeginInvoke((MethodInvoker)delegate
                 {
                     try
                     {
@@ -180,17 +168,17 @@ namespace pylorak.TinyWall
             { }
         }
 
-        private DateTime LastEnterDoSearchPath = DateTime.Now;
-        private readonly SearchResults SearchResult = new();
+        private DateTime _lastEnterDoSearchPath = DateTime.Now;
+        private readonly SearchResults _searchResult = new();
 
         private void DoSearchPath(string path, HashSet<string> exts, DatabaseClasses.AppDatabase db)
         {
             #region Update user feedback periodically
             DateTime now = DateTime.Now;
-            if (now - LastEnterDoSearchPath > TimeSpan.FromMilliseconds(500))
+            if (now - _lastEnterDoSearchPath > TimeSpan.FromMilliseconds(500))
             {
-                LastEnterDoSearchPath = now;
-                this.BeginInvoke((MethodInvoker)delegate ()
+                _lastEnterDoSearchPath = now;
+                this.BeginInvoke((MethodInvoker)delegate
                 {
                     lblStatus.Text = string.Format(CultureInfo.CurrentCulture, Resources.Messages.SearchingPath, path);
                 });
@@ -210,14 +198,14 @@ namespace pylorak.TinyWall
                             break;
 
                         // Try to match file
-                        ExecutableSubject subject = (ExecutableSubject)ExceptionSubject.Construct(file, null);
-                        DatabaseClasses.Application? app = db.TryGetApp(subject, out FirewallExceptionV3? dummyFwex, false);
+                        ExecutableSubject subject = (ExecutableSubject)ExceptionSubject.Construct(file);
+                        DatabaseClasses.Application? app = db.TryGetApp(subject, out _, false);
                         if ((app != null) && (!subject.IsSigned || subject.CertValid))
                         {
-                            SearchResult.AddEntry(app, subject);
+                            _searchResult.AddEntry(app, subject);
 
                             // We have a match. This file belongs to a known application!
-                            this.BeginInvoke((MethodInvoker)delegate ()
+                            this.BeginInvoke((MethodInvoker)delegate
                             {
                                 AddRecognisedAppToList(app, subject.ExecutablePath);
                             });
@@ -236,7 +224,10 @@ namespace pylorak.TinyWall
                     DoSearchPath(dir, exts, db);
                 }
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
         }
 
         private void AddRecognisedAppToList(DatabaseClasses.Application app, string path)
@@ -314,7 +305,7 @@ namespace pylorak.TinyWall
                 if (li.Checked)
                 {
                     var app = (DatabaseClasses.Application)li.Tag;
-                    var appFoundFiles = SearchResult.GetFoundComponents(app);
+                    var appFoundFiles = _searchResult.GetFoundComponents(app);
                     foreach (ExecutableSubject subject in appFoundFiles)
                     {
                         app = GlobalInstances.AppDatabase.TryGetApp(subject, out FirewallExceptionV3? fwex, false);

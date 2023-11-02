@@ -1,15 +1,15 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.ServiceProcess;
 using System.Windows.Forms;
-using Microsoft.Win32;
 
 namespace pylorak.TinyWall
 {
     internal partial class ServicesForm : Form
     {
-        private string? SelectedServiceName;
-        private string? SelectedServiceExec;
+        private string? _selectedServiceName;
+        private string? _selectedServiceExec;
 
         internal static ServiceSubject? ChooseService(IWin32Window? parent = null)
         {
@@ -18,8 +18,8 @@ namespace pylorak.TinyWall
             if (sf.ShowDialog(parent) == DialogResult.Cancel)
                 return null;
 
-            if ((sf.SelectedServiceName is not null) && (sf.SelectedServiceExec is not null))
-                return new ServiceSubject(sf.SelectedServiceExec, sf.SelectedServiceName);
+            if ((sf._selectedServiceName is not null) && (sf._selectedServiceExec is not null))
+                return new ServiceSubject(sf._selectedServiceExec, sf._selectedServiceName);
             else
                 return null;
         }
@@ -35,31 +35,31 @@ namespace pylorak.TinyWall
 
         private static string GetServiceExecutable(string serviceName)
         {
-            string ImagePath = string.Empty;
-            using (RegistryKey KeyHKLM = Microsoft.Win32.Registry.LocalMachine)
+            string imagePath;
+            using (RegistryKey keyHklm = Registry.LocalMachine)
             {
-                using RegistryKey Key = KeyHKLM.OpenSubKey(@"SYSTEM\CurrentControlSet\Services\" + serviceName);
-                ImagePath = (string)Key.GetValue("ImagePath");
+                using RegistryKey key = keyHklm.OpenSubKey(@"SYSTEM\CurrentControlSet\Services\" + serviceName) ?? throw new InvalidOperationException();
+                imagePath = (string)key.GetValue("ImagePath");
             }
 
             // Remove quotes
-            ImagePath = ImagePath.Replace("\"", string.Empty);
+            imagePath = imagePath.Replace("\"", string.Empty);
 
             // ImagePath often contains command line arguments.
             // Try to get only the executable path.
-            // We use a heuristic approach where we strip off 
-            // parts of the string (each delimited by spaces) 
+            // We use a heuristic approach where we strip off
+            // parts of the string (each delimited by spaces)
             // one-by-one, each time checking if we have a valid file path.
             while (true)
             {
-                if (System.IO.File.Exists(ImagePath))
-                    return ImagePath;
+                if (System.IO.File.Exists(imagePath))
+                    return imagePath;
 
-                int i = ImagePath.LastIndexOf(' ');
+                int i = imagePath.LastIndexOf(' ');
                 if (i == -1)
                     break;
 
-                ImagePath = ImagePath.Substring(0, i);
+                imagePath = imagePath.Substring(0, i);
             }
 
             // Could not find executable path
@@ -68,14 +68,14 @@ namespace pylorak.TinyWall
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            this.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.DialogResult = DialogResult.Cancel;
         }
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            this.SelectedServiceName = listView.SelectedItems[0].SubItems[1].Text;
-            this.SelectedServiceExec = listView.SelectedItems[0].SubItems[2].Text;
-            this.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this._selectedServiceName = listView.SelectedItems[0].SubItems[1].Text;
+            this._selectedServiceExec = listView.SelectedItems[0].SubItems[2].Text;
+            this.DialogResult = DialogResult.OK;
         }
 
         private void listView_SelectedIndexChanged(object sender, EventArgs e)
@@ -109,21 +109,21 @@ namespace pylorak.TinyWall
                     col.Width = width;
             }
 
-            List<ListViewItem> itemColl = new List<ListViewItem>();
+            var itemColl = new List<ListViewItem>();
 
             ServiceController[] services = ServiceController.GetServices();
-            for (int i = 0; i < services.Length; ++i)
+            foreach (var srv in services)
             {
-                ServiceController srv = services[i];
                 try
                 {
-                    ListViewItem li = new ListViewItem(srv.DisplayName);
+                    var li = new ListViewItem(srv.DisplayName);
                     li.SubItems.Add(srv.ServiceName);
                     li.SubItems.Add(GetServiceExecutable(srv.ServiceName));
                     itemColl.Add(li);
                 }
                 catch
                 {
+                    // ignored
                 }
             }
 

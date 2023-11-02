@@ -1,23 +1,23 @@
-﻿using System;
-using System.Drawing;
+﻿using pylorak.Windows;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Windows.Forms;
+using System.Drawing;
 using System.Linq;
-using pylorak.Windows;
+using System.Windows.Forms;
 
 namespace pylorak.TinyWall
 {
     internal partial class ProcessesForm : Form
     {
         internal readonly List<ProcessInfo> Selection = new List<ProcessInfo>();
-        private readonly Size IconSize = new Size((int)Math.Round(16 * Utils.DpiScalingFactor), (int)Math.Round(16 * Utils.DpiScalingFactor));
+        private readonly Size _iconSize = new Size((int)Math.Round(16 * Utils.DpiScalingFactor), (int)Math.Round(16 * Utils.DpiScalingFactor));
 
         internal ProcessesForm(bool multiSelect)
         {
             InitializeComponent();
             Utils.SetRightToLeft(this);
-            this.IconList.ImageSize = IconSize;
+            this.IconList.ImageSize = _iconSize;
             this.listView.MultiSelect = multiSelect;
             this.Icon = Resources.Icons.firewall;
             this.btnOK.Image = GlobalInstances.ApplyBtnIcon;
@@ -30,7 +30,7 @@ namespace pylorak.TinyWall
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            this.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.DialogResult = DialogResult.Cancel;
         }
 
         private void btnOK_Click(object sender, EventArgs e)
@@ -39,7 +39,7 @@ namespace pylorak.TinyWall
             {
                 this.Selection.Add((ProcessInfo)listView.SelectedItems[i].Tag);
             }
-            this.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.DialogResult = DialogResult.OK;
         }
 
         private void listView_SelectedIndexChanged(object sender, EventArgs e)
@@ -75,65 +75,56 @@ namespace pylorak.TinyWall
 
             List<ListViewItem> itemColl = new List<ListViewItem>();
             UwpPackage packages = new UwpPackage();
-            ServicePidMap service_pids = new ServicePidMap();
+            ServicePidMap servicePids = new ServicePidMap();
 
             Process[] procs = Process.GetProcesses();
-            for (int i = 0; i < procs.Length; ++i)
+            foreach (var t in procs)
             {
-                using (Process p = procs[i])
+                using Process p = t;
+                try
                 {
-                    try
+                    var pid = unchecked((uint)p.Id);
+                    var e = ProcessInfo.Create(pid, packages, servicePids);
+
+                    if (string.IsNullOrEmpty(e.Path))
+                        continue;
+
+                    // Scan list of already added items to prevent duplicates
+                    bool skip = itemColl.Select(t1 => (ProcessInfo)t1.Tag).Any(opi => (e.Package == opi.Package) && (e.Path == opi.Path) && (e.Services.SetEquals(opi.Services)));
+
+                    if (skip)
+                        continue;
+
+                    // Add list item
+                    ListViewItem li = new ListViewItem(e.Package.HasValue ? e.Package.Value.Name : p.ProcessName);
+                    li.SubItems.Add(string.Join(", ", e.Services.ToArray()));
+                    li.SubItems.Add(e.Path);
+                    li.Tag = e;
+                    itemColl.Add(li);
+
+                    // Add icon
+                    if (e.Package.HasValue)
                     {
-                        var pid = unchecked((uint)p.Id);
-                        var e = ProcessInfo.Create(pid, packages, service_pids);
-
-                        if (string.IsNullOrEmpty(e.Path))
-                            continue;
-
-                        // Scan list of already added items to prevent duplicates
-                        bool skip = false;
-                        for (int j = 0; j < itemColl.Count; ++j)
-                        {
-                            ProcessInfo opi = (ProcessInfo)itemColl[j].Tag;
-                            if ((e.Package == opi.Package) && (e.Path == opi.Path) && (e.Services.SetEquals(opi.Services)))
-                            {
-                                skip = true;
-                                break;
-                            }
-                        }
-                        if (skip)
-                            continue;
-
-                        // Add list item
-                        ListViewItem li = new ListViewItem(e.Package.HasValue ? e.Package.Value.Name : p.ProcessName);
-                        li.SubItems.Add(string.Join(", ", e.Services.ToArray()));
-                        li.SubItems.Add(e.Path);
-                        li.Tag = e;
-                        itemColl.Add(li);
-
-                        // Add icon
-                        if (e.Package.HasValue)
-                        {
-                            li.ImageKey = "store";
-                        }
-                        else if (e.Path == "System")
-                        {
-                            li.ImageKey = "system";
-                        }
-                        else if (NetworkPath.IsNetworkPath(e.Path))
-                        {
-                            li.ImageKey = "network-drive";
-                        }
-                        else if (System.IO.Path.IsPathRooted(e.Path) && System.IO.File.Exists(e.Path))
-                        {
-                            if (!IconList.Images.ContainsKey(e.Path))
-                                IconList.Images.Add(e.Path, Utils.GetIconContained(e.Path, IconSize.Width, IconSize.Height));
-                            li.ImageKey = e.Path;
-                        }
+                        li.ImageKey = @"store";
                     }
-                    catch
+                    else if (e.Path == "System")
                     {
+                        li.ImageKey = @"system";
                     }
+                    else if (NetworkPath.IsNetworkPath(e.Path))
+                    {
+                        li.ImageKey = @"network-drive";
+                    }
+                    else if (System.IO.Path.IsPathRooted(e.Path) && System.IO.File.Exists(e.Path))
+                    {
+                        if (!IconList.Images.ContainsKey(e.Path))
+                            IconList.Images.Add(e.Path, Utils.GetIconContained(e.Path, _iconSize.Width, _iconSize.Height));
+                        li.ImageKey = e.Path;
+                    }
+                }
+                catch
+                {
+                    // ignored
                 }
             }
 

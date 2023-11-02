@@ -1,15 +1,15 @@
-﻿using System;
+﻿using pylorak.Windows;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using pylorak.Windows;
 
 namespace pylorak.TinyWall
 {
     public partial class UwpPackagesForm : Form
     {
-        private readonly List<UwpPackage.Package> SelectedPackages = new ();
-        private readonly Size IconSize = new ((int)Math.Round(16 * Utils.DpiScalingFactor), (int)Math.Round(16 * Utils.DpiScalingFactor));
+        private readonly List<UwpPackage.Package> _selectedPackages = new();
+        private readonly Size _iconSize = new((int)Math.Round(16 * Utils.DpiScalingFactor), (int)Math.Round(16 * Utils.DpiScalingFactor));
 
         public UwpPackagesForm(bool multiSelect)
         {
@@ -20,7 +20,7 @@ namespace pylorak.TinyWall
             this.btnOK.Image = GlobalInstances.ApplyBtnIcon;
             this.btnCancel.Image = GlobalInstances.CancelBtnIcon;
 
-            IconList.ImageSize = IconSize;
+            IconList.ImageSize = _iconSize;
             IconList.Images.Add("store", Resources.Icons.store);
         }
 
@@ -32,7 +32,7 @@ namespace pylorak.TinyWall
             if (pf.ShowDialog(parent) == DialogResult.Cancel)
                 return pathList;
 
-            pathList.AddRange(pf.SelectedPackages);
+            pathList.AddRange(pf._selectedPackages);
             return pathList;
         }
 
@@ -40,14 +40,14 @@ namespace pylorak.TinyWall
         {
             for (int i = 0; i < listView.SelectedItems.Count; ++i)
             {
-                this.SelectedPackages.Add((UwpPackage.Package)listView.SelectedItems[i].Tag);
+                this._selectedPackages.Add((UwpPackage.Package)listView.SelectedItems[i].Tag);
             }
-            this.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.DialogResult = DialogResult.OK;
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            this.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.DialogResult = DialogResult.Cancel;
         }
 
         private void listView_DoubleClick(object sender, EventArgs e)
@@ -84,7 +84,7 @@ namespace pylorak.TinyWall
                 // Add list item
                 ListViewItem li = new ListViewItem(package.Name);
                 li.SubItems.Add(package.PublisherId + ", " + package.Publisher);
-                li.ImageKey = "store";
+                li.ImageKey = @"store";
                 li.Tag = package;
                 itemColl.Add(li);
             }
