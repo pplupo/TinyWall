@@ -30,14 +30,8 @@ jobs:
       run: |
         msbuild.exe TinyWall.sln /p:Platform="Any CPU" /p:Configuration="Release" /p:DeployOnBuild="true" /p:PublishProfile="FolderProfile" /p:PublishProfileRootFolder="TinyWall\PublishProfiles"
 
-    - name: copy file
-      uses: canastro/copy-file-action@master
-      with:
-        source: ".\\TinyWall\\bin\\Release\\*"
-        target: ".\\Sources\\ProgramFiles\\TinyWall"
-        
-    #- name: Copy Files
-    #  run: copy "TinyWall\bin\Release\*" ".\Sources\ProgramFiles\TinyWall" -recurse
+    - name: Copy Files
+      run: xcopy "TinyWall\bin\Release\*" ".\Sources\ProgramFiles\TinyWall" /p
       #"MsiSetup\Sources\ProgramFiles\TinyWall\"
 
     - name: Change to Installer Directory
