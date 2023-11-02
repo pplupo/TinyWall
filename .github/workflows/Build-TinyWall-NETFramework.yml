@@ -31,7 +31,7 @@ jobs:
         msbuild.exe TinyWall.sln /p:Platform="Any CPU" /p:Configuration="Release" /p:DeployOnBuild="true" /p:PublishProfile="FolderProfile" /p:PublishProfileRootFolder="TinyWall\PublishProfiles"
 
     - name: Copy Files
-      run: xcopy ".\TinyWall\bin\Release\*" ".\Sources\ProgramFiles\TinyWall\" /p /y
+      run: xcopy ".\TinyWall\bin\Release\*" ".\Sources\ProgramFiles\TinyWall\" /s /l /f /y
       #"MsiSetup\Sources\ProgramFiles\TinyWall\"
 
     - name: Change to Installer Directory
