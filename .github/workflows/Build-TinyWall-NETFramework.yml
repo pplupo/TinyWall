@@ -32,7 +32,9 @@ jobs:
 
     - name: Copy Files
       run: xcopy ".\TinyWall\bin\Release\*" ".\MsiSetup\Sources\ProgramFiles\TinyWall\" /s /l /f /y
-      # ".\Sources\ProgramFiles\TinyWall\"
+
+    - name: Copy Files 2
+      run: xcopy ".\TinyWall\bin\Release\*" ".\Sources\ProgramFiles\TinyWall\" /s /l /f /y
 
     - name: Change to Installer Directory
       run: cd MsiSetup
