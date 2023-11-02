@@ -29,13 +29,6 @@ jobs:
     - name: Build Solution
       run: |
         msbuild.exe TinyWall.sln /p:Platform="Any CPU" /p:Configuration="Release" /p:DeployOnBuild="true" /p:PublishProfile="FolderProfile" /p:PublishProfileRootFolder="TinyWall\PublishProfiles"
-#        /p:PublishDestination="TinyWall\bin\Publish" /t:restore /t:build
-
-# /p:OutputPath="TinyWall\bin\Release\"
-
-#  /t:PublishToFileSystem
-# /p:publish="TinyWall\Publish"
-
 
     - name: Copy Files
       run: copy "TinyWall\bin\Release\*" "MsiSetup\Sources\ProgramFiles\TinyWall\"
