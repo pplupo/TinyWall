@@ -22,7 +22,7 @@
     <Company>Károly Pados</Company>
     <Description>A free, lightweight and non-intrusive firewall.</Description>
     <Copyright>Copyright © 2011 Károly Pados</Copyright>
-    <Version>3.3.1</Version>
+    <Version>3.3.2</Version>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Resources\img\firewall.ico</ApplicationIcon>
@@ -288,9 +288,6 @@
     <EmbeddedResource Update="AppFinderForm.hu.resx">
       <DependentUpon>AppFinderForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Update="AppFinderForm.he-IL.resx">
-      <DependentUpon>AppFinderForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Update="AppFinderForm.tr.resx">
       <DependentUpon>AppFinderForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -310,9 +307,6 @@
       <DependentUpon>ApplicationExceptionForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Update="ApplicationExceptionForm.es.resx">
-      <DependentUpon>ApplicationExceptionForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Update="ApplicationExceptionForm.he-IL.resx">
       <DependentUpon>ApplicationExceptionForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Update="ApplicationExceptionForm.hu.resx">
@@ -355,9 +349,6 @@
       <DependentUpon>ConnectionsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Update="ConnectionsForm.es.resx">
-      <DependentUpon>ConnectionsForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Update="ConnectionsForm.he-IL.resx">
       <DependentUpon>ConnectionsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Update="ConnectionsForm.hu.resx">
@@ -403,9 +394,6 @@
       <DependentUpon>TinyWallController.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Update="MainForm.es.resx">
-      <DependentUpon>TinyWallController.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Update="MainForm.he-IL.resx">
       <DependentUpon>TinyWallController.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Update="MainForm.hu.resx">
@@ -462,9 +450,6 @@
     <EmbeddedResource Update="PasswordForm.cs.resx">
       <DependentUpon>PasswordForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Update="PasswordForm.he-IL.resx">
-      <DependentUpon>PasswordForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Update="PasswordForm.hu.resx">
       <DependentUpon>PasswordForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -510,9 +495,6 @@
     <EmbeddedResource Update="Processes.cs.resx">
       <DependentUpon>Processes.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Update="Processes.he-IL.resx">
-      <DependentUpon>Processes.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Update="Processes.hu.resx">
       <DependentUpon>Processes.cs</DependentUpon>
     </EmbeddedResource>
@@ -547,9 +529,6 @@
       <DependentUpon>Services.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Update="Services.es.resx">
-      <DependentUpon>Services.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Services.he-IL.resx">
       <DependentUpon>Services.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Update="Services.hu.resx">
@@ -595,9 +574,6 @@
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Update="SettingsForm.es.resx">
-      <DependentUpon>SettingsForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Update="SettingsForm.he-IL.resx">
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Update="SettingsForm.hu.resx">
@@ -648,9 +624,6 @@
     <EmbeddedResource Update="UwpPackagesForm.es.resx">
       <DependentUpon>UwpPackagesForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Update="UwpPackagesForm.he-IL.resx">
-      <DependentUpon>UwpPackagesForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Update="UwpPackagesForm.hu.resx">
       <DependentUpon>UwpPackagesForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -661,8 +634,5 @@
       <DependentUpon>UwpPackagesForm.cs</DependentUpon>
     </EmbeddedResource>
 
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
   </ItemGroup>
 </Project>
