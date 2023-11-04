@@ -21,6 +21,7 @@ This is the source code of TinyWall as found at its [website](https://tinywall.p
 ### Necessary tools
 - [Microsoft Visual Studio 2022](https://visualstudio.microsoft.com/vs/)
 - [.NET Framework 4.8.1](https://dotnet.microsoft.com/en-us/download/dotnet-framework)
+- [Microsoft Visual Studio 2022 Installer Project Extension](https://marketplace.visualstudio.com/items?itemName=VisualStudioClient.MicrosoftVisualStudio2022InstallerProjects)
 
 ### To build the application
 1. Open the solution file in Visual Studio and compile the `TinyWall` project. The other projects referenced inside the solution need not be compiled separately as they will be statically compiled into the application.
