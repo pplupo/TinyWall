@@ -21,8 +21,6 @@ This is the source code of TinyWall as found at its [website](https://tinywall.p
 ### Necessary tools
 - [Microsoft Visual Studio 2022](https://visualstudio.microsoft.com/vs/)
 - [.NET Framework 4.8.1](https://dotnet.microsoft.com/en-us/download/dotnet-framework)
-- [Wix v3 Toolset](https://github.com/wixtoolset/wix3/releases/tag/wix3112rtm)
-- [Visual Studio extension for Wix v3 Toolset](https://marketplace.visualstudio.com/items?itemName=WixToolset.WiXToolset)
 
 ### To build the application
 1. Open the solution file in Visual Studio and compile the `TinyWall` project. The other projects referenced inside the solution need not be compiled separately as they will be statically compiled into the application.
@@ -34,13 +32,6 @@ This is the source code of TinyWall as found at its [website](https://tinywall.p
 1. Use the `Database creator` tab to create one combined database file in JSON format. The output file will be called `profiles.json`.
 1. To use the new database in debug builds, copy the output file to the `TinyWall\bin\Debug` folder.
 1. Done.
-
-### To build the installer
-1. Copy the compiled application files and all dependencies into the `MsiSetup\Sources\ProgramFiles\TinyWall` folder.
-1. Update the files as necessary inside the `MsiSetup\Sources\CommonAppData\TinyWall` folder. See instructions above about creating the database.
-1. Open the solution file in Visual Studio and compile the `MsiSetup` project.
-1. Done.
-
 
 ## Contributing
 
