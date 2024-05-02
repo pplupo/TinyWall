@@ -165,5 +165,24 @@ namespace pylorak.TinyWall
 
             ActiveConfig.Controller.Save();
         }
+
+        private void btnApplyFilter_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtBxFilter.Text))
+            {
+                return;
+            }
+
+            var list = listView.Items;
+
+            var filteredList = list.Find(txtBxFilter.Text, true);
+
+            Utils.SetDoubleBuffering(listView, true);
+            listView.BeginUpdate();
+            listView.Items.Clear();
+            listView.ListViewItemSorter = new ListViewItemComparer(0);
+            listView.Items.AddRange(filteredList);
+            listView.EndUpdate();
+        }
     }
 }

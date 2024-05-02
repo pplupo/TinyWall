@@ -37,6 +37,8 @@
             this.IconList = new System.Windows.Forms.ImageList(this.components);
             this.btnOK = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
+            this.txtBxFilter = new System.Windows.Forms.TextBox();
+            this.btnApplyFilter = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // listView
@@ -96,6 +98,18 @@
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
+            // txtBxFilter
+            // 
+            resources.ApplyResources(this.txtBxFilter, "txtBxFilter");
+            this.txtBxFilter.Name = "txtBxFilter";
+            // 
+            // btnApplyFilter
+            // 
+            resources.ApplyResources(this.btnApplyFilter, "btnApplyFilter");
+            this.btnApplyFilter.Name = "btnApplyFilter";
+            this.btnApplyFilter.UseVisualStyleBackColor = true;
+            this.btnApplyFilter.Click += new System.EventHandler(this.btnApplyFilter_Click);
+            // 
             // ProcessesForm
             // 
             this.AcceptButton = this.btnOK;
@@ -103,6 +117,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
             this.ControlBox = false;
+            this.Controls.Add(this.btnApplyFilter);
+            this.Controls.Add(this.txtBxFilter);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOK);
             this.Controls.Add(this.listView);
@@ -112,6 +128,7 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ProcessesForm_FormClosing);
             this.Load += new System.EventHandler(this.ProcessesForm_Load);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -124,5 +141,7 @@
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.ImageList IconList;
         private System.Windows.Forms.ColumnHeader columnHeader3;
+        private System.Windows.Forms.TextBox txtBxFilter;
+        private System.Windows.Forms.Button btnApplyFilter;
     }
 }
