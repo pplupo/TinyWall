@@ -14,7 +14,7 @@
 
 ## About this repository
 
-This is forked from the source code of TinyWall as found at its [website](https://tinywall.pados.hu). Upstream development is now largely inactive at the author's site, but this repository is being maintained by the owner and updated with his ideas and improvements.
+This is forked from the source code of TinyWall as found at its [website](https://tinywall.pados.hu). Upstream development is now largely inactive at the author's site, but this repository is being maintained by me and updated with my ideas or improvements.
 
 ## How to build
 
