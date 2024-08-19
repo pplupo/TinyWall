@@ -35,7 +35,9 @@ namespace pylorak.TinyWall
 
             //try
             //{
-            return order * string.Compare(x.SubItems[Column].Text, y.SubItems[Column].Text, StringComparison.CurrentCulture);
+
+            var index = Column;
+            return order * string.Compare(x.SubItems[index].Text, y.SubItems[index].Text, StringComparison.CurrentCulture);
             //}
             //catch
             //{
@@ -43,7 +45,7 @@ namespace pylorak.TinyWall
             //}
         }
 
-        int IComparer.Compare(object x, object y)
+        int IComparer.Compare(dynamic? x, dynamic? y)
         {
             if ((x is ListViewItem lx) && (y is ListViewItem ly))
                 return Compare(lx, ly);
@@ -51,7 +53,7 @@ namespace pylorak.TinyWall
             throw new ArgumentException($"Both arguments must by of type {nameof(ListViewItem)}.");
         }
 
-        internal int Column { get; } = 0;
+        internal int Column { get; }
 
         internal bool Ascending { get; set; }
     }
