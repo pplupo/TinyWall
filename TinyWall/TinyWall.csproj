@@ -46,8 +46,6 @@
     <Reference Include="System.Windows.Forms" />
 
     <!-- Used for WinRT access in .Net 4.8, not needed with .NET 5+ -->
-    <Reference Include="Windows.Management" />
-    <Reference Include="Windows.ApplicationModel" />
     <Reference Include="System.Runtime" />
 
   </ItemGroup>
@@ -59,15 +57,15 @@
     <Compile Include="../pylorak.Windows/TaskDialogue/*.cs" LinkBase="pylorak.Windows.TaskDialogue" />
     <Compile Include="../pylorak.Windows.Services/*.cs" LinkBase="pylorak.Windows.Services" />
     <Compile Include="../pylorak.Windows.WFP/*.cs" LinkBase="pylorak.Windows.WFP" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.1" />
-    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.22621.755" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
+    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.26100.1" />
     <PackageReference Include="Nullable" Version="1.3.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.Text.Json" Version="7.0.2" />
+    <PackageReference Include="System.Text.Json" Version="8.0.4" />
 
     <COMReference Include="NetFwTypeLib">
       <WrapperTool>tlbimp</WrapperTool>
