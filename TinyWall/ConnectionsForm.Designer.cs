@@ -57,6 +57,10 @@
             this.chkShowActive = new System.Windows.Forms.CheckBox();
             this.chkShowBlocked = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.txtSearch = new System.Windows.Forms.TextBox();
+            this.LblSearch = new System.Windows.Forms.Label();
+            this.btnSearch = new System.Windows.Forms.Button();
+            this.BtnClear = new System.Windows.Forms.Button();
             this.contextMenuStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
@@ -146,6 +150,7 @@
             // 
             // contextMenuStrip1
             // 
+            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mnuUnblock,
             this.mnuCloseProcess,
@@ -254,10 +259,39 @@
             this.tableLayoutPanel1.Controls.Add(this.chkShowBlocked, 0, 2);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             // 
+            // txtSearch
+            // 
+            resources.ApplyResources(this.txtSearch, "txtSearch");
+            this.txtSearch.Name = "txtSearch";
+            this.txtSearch.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtSearch_KeyDown);
+            // 
+            // LblSearch
+            // 
+            resources.ApplyResources(this.LblSearch, "LblSearch");
+            this.LblSearch.Name = "LblSearch";
+            // 
+            // btnSearch
+            // 
+            resources.ApplyResources(this.btnSearch, "btnSearch");
+            this.btnSearch.Name = "btnSearch";
+            this.btnSearch.UseVisualStyleBackColor = true;
+            this.btnSearch.Click += new System.EventHandler(this.btnSearch_Click);
+            // 
+            // BtnClear
+            // 
+            resources.ApplyResources(this.BtnClear, "BtnClear");
+            this.BtnClear.Name = "BtnClear";
+            this.BtnClear.UseVisualStyleBackColor = true;
+            this.BtnClear.Click += new System.EventHandler(this.BtnClear_Click);
+            // 
             // ConnectionsForm
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.BtnClear);
+            this.Controls.Add(this.btnSearch);
+            this.Controls.Add(this.LblSearch);
+            this.Controls.Add(this.txtSearch);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.btnRefresh);
             this.Controls.Add(this.list);
@@ -304,5 +338,9 @@
         private System.Windows.Forms.ColumnHeader columnHeader9;
         private System.Windows.Forms.ColumnHeader columnHeader10;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.TextBox txtSearch;
+        private System.Windows.Forms.Label LblSearch;
+        private System.Windows.Forms.Button btnSearch;
+        private System.Windows.Forms.Button BtnClear;
     }
 }

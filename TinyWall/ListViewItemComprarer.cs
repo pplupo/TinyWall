@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections;
+using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace pylorak.TinyWall
@@ -33,7 +33,14 @@ namespace pylorak.TinyWall
                 }
             }
 
-            return order * String.Compare(x.SubItems[Column].Text, y.SubItems[Column].Text, StringComparison.CurrentCulture);
+            try
+            {
+                return order * String.Compare(x.SubItems[Column].Text, y.SubItems[Column].Text, StringComparison.CurrentCulture);
+            }
+            catch
+            {
+                return order;
+            }
         }
 
         int IComparer.Compare(object x, object y)

@@ -16,6 +16,7 @@ namespace pylorak.TinyWall
     {
         private readonly TinyWallController _controller;
         private readonly Size _iconSize = new((int)Math.Round(16 * Utils.DpiScalingFactor), (int)Math.Round(16 * Utils.DpiScalingFactor));
+        private string _searchText = string.Empty;
 
         internal ConnectionsForm(TinyWallController ctrl)
         {
@@ -67,6 +68,7 @@ namespace pylorak.TinyWall
                     && (!chkShowActive.Checked || (tcpRow.State == TcpState.Listen))) continue;
 
                 var path = GetPathFromPidCached(procCache, tcpRow.ProcessId);
+
                 var pi = ProcessInfo.Create(tcpRow.ProcessId, path, uwpPackages, servicePids);
                 ConstructListItem(itemColl, pi, "TCP", tcpRow.LocalEndPoint, tcpRow.RemoteEndPoint, tcpRow.State.ToString(), now, RuleDirection.Invalid);
             }
@@ -79,6 +81,7 @@ namespace pylorak.TinyWall
                     && (!chkShowActive.Checked || (tcpRow.State == TcpState.Listen))) continue;
 
                 var path = GetPathFromPidCached(procCache, tcpRow.ProcessId);
+
                 var pi = ProcessInfo.Create(tcpRow.ProcessId, path, uwpPackages, servicePids);
                 ConstructListItem(itemColl, pi, "TCP", tcpRow.LocalEndPoint, tcpRow.RemoteEndPoint, tcpRow.State.ToString(), now, RuleDirection.Invalid);
             }
@@ -91,6 +94,7 @@ namespace pylorak.TinyWall
                 foreach (UdpRow udpRow in udpTable)
                 {
                     var path = GetPathFromPidCached(procCache, udpRow.ProcessId);
+
                     var pi = ProcessInfo.Create(udpRow.ProcessId, path, uwpPackages, servicePids);
                     ConstructListItem(itemColl, pi, "UDP", udpRow.LocalEndPoint, dummyEp, "Listen", now, RuleDirection.Invalid);
                 }
@@ -100,6 +104,7 @@ namespace pylorak.TinyWall
                 foreach (UdpRow udpRow in udpTable)
                 {
                     var path = GetPathFromPidCached(procCache, udpRow.ProcessId);
+
                     var pi = ProcessInfo.Create(udpRow.ProcessId, path, uwpPackages, servicePids);
                     ConstructListItem(itemColl, pi, "UDP", udpRow.LocalEndPoint, dummyEp, "Listen", now, RuleDirection.Invalid);
                 }
@@ -138,7 +143,7 @@ namespace pylorak.TinyWall
                 }
 
                 var filteredLog = new List<FirewallLogEntry>();
-                TimeSpan refSpan = TimeSpan.FromMinutes(5);
+                var refSpan = TimeSpan.FromMinutes(5);
                 foreach (var newEntry in fwLog)
                 {
                     // Ignore log entries older than refSpan
@@ -162,13 +167,11 @@ namespace pylorak.TinyWall
                         case EventLogEvent.BLOCKED_PACKET:
                         case EventLogEvent.BLOCKED:
                             {
-                                bool matchFound = false;
+                                var matchFound = false;
                                 newEntry.Event = EventLogEvent.BLOCKED;
 
-                                foreach (var oldEntry in filteredLog)
+                                foreach (var oldEntry in filteredLog.Where(oldEntry => oldEntry.Equals(newEntry, false)))
                                 {
-                                    if (!oldEntry.Equals(newEntry, false)) continue;
-
                                     matchFound = true;
                                     oldEntry.Timestamp = newEntry.Timestamp;
                                     break;
@@ -185,7 +188,7 @@ namespace pylorak.TinyWall
 
                 foreach (var entry in filteredLog)
                 {
-                    // Correct path capitalization
+                    // Correct path capitalisation
                     // TODO: Do this in the service, and minimize overhead. Right now if GetExactPath() fails,
                     // for example due to missing file system privileges, capitalisation will not be corrected.
                     // The service has much more privileges, so doing this in the service would allow more paths
@@ -205,6 +208,10 @@ namespace pylorak.TinyWall
             // Add items to list
             list.BeginUpdate();
             list.Items.Clear();
+
+            if (!string.IsNullOrWhiteSpace(_searchText))
+                itemColl = itemColl.Where(item => item.Text.Contains(_searchText)).ToList();
+
             list.Items.AddRange(itemColl.ToArray());
             list.EndUpdate();
         }
@@ -470,6 +477,7 @@ namespace pylorak.TinyWall
                 MessageBox.Show(this, Resources.Messages.CannotGetPathOfProcess, Resources.Messages.TinyWall, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
+
         private void mnuFileNameOnTheWeb_Click(object sender, EventArgs e)
         {
             try
@@ -510,6 +518,26 @@ namespace pylorak.TinyWall
 
             btnRefresh_Click(btnRefresh, EventArgs.Empty);
             e.Handled = true;
+        }
+
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            _searchText = txtSearch.Text;
+            UpdateList();
+        }
+
+        private void BtnClear_Click(object sender, EventArgs e)
+        {
+            _searchText = string.Empty;
+            UpdateList();
+        }
+
+        private void txtSearch_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyData is Keys.Enter or Keys.Return)
+            {
+                btnSearch.PerformClick();
+            }
         }
     }
 }
