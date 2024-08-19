@@ -187,15 +187,15 @@
     <value>Połączenia - TinyWall</value>
   </data>
   <data name="BtnClear.Text" xml:space="preserve">
-    <value>Clear/Reset</value>
+    <value>Wyczyść/Zresetuj</value>
   </data>
   <data name="btnSearch.Text" xml:space="preserve">
-    <value>Search</value>
+    <value>Szukaj</value>
   </data>
   <data name="lblPleaseWait.Text" xml:space="preserve">
-    <value>Please Wait...</value>
+    <value>Proszę czekać...</value>
   </data>
   <data name="LblSearch.Text" xml:space="preserve">
-    <value>Search by process (id):</value>
+    <value>Wyszukaj według procesu (id):</value>
   </data>
 </root>

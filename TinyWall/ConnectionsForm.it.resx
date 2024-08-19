@@ -187,15 +187,15 @@
     <value>Su VirusTotal</value>
   </data>
   <data name="BtnClear.Text" xml:space="preserve">
-    <value>Clear/Reset</value>
+    <value>Cancella/Reimposta</value>
   </data>
   <data name="btnSearch.Text" xml:space="preserve">
-    <value>Search</value>
+    <value>Ricerca</value>
   </data>
   <data name="lblPleaseWait.Text" xml:space="preserve">
-    <value>Please Wait...</value>
+    <value>Attendere prego...</value>
   </data>
   <data name="LblSearch.Text" xml:space="preserve">
-    <value>Search by process (id):</value>
+    <value>Ricerca per processo (id):</value>
   </data>
 </root>

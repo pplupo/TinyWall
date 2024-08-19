@@ -190,15 +190,15 @@
     <value>Serviço</value>
   </data>
   <data name="BtnClear.Text" xml:space="preserve">
-    <value>Clear/Reset</value>
+    <value>Limpar/Reiniciar</value>
   </data>
   <data name="btnSearch.Text" xml:space="preserve">
-    <value>Search</value>
+    <value>Procurar</value>
   </data>
   <data name="lblPleaseWait.Text" xml:space="preserve">
-    <value>Please Wait...</value>
+    <value>Por favor, aguarde...</value>
   </data>
   <data name="LblSearch.Text" xml:space="preserve">
-    <value>Search by process (id):</value>
+    <value>Pesquisar por processo (id):</value>
   </data>
 </root>

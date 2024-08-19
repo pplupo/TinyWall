@@ -184,15 +184,15 @@
     <value>Verbindungen - TinyWall</value>
   </data>
   <data name="BtnClear.Text" xml:space="preserve">
-    <value>Clear/Reset</value>
+    <value>Löschen/Zurücksetzen</value>
   </data>
   <data name="btnSearch.Text" xml:space="preserve">
-    <value>Search</value>
+    <value>Suchen</value>
   </data>
   <data name="lblPleaseWait.Text" xml:space="preserve">
-    <value>Please Wait...</value>
+    <value>Bitte warten...</value>
   </data>
   <data name="LblSearch.Text" xml:space="preserve">
-    <value>Search by process (id):</value>
+    <value>Suche nach Prozess (ID):</value>
   </data>
 </root>

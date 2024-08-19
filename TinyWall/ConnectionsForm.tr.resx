@@ -187,15 +187,15 @@
     <value>Bağlantılar - TinyWall</value>
   </data>
   <data name="BtnClear.Text" xml:space="preserve">
-    <value>Clear/Reset</value>
+    <value>Temizle/Sıfırla</value>
   </data>
   <data name="btnSearch.Text" xml:space="preserve">
-    <value>Search</value>
+    <value>Aramak</value>
   </data>
   <data name="lblPleaseWait.Text" xml:space="preserve">
-    <value>Please Wait...</value>
+    <value>Lütfen bekleyin...</value>
   </data>
   <data name="LblSearch.Text" xml:space="preserve">
-    <value>Search by process (id):</value>
+    <value>İşlem (id) ile ara:</value>
   </data>
 </root>
