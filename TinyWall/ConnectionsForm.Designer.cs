@@ -61,6 +61,7 @@
             this.LblSearch = new System.Windows.Forms.Label();
             this.btnSearch = new System.Windows.Forms.Button();
             this.BtnClear = new System.Windows.Forms.Button();
+            this.lblPleaseWait = new System.Windows.Forms.Label();
             this.contextMenuStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
@@ -284,10 +285,19 @@
             this.BtnClear.UseVisualStyleBackColor = true;
             this.BtnClear.Click += new System.EventHandler(this.BtnClear_Click);
             // 
+            // lblPleaseWait
+            // 
+            resources.ApplyResources(this.lblPleaseWait, "lblPleaseWait");
+            this.lblPleaseWait.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lblPleaseWait.Name = "lblPleaseWait";
+            this.lblPleaseWait.UseCompatibleTextRendering = true;
+            this.lblPleaseWait.UseWaitCursor = true;
+            // 
             // ConnectionsForm
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.lblPleaseWait);
             this.Controls.Add(this.BtnClear);
             this.Controls.Add(this.btnSearch);
             this.Controls.Add(this.LblSearch);
@@ -342,5 +352,6 @@
         private System.Windows.Forms.Label LblSearch;
         private System.Windows.Forms.Button btnSearch;
         private System.Windows.Forms.Button BtnClear;
+        private System.Windows.Forms.Label lblPleaseWait;
     }
 }

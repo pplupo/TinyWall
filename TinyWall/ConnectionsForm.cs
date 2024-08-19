@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace pylorak.TinyWall
@@ -17,6 +18,7 @@ namespace pylorak.TinyWall
         private readonly TinyWallController _controller;
         private readonly Size _iconSize = new((int)Math.Round(16 * Utils.DpiScalingFactor), (int)Math.Round(16 * Utils.DpiScalingFactor));
         private string _searchText = string.Empty;
+        private List<ListViewItem> _itemColl = new();
 
         internal ConnectionsForm(TinyWallController ctrl)
         {
@@ -48,12 +50,15 @@ namespace pylorak.TinyWall
             }
         }
 
-        private void UpdateList()
+        private Task UpdateListAsync()
         {
+            lblPleaseWait.Visible = true;
+            Enabled = false;
+
             var fwLogRequest = GlobalInstances.Controller.BeginReadFwLog();
 
+            _itemColl = new();
             var uwpPackages = new UwpPackage();
-            var itemColl = new List<ListViewItem>();
             var procCache = new Dictionary<uint, string>();
             var servicePids = new ServicePidMap();
 
@@ -70,7 +75,7 @@ namespace pylorak.TinyWall
                 var path = GetPathFromPidCached(procCache, tcpRow.ProcessId);
 
                 var pi = ProcessInfo.Create(tcpRow.ProcessId, path, uwpPackages, servicePids);
-                ConstructListItem(itemColl, pi, "TCP", tcpRow.LocalEndPoint, tcpRow.RemoteEndPoint, tcpRow.State.ToString(), now, RuleDirection.Invalid);
+                ConstructListItem(_itemColl, pi, "TCP", tcpRow.LocalEndPoint, tcpRow.RemoteEndPoint, tcpRow.State.ToString(), now, RuleDirection.Invalid);
             }
 
             tcpTable = NetStat.GetExtendedTcp6Table(false);
@@ -83,7 +88,7 @@ namespace pylorak.TinyWall
                 var path = GetPathFromPidCached(procCache, tcpRow.ProcessId);
 
                 var pi = ProcessInfo.Create(tcpRow.ProcessId, path, uwpPackages, servicePids);
-                ConstructListItem(itemColl, pi, "TCP", tcpRow.LocalEndPoint, tcpRow.RemoteEndPoint, tcpRow.State.ToString(), now, RuleDirection.Invalid);
+                ConstructListItem(_itemColl, pi, "TCP", tcpRow.LocalEndPoint, tcpRow.RemoteEndPoint, tcpRow.State.ToString(), now, RuleDirection.Invalid);
             }
 
             if (chkShowListen.Checked)
@@ -96,7 +101,7 @@ namespace pylorak.TinyWall
                     var path = GetPathFromPidCached(procCache, udpRow.ProcessId);
 
                     var pi = ProcessInfo.Create(udpRow.ProcessId, path, uwpPackages, servicePids);
-                    ConstructListItem(itemColl, pi, "UDP", udpRow.LocalEndPoint, dummyEp, "Listen", now, RuleDirection.Invalid);
+                    ConstructListItem(_itemColl, pi, "UDP", udpRow.LocalEndPoint, dummyEp, "Listen", now, RuleDirection.Invalid);
                 }
 
                 udpTable = NetStat.GetExtendedUdp6Table(false);
@@ -106,7 +111,7 @@ namespace pylorak.TinyWall
                     var path = GetPathFromPidCached(procCache, udpRow.ProcessId);
 
                     var pi = ProcessInfo.Create(udpRow.ProcessId, path, uwpPackages, servicePids);
-                    ConstructListItem(itemColl, pi, "UDP", udpRow.LocalEndPoint, dummyEp, "Listen", now, RuleDirection.Invalid);
+                    ConstructListItem(_itemColl, pi, "UDP", udpRow.LocalEndPoint, dummyEp, "Listen", now, RuleDirection.Invalid);
                 }
             }
 
@@ -198,7 +203,7 @@ namespace pylorak.TinyWall
                     var pi = ProcessInfo.Create(entry.ProcessId, entry.AppPath ?? string.Empty, entry.PackageId, uwpPackages, servicePids);
 
                     if (entry is { LocalIp: not null, RemoteIp: not null })
-                        ConstructListItem(itemColl, pi, entry.Protocol.ToString(),
+                        ConstructListItem(_itemColl, pi, entry.Protocol.ToString(),
                             new IPEndPoint(IPAddress.Parse(entry.LocalIp), entry.LocalPort),
                             new IPEndPoint(IPAddress.Parse(entry.RemoteIp), entry.RemotePort), "Blocked",
                             entry.Timestamp, entry.Direction);
@@ -210,10 +215,14 @@ namespace pylorak.TinyWall
             list.Items.Clear();
 
             if (!string.IsNullOrWhiteSpace(_searchText))
-                itemColl = itemColl.Where(item => item.Text.Contains(_searchText)).ToList();
+                _itemColl = _itemColl.Where(item => item.Text.Contains(_searchText)).ToList();
 
-            list.Items.AddRange(itemColl.ToArray());
+            list.Items.AddRange(_itemColl.ToArray());
             list.EndUpdate();
+
+            lblPleaseWait.Visible = false;
+            Enabled = true;
+            return Task.CompletedTask;
         }
 
         private void ConstructListItem(List<ListViewItem> itemColl, ProcessInfo e, string protocol, IPEndPoint localEp, IPEndPoint remoteEp, string state, DateTime ts, RuleDirection dir)
@@ -298,24 +307,24 @@ namespace pylorak.TinyWall
             list.ListViewItemSorter = newSorter;
         }
 
-        private void btnRefresh_Click(object sender, EventArgs e)
+        private async void btnRefresh_Click(object sender, EventArgs e)
         {
-            UpdateList();
+            await UpdateListAsync();
         }
 
-        private void chkShowListen_CheckedChanged(object sender, EventArgs e)
+        private async void chkShowListen_CheckedChanged(object sender, EventArgs e)
         {
-            UpdateList();
+            await UpdateListAsync();
         }
 
-        private void chkShowBlocked_CheckedChanged(object sender, EventArgs e)
+        private async void chkShowBlocked_CheckedChanged(object sender, EventArgs e)
         {
-            UpdateList();
+            await UpdateListAsync();
         }
 
-        private void chkShowActive_CheckedChanged(object sender, EventArgs e)
+        private async void chkShowActive_CheckedChanged(object sender, EventArgs e)
         {
-            UpdateList();
+            await UpdateListAsync();
         }
 
         private void ConnectionsForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -344,7 +353,7 @@ namespace pylorak.TinyWall
             ActiveConfig.Controller.Save();
         }
 
-        private void ConnectionsForm_Load(object sender, EventArgs e)
+        private async void ConnectionsForm_Load(object sender, EventArgs e)
         {
             Utils.SetDoubleBuffering(list, true);
             list.ListViewItemSorter = new ListViewItemComparer(9, null, false);
@@ -366,7 +375,7 @@ namespace pylorak.TinyWall
                     col.Width = width;
             }
 
-            UpdateList();
+            await UpdateListAsync();
         }
 
         private void contextMenuStrip1_Opening(object sender, System.ComponentModel.CancelEventArgs e)
@@ -380,7 +389,7 @@ namespace pylorak.TinyWall
             mnuCloseProcess.Enabled = hasPid;
         }
 
-        private void mnuCloseProcess_Click(object sender, EventArgs e)
+        private async void mnuCloseProcess_Click(object sender, EventArgs e)
         {
             foreach (ListViewItem li in list.SelectedItems)
             {
@@ -397,7 +406,7 @@ namespace pylorak.TinyWall
                         if (!proc.WaitForExit(5000))
                             throw new ApplicationException();
                         else
-                            UpdateList();
+                            await UpdateListAsync();
                     }
                     catch (InvalidOperationException)
                     {
@@ -520,16 +529,16 @@ namespace pylorak.TinyWall
             e.Handled = true;
         }
 
-        private void btnSearch_Click(object sender, EventArgs e)
+        private async void btnSearch_Click(object sender, EventArgs e)
         {
             _searchText = txtSearch.Text;
-            UpdateList();
+            await UpdateListAsync();
         }
 
-        private void BtnClear_Click(object sender, EventArgs e)
+        private async void BtnClear_Click(object sender, EventArgs e)
         {
             _searchText = string.Empty;
-            UpdateList();
+            await UpdateListAsync();
         }
 
         private void txtSearch_KeyDown(object sender, KeyEventArgs e)
