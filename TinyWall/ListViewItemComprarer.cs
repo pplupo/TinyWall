@@ -33,22 +33,22 @@ namespace pylorak.TinyWall
                 }
             }
 
-            try
-            {
-                return order * string.Compare(x.SubItems[Column].Text, y.SubItems[Column].Text, StringComparison.CurrentCulture);
-            }
-            catch
-            {
-                return order;
-            }
+            //try
+            //{
+            return order * string.Compare(x.SubItems[Column].Text, y.SubItems[Column].Text, StringComparison.CurrentCulture);
+            //}
+            //catch
+            //{
+            //    return order;
+            //}
         }
 
         int IComparer.Compare(object x, object y)
         {
             if ((x is ListViewItem lx) && (y is ListViewItem ly))
                 return Compare(lx, ly);
-            else
-                throw new ArgumentException($"Both arguments must by of type {nameof(ListViewItem)}.");
+
+            throw new ArgumentException($"Both arguments must by of type {nameof(ListViewItem)}.");
         }
 
         internal int Column { get; } = 0;
