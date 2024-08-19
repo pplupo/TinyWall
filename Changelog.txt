@@ -1,6 +1,11 @@
 TinyWall Changelog
 ---------------------
 
+3.4.1 - Maintenance release (19.08.2024.)
+- Added missing GitHub icon
+
+---------------------.
+
 3.4.0 - Maintenance release (19.08.2024.)
 - Show connections now has a search capability
 - Improved performance through async await for long running operations
