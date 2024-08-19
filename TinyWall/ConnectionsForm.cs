@@ -283,7 +283,7 @@ namespace pylorak.TinyWall
                         li.SubItems.Add(string.Empty);
                         break;
                 }
-                li.SubItems.Add(ts.ToString("yyyy/MM/dd HH:mm:ss"));
+                li.SubItems.Add(ts.ToString("dd/MM/yyyy HH:mm:ss"));
                 itemColl.Add(li);
             }
             catch
