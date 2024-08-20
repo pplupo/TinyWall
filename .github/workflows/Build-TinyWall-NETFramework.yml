@@ -24,14 +24,14 @@ jobs:
       run: |
         msbuild.exe TinyWall.sln /p:Platform="Any CPU" /p:Configuration="Release" /p:DeployOnBuild="true" /p:PublishProfile="FolderProfile" /p:PublishProfileRootFolder="TinyWall\PublishProfiles"
 
-  upload:
+#  upload:
 
-    runs-on: windows-latest
+#    runs-on: windows-latest
 
-    steps:
-    - name: Upload Release Assets
-      uses: alexellis/upload-assets@0.4.1
-      with:
-        # The paths to the assets you want to upload as a JSON array. You can use a glob pattern.
-        asset_paths: '[".\TinyWall\TinyWallSetup\Release\*"]'
+#    steps:
+#    - name: Upload Release Assets
+#      uses: alexellis/upload-assets@0.4.1
+#      with:
+#        # The paths to the assets you want to upload as a JSON array. You can use a glob pattern.
+#        asset_paths: '[".\TinyWall\TinyWallSetup\Release\*"]'
           
