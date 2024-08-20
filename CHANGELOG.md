@@ -1,6 +1,11 @@
 TinyWall Changelog
 ---------------------
 
+3.4.2 - Maintenance release (20.08.2024)
+- Bug fix for not showing all items when searching in connections
+
+---------------------.
+
 3.4.1 - Preview release (19.08.2024)
 - Added missing GitHub icon
 - Added CHANGELOG.MD
