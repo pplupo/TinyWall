@@ -3,6 +3,7 @@ TinyWall Changelog
 
 3.4.1 - Preview release (19.08.2024)
 - Added missing GitHub icon
+- Changed CHANGELOG.TXT to CHANGELOG.MD
 
 ---------------------.
 
