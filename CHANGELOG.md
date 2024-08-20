@@ -9,7 +9,7 @@ TinyWall Changelog
 3.4.0 - Preview release (19.08.2024)
 - Show connections now has a search capability
 - Improved performance through async await for long running operations
-- Show connections form now display a 'please wait' message\
+- Show connections form now display a 'please wait' message
 - Updated date to UK format
 
 ---------------------.
