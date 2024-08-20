@@ -215,7 +215,7 @@ namespace pylorak.TinyWall
             list.Items.Clear();
 
             if (!string.IsNullOrWhiteSpace(_searchText))
-                _itemColl = _itemColl.Where(item => item.SubItems[0].Text.ToLower().Contains(_searchText.ToLower())).ToList();
+                _itemColl = _itemColl.Where(item => item.SubItems[0].Text.ToLower().Contains(_searchText)).ToList();
 
             list.Items.AddRange(_itemColl.ToArray());
             list.EndUpdate();
@@ -530,7 +530,7 @@ namespace pylorak.TinyWall
 
         private async void btnSearch_Click(object sender, EventArgs e)
         {
-            _searchText = txtSearch.Text;
+            _searchText = txtSearch.Text.ToLower();
             await UpdateListAsync();
         }
 

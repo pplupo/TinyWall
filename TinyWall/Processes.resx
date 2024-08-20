@@ -142,13 +142,13 @@
   </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="listView.Location" type="System.Drawing.Point, System.Drawing">
-    <value>24, 23</value>
+    <value>16, 15</value>
   </data>
   <data name="listView.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>6, 6, 6, 6</value>
+    <value>4, 4, 4, 4</value>
   </data>
   <data name="listView.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1124, 458</value>
+    <value>751, 295</value>
   </data>
   <metadata name="IconList.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
@@ -169,7 +169,7 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;listView.ZOrder" xml:space="preserve">
-    <value>4</value>
+    <value>6</value>
   </data>
   <data name="btnOK.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Bottom, Right</value>
@@ -181,13 +181,13 @@
     <value>MiddleLeft</value>
   </data>
   <data name="btnOK.Location" type="System.Drawing.Point, System.Drawing">
-    <value>740, 496</value>
+    <value>493, 317</value>
   </data>
   <data name="btnOK.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>6, 6, 6, 6</value>
+    <value>4, 4, 4, 4</value>
   </data>
   <data name="btnOK.Size" type="System.Drawing.Size, System.Drawing">
-    <value>200, 63</value>
+    <value>133, 40</value>
   </data>
   <data name="btnOK.TabIndex" type="System.Int32, mscorlib">
     <value>900</value>
@@ -205,7 +205,7 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;btnOK.ZOrder" xml:space="preserve">
-    <value>3</value>
+    <value>5</value>
   </data>
   <data name="btnCancel.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Bottom, Right</value>
@@ -214,13 +214,13 @@
     <value>MiddleLeft</value>
   </data>
   <data name="btnCancel.Location" type="System.Drawing.Point, System.Drawing">
-    <value>952, 496</value>
+    <value>635, 317</value>
   </data>
   <data name="btnCancel.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>6, 6, 6, 6</value>
+    <value>4, 4, 4, 4</value>
   </data>
   <data name="btnCancel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>200, 63</value>
+    <value>133, 40</value>
   </data>
   <data name="btnCancel.TabIndex" type="System.Int32, mscorlib">
     <value>1000</value>
@@ -238,64 +238,133 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;btnCancel.ZOrder" xml:space="preserve">
-    <value>2</value>
+    <value>4</value>
   </data>
-  <data name="txtBxFilter.Location" type="System.Drawing.Point, System.Drawing">
-    <value>24, 496</value>
+  <data name="btnSearch.Location" type="System.Drawing.Point, System.Drawing">
+    <value>274, 317</value>
   </data>
-  <data name="txtBxFilter.Size" type="System.Drawing.Size, System.Drawing">
-    <value>365, 31</value>
+  <data name="btnSearch.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>2, 2, 2, 2</value>
   </data>
-  <data name="txtBxFilter.TabIndex" type="System.Int32, mscorlib">
-    <value>1001</value>
+  <data name="btnSearch.Size" type="System.Drawing.Size, System.Drawing">
+    <value>84, 40</value>
   </data>
-  <data name="&gt;&gt;txtBxFilter.Name" xml:space="preserve">
-    <value>txtBxFilter</value>
-  </data>
-  <data name="&gt;&gt;txtBxFilter.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;txtBxFilter.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;txtBxFilter.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="btnApplyFilter.Location" type="System.Drawing.Point, System.Drawing">
-    <value>411, 496</value>
-  </data>
-  <data name="btnApplyFilter.Size" type="System.Drawing.Size, System.Drawing">
-    <value>202, 63</value>
-  </data>
-  <data name="btnApplyFilter.TabIndex" type="System.Int32, mscorlib">
+  <data name="btnSearch.TabIndex" type="System.Int32, mscorlib">
     <value>1002</value>
   </data>
-  <data name="btnApplyFilter.Text" xml:space="preserve">
-    <value>button1</value>
+  <data name="btnSearch.Text" xml:space="preserve">
+    <value>Search</value>
   </data>
-  <data name="&gt;&gt;btnApplyFilter.Name" xml:space="preserve">
-    <value>btnApplyFilter</value>
+  <data name="&gt;&gt;btnSearch.Name" xml:space="preserve">
+    <value>btnSearch</value>
   </data>
-  <data name="&gt;&gt;btnApplyFilter.Type" xml:space="preserve">
+  <data name="&gt;&gt;btnSearch.Type" xml:space="preserve">
     <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;btnApplyFilter.Parent" xml:space="preserve">
+  <data name="&gt;&gt;btnSearch.Parent" xml:space="preserve">
     <value>$this</value>
   </data>
-  <data name="&gt;&gt;btnApplyFilter.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;btnSearch.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="txtBxSearch.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>None</value>
+  </data>
+  <data name="txtBxSearch.Location" type="System.Drawing.Point, System.Drawing">
+    <value>16, 327</value>
+  </data>
+  <data name="txtBxSearch.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>2, 2, 2, 2</value>
+  </data>
+  <data name="txtBxSearch.Size" type="System.Drawing.Size, System.Drawing">
+    <value>250, 22</value>
+  </data>
+  <data name="txtBxSearch.TabIndex" type="System.Int32, mscorlib">
+    <value>1001</value>
+  </data>
+  <data name="&gt;&gt;txtBxSearch.Name" xml:space="preserve">
+    <value>txtBxSearch</value>
+  </data>
+  <data name="&gt;&gt;txtBxSearch.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;txtBxSearch.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;txtBxSearch.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="btnClear.Location" type="System.Drawing.Point, System.Drawing">
+    <value>363, 318</value>
+  </data>
+  <data name="btnClear.Size" type="System.Drawing.Size, System.Drawing">
+    <value>102, 39</value>
+  </data>
+  <data name="btnClear.TabIndex" type="System.Int32, mscorlib">
+    <value>1003</value>
+  </data>
+  <data name="btnClear.Text" xml:space="preserve">
+    <value>Clear/Reset</value>
+  </data>
+  <data name="&gt;&gt;btnClear.Name" xml:space="preserve">
+    <value>btnClear</value>
+  </data>
+  <data name="&gt;&gt;btnClear.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;btnClear.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;btnClear.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="lblPleaseWait.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Bottom, Left, Right</value>
+  </data>
+  <data name="lblPleaseWait.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 16.2pt</value>
+  </data>
+  <data name="lblPleaseWait.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="lblPleaseWait.Location" type="System.Drawing.Point, System.Drawing">
+    <value>77, 114</value>
+  </data>
+  <data name="lblPleaseWait.Size" type="System.Drawing.Size, System.Drawing">
+    <value>631, 145</value>
+  </data>
+  <data name="lblPleaseWait.TabIndex" type="System.Int32, mscorlib">
+    <value>1007</value>
+  </data>
+  <data name="lblPleaseWait.Text" xml:space="preserve">
+    <value>Please wait...</value>
+  </data>
+  <data name="lblPleaseWait.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
+    <value>MiddleCenter</value>
+  </data>
+  <data name="&gt;&gt;lblPleaseWait.Name" xml:space="preserve">
+    <value>lblPleaseWait</value>
+  </data>
+  <data name="&gt;&gt;lblPleaseWait.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;lblPleaseWait.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;lblPleaseWait.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
   <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
   <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
-    <value>12, 25</value>
+    <value>8, 16</value>
   </data>
   <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
-    <value>1176, 581</value>
+    <value>784, 372</value>
   </data>
   <data name="$this.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>6, 6, 6, 6</value>
+    <value>4, 4, 4, 4</value>
   </data>
   <data name="$this.Text" xml:space="preserve">
     <value>Processes - TinyWall</value>

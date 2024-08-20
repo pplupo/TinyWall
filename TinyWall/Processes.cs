@@ -4,42 +4,48 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace pylorak.TinyWall
 {
     internal partial class ProcessesForm : Form
     {
-        internal readonly List<ProcessInfo> Selection = new List<ProcessInfo>();
-        private readonly Size _iconSize = new Size((int)Math.Round(16 * Utils.DpiScalingFactor), (int)Math.Round(16 * Utils.DpiScalingFactor));
+        internal readonly List<ProcessInfo> Selection = new();
+
+        private readonly Size _iconSize = new((int)Math.Round(16 * Utils.DpiScalingFactor),
+            (int)Math.Round(16 * Utils.DpiScalingFactor));
+
+        private string _searchItem = string.Empty;
 
         internal ProcessesForm(bool multiSelect)
         {
             InitializeComponent();
             Utils.SetRightToLeft(this);
-            this.IconList.ImageSize = _iconSize;
-            this.listView.MultiSelect = multiSelect;
-            this.Icon = Resources.Icons.firewall;
-            this.btnOK.Image = GlobalInstances.ApplyBtnIcon;
-            this.btnCancel.Image = GlobalInstances.CancelBtnIcon;
+            IconList.ImageSize = _iconSize;
+            listView.MultiSelect = multiSelect;
+            Icon = Resources.Icons.firewall;
+            btnOK.Image = GlobalInstances.ApplyBtnIcon;
+            btnCancel.Image = GlobalInstances.CancelBtnIcon;
 
-            this.IconList.Images.Add("store", Resources.Icons.store);
-            this.IconList.Images.Add("system", Resources.Icons.windows_small);
-            this.IconList.Images.Add("network-drive", Resources.Icons.network_drive_small);
+            IconList.Images.Add("store", Resources.Icons.store);
+            IconList.Images.Add("system", Resources.Icons.windows_small);
+            IconList.Images.Add("network-drive", Resources.Icons.network_drive_small);
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.Cancel;
+            DialogResult = DialogResult.Cancel;
         }
 
         private void btnOK_Click(object sender, EventArgs e)
         {
             for (int i = 0; i < listView.SelectedItems.Count; ++i)
             {
-                this.Selection.Add((ProcessInfo)listView.SelectedItems[i].Tag);
+                Selection.Add((ProcessInfo)listView.SelectedItems[i].Tag);
             }
-            this.DialogResult = DialogResult.OK;
+
+            DialogResult = DialogResult.OK;
         }
 
         private void listView_SelectedIndexChanged(object sender, EventArgs e)
@@ -55,17 +61,26 @@ namespace pylorak.TinyWall
             }
         }
 
-        private void ProcessesForm_Load(object sender, EventArgs ev)
+        private async void ProcessesForm_Load(object sender, EventArgs ev)
         {
-            this.Icon = Resources.Icons.firewall;
+            Icon = Resources.Icons.firewall;
             if (ActiveConfig.Controller.ProcessesFormWindowSize.Width != 0)
-                this.Size = ActiveConfig.Controller.ProcessesFormWindowSize;
+                Size = ActiveConfig.Controller.ProcessesFormWindowSize;
             if (ActiveConfig.Controller.ProcessesFormWindowLoc.X != 0)
             {
-                this.Location = ActiveConfig.Controller.ProcessesFormWindowLoc;
+                Location = ActiveConfig.Controller.ProcessesFormWindowLoc;
                 Utils.FixupFormPosition(this);
             }
-            this.WindowState = ActiveConfig.Controller.ProcessesFormWindowState;
+
+            WindowState = ActiveConfig.Controller.ProcessesFormWindowState;
+
+            await UpdateListAsync();
+        }
+
+        private Task UpdateListAsync()
+        {
+            lblPleaseWait.Visible = true;
+            Enabled = false;
 
             foreach (ColumnHeader col in listView.Columns)
             {
@@ -90,7 +105,8 @@ namespace pylorak.TinyWall
                         continue;
 
                     // Scan list of already added items to prevent duplicates
-                    bool skip = itemColl.Select(t1 => (ProcessInfo)t1.Tag).Any(opi => (e.Package == opi.Package) && (e.Path == opi.Path) && (e.Services.SetEquals(opi.Services)));
+                    bool skip = itemColl.Select(t1 => (ProcessInfo)t1.Tag).Any(opi =>
+                        (e.Package == opi.Package) && (e.Path == opi.Path) && (e.Services.SetEquals(opi.Services)));
 
                     if (skip)
                         continue;
@@ -118,7 +134,8 @@ namespace pylorak.TinyWall
                     else if (System.IO.Path.IsPathRooted(e.Path) && System.IO.File.Exists(e.Path))
                     {
                         if (!IconList.Images.ContainsKey(e.Path))
-                            IconList.Images.Add(e.Path, Utils.GetIconContained(e.Path, _iconSize.Width, _iconSize.Height));
+                            IconList.Images.Add(e.Path,
+                                Utils.GetIconContained(e.Path, _iconSize.Width, _iconSize.Height));
                         li.ImageKey = e.Path;
                     }
                 }
@@ -130,9 +147,27 @@ namespace pylorak.TinyWall
 
             Utils.SetDoubleBuffering(listView, true);
             listView.BeginUpdate();
+            listView.Items.Clear();
             listView.ListViewItemSorter = new ListViewItemComparer(0);
+
+            if (!string.IsNullOrWhiteSpace(_searchItem))
+                itemColl = itemColl.Where(item =>
+                    {
+                        var subItem = item.SubItems;
+
+                        return (subItem[0].Text.ToLower().Contains(_searchItem) ||
+                                subItem[1].Text.ToLower().Contains(_searchItem) ||
+                                subItem[2].Text.ToLower().Contains(_searchItem));
+                    })
+                    .ToList();
+
             listView.Items.AddRange(itemColl.ToArray());
             listView.EndUpdate();
+
+            lblPleaseWait.Visible = false;
+            Enabled = true;
+
+            return Task.CompletedTask;
         }
 
         private void listView_ColumnClick(object sender, ColumnClickEventArgs e)
@@ -166,23 +201,39 @@ namespace pylorak.TinyWall
             ActiveConfig.Controller.Save();
         }
 
-        private void btnApplyFilter_Click(object sender, EventArgs e)
+        private void txtBxSearch_KeyDown(object sender, KeyEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtBxFilter.Text))
+            if (e.KeyCode is Keys.Enter or Keys.Return)
+            {
+                btnSearch.PerformClick();
+            }
+        }
+
+        private async void btnClear_Click(object sender, EventArgs e)
+        {
+            _searchItem = string.Empty;
+            await UpdateListAsync();
+        }
+
+        private async void btnSearch_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtBxSearch.Text))
             {
                 return;
             }
 
-            var list = listView.Items;
+            _searchItem = txtBxSearch.Text.ToLower();
+            await UpdateListAsync();
+            //var list = listView.Items;
 
-            var filteredList = list.Find(txtBxFilter.Text, true);
+            //var filteredList = list.Find(txtBxFilter.Text, true);
 
-            Utils.SetDoubleBuffering(listView, true);
-            listView.BeginUpdate();
-            listView.Items.Clear();
-            listView.ListViewItemSorter = new ListViewItemComparer(0);
-            listView.Items.AddRange(filteredList);
-            listView.EndUpdate();
+            //Utils.SetDoubleBuffering(listView, true);
+            //listView.BeginUpdate();
+            //listView.Items.Clear();
+            //listView.ListViewItemSorter = new ListViewItemComparer(0);
+            //listView.Items.AddRange(filteredList);
+            //listView.EndUpdate();
         }
     }
 }

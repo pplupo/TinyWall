@@ -1,6 +1,11 @@
 TinyWall Changelog
 ---------------------
 
+3.4.3 - Maintenance release (20.08.2024)
+- Bug fix for showing all items instead of showing the search item when searching in processes
+
+---------------------.
+
 3.4.2 - Maintenance release (20.08.2024)
 - Bug fix for not showing all items when searching in connections
 
