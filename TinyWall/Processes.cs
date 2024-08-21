@@ -212,6 +212,8 @@ namespace pylorak.TinyWall
         private async void btnClear_Click(object sender, EventArgs e)
         {
             _searchItem = string.Empty;
+            txtBxSearch.Text = string.Empty;
+
             await UpdateListAsync();
         }
 
@@ -223,17 +225,8 @@ namespace pylorak.TinyWall
             }
 
             _searchItem = txtBxSearch.Text.ToLower();
+
             await UpdateListAsync();
-            //var list = listView.Items;
-
-            //var filteredList = list.Find(txtBxFilter.Text, true);
-
-            //Utils.SetDoubleBuffering(listView, true);
-            //listView.BeginUpdate();
-            //listView.Items.Clear();
-            //listView.ListViewItemSorter = new ListViewItemComparer(0);
-            //listView.Items.AddRange(filteredList);
-            //listView.EndUpdate();
         }
     }
 }

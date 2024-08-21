@@ -328,7 +328,7 @@
     <value>NoControl</value>
   </data>
   <data name="lblPleaseWait.Location" type="System.Drawing.Point, System.Drawing">
-    <value>77, 114</value>
+    <value>77, 93</value>
   </data>
   <data name="lblPleaseWait.Size" type="System.Drawing.Size, System.Drawing">
     <value>631, 145</value>

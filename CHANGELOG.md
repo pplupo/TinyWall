@@ -1,6 +1,12 @@
 TinyWall Changelog
 ---------------------
 
+3.4.4 - Maintenance release (21.08.2024)
+- Bug fix for process form where clicking or tapping the clear button didn't clear the search text box
+- Added search function to the services form
+
+---------------------.
+
 3.4.3 - Maintenance release (20.08.2024)
 - Bug fix for showing all items instead of showing the search item when searching in processes
 

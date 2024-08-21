@@ -1,7 +1,9 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.ServiceProcess;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace pylorak.TinyWall
@@ -10,6 +12,7 @@ namespace pylorak.TinyWall
     {
         private string? _selectedServiceName;
         private string? _selectedServiceExec;
+        private string _searchText = string.Empty;
 
         internal static ServiceSubject? ChooseService(IWin32Window? parent = null)
         {
@@ -38,7 +41,8 @@ namespace pylorak.TinyWall
             string imagePath;
             using (RegistryKey keyHklm = Registry.LocalMachine)
             {
-                using RegistryKey key = keyHklm.OpenSubKey(@"SYSTEM\CurrentControlSet\Services\" + serviceName) ?? throw new InvalidOperationException();
+                using RegistryKey key = keyHklm.OpenSubKey(@"SYSTEM\CurrentControlSet\Services\" + serviceName) ??
+                                        throw new InvalidOperationException();
                 imagePath = (string)key.GetValue("ImagePath");
             }
 
@@ -91,7 +95,7 @@ namespace pylorak.TinyWall
             }
         }
 
-        private void ServicesForm_Load(object sender, EventArgs e)
+        private async void ServicesForm_Load(object sender, EventArgs e)
         {
             this.Icon = Resources.Icons.firewall;
             if (ActiveConfig.Controller.ServicesFormWindowSize.Width != 0)
@@ -101,8 +105,14 @@ namespace pylorak.TinyWall
                 this.Location = ActiveConfig.Controller.ServicesFormWindowLoc;
                 Utils.FixupFormPosition(this);
             }
+
             this.WindowState = ActiveConfig.Controller.ServicesFormWindowState;
 
+            await UpdateListAsync();
+        }
+
+        private Task UpdateListAsync()
+        {
             foreach (ColumnHeader col in listView.Columns)
             {
                 if (ActiveConfig.Controller.ServicesFormColumnWidths.TryGetValue((string)col.Tag, out int width))
@@ -112,6 +122,7 @@ namespace pylorak.TinyWall
             var itemColl = new List<ListViewItem>();
 
             ServiceController[] services = ServiceController.GetServices();
+
             foreach (var srv in services)
             {
                 try
@@ -127,11 +138,22 @@ namespace pylorak.TinyWall
                 }
             }
 
+            if (!string.IsNullOrWhiteSpace(_searchText))
+                itemColl = itemColl.Where(items =>
+                {
+                    var subItem = items.SubItems;
+
+                    return subItem[0].Text.ToLower().Contains(_searchText) || subItem[1].Text.ToLower().Contains(_searchText) ||
+                           subItem[2].Text.ToLower().Contains(_searchText);
+                }).ToList();
+
             Utils.SetDoubleBuffering(listView, true);
             listView.BeginUpdate();
             listView.ListViewItemSorter = new ListViewItemComparer(0);
             listView.Items.AddRange(itemColl.ToArray());
             listView.EndUpdate();
+
+            return Task.CompletedTask;
         }
 
         private void listView_ColumnClick(object sender, ColumnClickEventArgs e)
@@ -163,6 +185,33 @@ namespace pylorak.TinyWall
                 ActiveConfig.Controller.ServicesFormColumnWidths.Add((string)col.Tag, col.Width);
 
             ActiveConfig.Controller.Save();
+        }
+
+        private async void btnSearch_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtBxSearch.Text))
+            {
+                return;
+            }
+
+            _searchText = txtBxSearch.Text.ToLower();
+            await UpdateListAsync();
+        }
+
+        private async void btnClear_Click(object sender, EventArgs e)
+        {
+            _searchText = string.Empty;
+            txtBxSearch.Text = string.Empty;
+
+            await UpdateListAsync();
+        }
+
+        private void txtBxSearch_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode is Keys.Enter or Keys.Return)
+            {
+                btnSearch.PerformClick();
+            }
         }
     }
 }
