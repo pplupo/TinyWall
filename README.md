@@ -19,7 +19,7 @@ This is forked from the source code of TinyWall as found at its [website](https:
 #### Hosted on:
  - CodeBerg (Main/Primary) -> https://codeberg.org/ShirazAdam/Tinywall
  - GitLab (Mirror/Secondary) -> https://gitlab.com/ShirazAdam/TinyWall
- - GitHub (Mirror/Tertiary)-> https://github.com/ShirazAdam/Tinywall
+ - GitHub (Mirror/Tertiary) -> https://github.com/ShirazAdam/Tinywall
 
 
 ## How to build
