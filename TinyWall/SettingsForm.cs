@@ -313,20 +313,20 @@ namespace pylorak.TinyWall
 
             TmpConfig.Controller.Language = ((IdWithName)comboLanguages.SelectedItem).Id;
 
-            this.DialogResult = DialogResult.OK;
+            DialogResult = DialogResult.OK;
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.Cancel;
+            DialogResult = DialogResult.Cancel;
         }
 
         private void listRecommendedGlobalProfiles_ItemCheck(object sender, ItemCheckEventArgs e)
         {
             if (_loadingSettings) return;
 
-            CheckedListBox clb = (CheckedListBox)sender;
-            IdWithName item = (IdWithName)clb.Items[e.Index];
+            var clb = (CheckedListBox)sender;
+            var item = (IdWithName)clb.Items[e.Index];
 
             if (e.NewValue == CheckState.Checked)
             {
@@ -346,9 +346,9 @@ namespace pylorak.TinyWall
 
         private void btnAppRemove_Click(object sender, EventArgs e)
         {
-            for (int i = listApplications.SelectedIndices.Count - 1; i >= 0; --i)
+            for (var i = listApplications.SelectedIndices.Count - 1; i >= 0; --i)
             {
-                ListViewItem li = _filteredExceptionItems[listApplications.SelectedIndices[i]];
+                var li = _filteredExceptionItems[listApplications.SelectedIndices[i]];
                 TmpConfig.Service.ActiveProfile.AppExceptions.Remove((FirewallExceptionV3)li.Tag);
             }
 
@@ -367,12 +367,12 @@ namespace pylorak.TinyWall
 
         private void btnAppModify_Click(object sender, EventArgs e)
         {
-            ListViewItem li = _filteredExceptionItems[listApplications.SelectedIndices[0]];
-            FirewallExceptionV3 oldEx = (FirewallExceptionV3)li.Tag;
-            FirewallExceptionV3 newEx = Utils.DeepClone(oldEx);
+            var li = _filteredExceptionItems[listApplications.SelectedIndices[0]];
+            var oldEx = (FirewallExceptionV3)li.Tag;
+            var newEx = Utils.DeepClone(oldEx);
             newEx.RegenerateId();
 
-            using (ApplicationExceptionForm f = new ApplicationExceptionForm(newEx))
+            using (var f = new ApplicationExceptionForm(newEx))
             {
                 if (f.ShowDialog(this) == DialogResult.OK)
                 {
@@ -410,8 +410,8 @@ namespace pylorak.TinyWall
 
         private void SettingsForm_Shown(object sender, EventArgs e)
         {
-            this.BringToFront();
-            this.Activate();
+            BringToFront();
+            Activate();
         }
 
         private void btnWeb_Click(object sender, EventArgs e)

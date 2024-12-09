@@ -5,18 +5,18 @@ namespace pylorak.TinyWall
 {
     public class PipeClientEndpoint
     {
-        private readonly object SenderSyncRoot = new();
-        private readonly string m_PipeName;
+        private readonly object _senderSyncRoot = new();
+        private readonly string _mPipeName;
 
         public PipeClientEndpoint(string clientPipeName)
         {
-            m_PipeName = clientPipeName;
+            _mPipeName = clientPipeName;
         }
 
         private void SendRequest(TwRequest req)
         {
             TwMessage ret = TwMessageComError.Instance;
-            lock (SenderSyncRoot)
+            lock (_senderSyncRoot)
             {
                 // In case of a communication error,
                 // retry a small number of times.
@@ -40,7 +40,7 @@ namespace pylorak.TinyWall
         {
             try
             {
-                using var pipeClient = new NamedPipeClientStream(".", m_PipeName, PipeDirection.InOut, PipeOptions.WriteThrough);
+                using var pipeClient = new NamedPipeClientStream(".", _mPipeName, PipeDirection.InOut, PipeOptions.WriteThrough);
                 pipeClient.Connect(1000);
                 pipeClient.ReadMode = PipeTransmissionMode.Message;
 

@@ -1,6 +1,17 @@
 TinyWall Changelog
 ---------------------
 
+3.5.0 - Minor update (09.12.2024)
+- Filter UWP packages list by name
+
+---------------------.
+
+3.4.5 - Maintenance release (09.12.2024)
+- Corrected package versions
+- Fixed UWP exceptions
+
+---------------------.
+
 3.4.4 - Maintenance release (21.08.2024)
 - Bug fix for process form where clicking or tapping the clear button didn't clear the search text box
 - Added search function to the services form

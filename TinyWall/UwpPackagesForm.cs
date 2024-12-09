@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace pylorak.TinyWall
@@ -11,14 +13,16 @@ namespace pylorak.TinyWall
         private readonly List<UwpPackage.Package> _selectedPackages = new();
         private readonly Size _iconSize = new((int)Math.Round(16 * Utils.DpiScalingFactor), (int)Math.Round(16 * Utils.DpiScalingFactor));
 
+        private string _searchItem = string.Empty;
+
         public UwpPackagesForm(bool multiSelect)
         {
             InitializeComponent();
             Utils.SetRightToLeft(this);
-            this.listView.MultiSelect = multiSelect;
-            this.Icon = Resources.Icons.firewall;
-            this.btnOK.Image = GlobalInstances.ApplyBtnIcon;
-            this.btnCancel.Image = GlobalInstances.CancelBtnIcon;
+            listView.MultiSelect = multiSelect;
+            Icon = Resources.Icons.firewall;
+            btnOK.Image = GlobalInstances.ApplyBtnIcon;
+            btnCancel.Image = GlobalInstances.CancelBtnIcon;
 
             IconList.ImageSize = _iconSize;
             IconList.Images.Add("store", Resources.Icons.store);
@@ -38,16 +42,16 @@ namespace pylorak.TinyWall
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            for (int i = 0; i < listView.SelectedItems.Count; ++i)
+            for (var i = 0; i < listView.SelectedItems.Count; ++i)
             {
-                this._selectedPackages.Add((UwpPackage.Package)listView.SelectedItems[i].Tag);
+                _selectedPackages.Add((UwpPackage.Package)listView.SelectedItems[i].Tag);
             }
-            this.DialogResult = DialogResult.OK;
+            DialogResult = DialogResult.OK;
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.Cancel;
+            DialogResult = DialogResult.Cancel;
         }
 
         private void listView_DoubleClick(object sender, EventArgs e)
@@ -58,23 +62,31 @@ namespace pylorak.TinyWall
             }
         }
 
-        private void UwpPackages_Load(object sender, EventArgs e)
+        private async void UwpPackages_Load(object sender, EventArgs e)
         {
-            this.Icon = Resources.Icons.firewall;
+            Icon = Resources.Icons.firewall;
             if (ActiveConfig.Controller.UwpPackagesFormWindowSize.Width != 0)
-                this.Size = ActiveConfig.Controller.UwpPackagesFormWindowSize;
+                Size = ActiveConfig.Controller.UwpPackagesFormWindowSize;
             if (ActiveConfig.Controller.UwpPackagesFormWindowLoc.X != 0)
             {
-                this.Location = ActiveConfig.Controller.UwpPackagesFormWindowLoc;
+                Location = ActiveConfig.Controller.UwpPackagesFormWindowLoc;
                 Utils.FixupFormPosition(this);
             }
-            this.WindowState = ActiveConfig.Controller.UwpPackagesFormWindowState;
+            WindowState = ActiveConfig.Controller.UwpPackagesFormWindowState;
 
             foreach (ColumnHeader col in listView.Columns)
             {
-                if (ActiveConfig.Controller.UwpPackagesFormColumnWidths.TryGetValue((string)col.Tag, out int width))
+                if (ActiveConfig.Controller.UwpPackagesFormColumnWidths.TryGetValue((string)col.Tag, out var width))
                     col.Width = width;
             }
+
+            await UpdateListAsync();
+        }
+
+        private Task UpdateListAsync()
+        {
+            lblPleaseWait.Visible = true;
+            Enabled = false;
 
             var itemColl = new List<ListViewItem>();
 
@@ -82,7 +94,7 @@ namespace pylorak.TinyWall
             foreach (var package in packages)
             {
                 // Add list item
-                ListViewItem li = new ListViewItem(package.Name);
+                var li = new ListViewItem(package.Name);
                 li.SubItems.Add(package.PublisherId + ", " + package.Publisher);
                 li.ImageKey = @"store";
                 li.Tag = package;
@@ -91,16 +103,33 @@ namespace pylorak.TinyWall
 
             Utils.SetDoubleBuffering(listView, true);
             listView.BeginUpdate();
+            listView.Items.Clear();
             listView.ListViewItemSorter = new ListViewItemComparer(0);
+
+            if (!string.IsNullOrWhiteSpace(_searchItem))
+                itemColl = itemColl.Where(item =>
+                    {
+                        var subItem = item.SubItems;
+
+                        return (subItem[0].Text.ToLower().Contains(_searchItem) ||
+                                subItem[1].Text.ToLower().Contains(_searchItem));
+                    })
+                    .ToList();
+
             listView.Items.AddRange(itemColl.ToArray());
             listView.EndUpdate();
+
+            lblPleaseWait.Visible = false;
+            Enabled = true;
+
+            return Task.CompletedTask;
         }
 
         private void listView_ColumnClick(object sender, ColumnClickEventArgs e)
         {
             var oldSorter = (ListViewItemComparer)listView.ListViewItemSorter;
             var newSorter = new ListViewItemComparer(e.Column);
-            if ((oldSorter != null) && (oldSorter.Column == newSorter.Column))
+            if (oldSorter != null && oldSorter.Column == newSorter.Column)
                 newSorter.Ascending = !oldSorter.Ascending;
 
             listView.ListViewItemSorter = newSorter;
@@ -108,16 +137,16 @@ namespace pylorak.TinyWall
 
         private void UwpPackages_FormClosing(object sender, FormClosingEventArgs e)
         {
-            ActiveConfig.Controller.UwpPackagesFormWindowState = this.WindowState;
-            if (this.WindowState == FormWindowState.Normal)
+            ActiveConfig.Controller.UwpPackagesFormWindowState = WindowState;
+            if (WindowState == FormWindowState.Normal)
             {
-                ActiveConfig.Controller.UwpPackagesFormWindowSize = this.Size;
-                ActiveConfig.Controller.UwpPackagesFormWindowLoc = this.Location;
+                ActiveConfig.Controller.UwpPackagesFormWindowSize = Size;
+                ActiveConfig.Controller.UwpPackagesFormWindowLoc = Location;
             }
             else
             {
-                ActiveConfig.Controller.UwpPackagesFormWindowSize = this.RestoreBounds.Size;
-                ActiveConfig.Controller.UwpPackagesFormWindowLoc = this.RestoreBounds.Location;
+                ActiveConfig.Controller.UwpPackagesFormWindowSize = RestoreBounds.Size;
+                ActiveConfig.Controller.UwpPackagesFormWindowLoc = RestoreBounds.Location;
             }
 
             ActiveConfig.Controller.UwpPackagesFormColumnWidths.Clear();
@@ -130,6 +159,34 @@ namespace pylorak.TinyWall
         private void listView_SelectedIndexChanged(object sender, EventArgs e)
         {
             btnOK.Enabled = listView.SelectedItems.Count > 0;
+        }
+
+        private async void btnSearch_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtBxSearch.Text))
+            {
+                return;
+            }
+
+            _searchItem = txtBxSearch.Text.ToLower();
+
+            await UpdateListAsync();
+        }
+
+        private async void btnClear_Click(object sender, EventArgs e)
+        {
+            _searchItem = string.Empty;
+            txtBxSearch.Text = string.Empty;
+
+            await UpdateListAsync();
+        }
+
+        private void txtBxSearch_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode is Keys.Enter or Keys.Return)
+            {
+                btnSearch.PerformClick();
+            }
         }
     }
 }

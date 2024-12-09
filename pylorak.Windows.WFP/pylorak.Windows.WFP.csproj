@@ -16,7 +16,7 @@
     <AssemblyTitle>pylorak.Windows.WFP</AssemblyTitle>
     <Company>Károly Pados</Company>
     <Copyright>Copyright © 2015 Károly Pados</Copyright>
-    <Version>1.1.0</Version>
+    <Version>3.4.5</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>full</DebugType>

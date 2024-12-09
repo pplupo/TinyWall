@@ -124,7 +124,7 @@ namespace pylorak.TinyWall
                     throw new TimeoutException("Timeout while waiting for answer from service.");
 
                 if (pipeClosed)
-                    throw new IOException("Pipe closed.");
+                    continue; //throw new IOException("Pipe closed.");
 
                 memoryStream.Write(buf, 0, len);
                 timeoutMs = 1000;
