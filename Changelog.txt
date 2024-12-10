@@ -1,6 +1,11 @@
 TinyWall Changelog
 ---------------------
 
+3.5.1 - Maintenance update (10.12.2024)
+- Small performance improvements
+- Code clean up
+---------------------.
+
 3.5.0 - Minor update (09.12.2024)
 - Filter UWP packages list by name
 
