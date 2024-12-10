@@ -47,7 +47,7 @@ namespace pylorak.TinyWall
                 pipeClient.ReadMode = PipeTransmissionMode.Message;
 
                 // Send command
-                SerialisationHelper.SerialiseToPipe<TwMessage>(pipeClient, msg);
+                SerialisationHelper.SerialiseToPipe(pipeClient, msg);
 
                 // Get response
                 return SerialisationHelper.DeserialiseFromPipe<TwMessage>(pipeClient, 20000, TwMessageComError.Instance);
