@@ -12,7 +12,7 @@ namespace pylorak.TinyWall
     {
         private string? _selectedServiceName;
         private string? _selectedServiceExec;
-        private string _searchText = string.Empty;
+        private string _searchItem = string.Empty;
 
         internal static ServiceSubject? ChooseService(IWin32Window? parent = null)
         {
@@ -123,6 +123,12 @@ namespace pylorak.TinyWall
 
             ServiceController[] services = ServiceController.GetServices();
 
+            if (!string.IsNullOrWhiteSpace(_searchItem))
+                services = services.Where(s =>
+                    s.ServiceName.ToLower().Contains(_searchItem.ToLower())
+                    || s.DisplayName.ToLower().Contains(_searchItem.ToLower())
+                ).ToArray();
+
             foreach (var srv in services)
             {
                 try
@@ -138,18 +144,19 @@ namespace pylorak.TinyWall
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(_searchText))
-                itemColl = itemColl.Where(items =>
-                {
-                    var subItem = items.SubItems;
-
-                    return subItem[0].Text.ToLower().Contains(_searchText) || subItem[1].Text.ToLower().Contains(_searchText) ||
-                           subItem[2].Text.ToLower().Contains(_searchText);
-                }).ToList();
-
             Utils.SetDoubleBuffering(listView, true);
             listView.BeginUpdate();
             listView.ListViewItemSorter = new ListViewItemComparer(0);
+
+            //if (!string.IsNullOrWhiteSpace(_searchItem))
+            //    itemColl = itemColl.Where(items =>
+            //    {
+            //        var subItem = items.SubItems;
+
+            //        return subItem[0].Text.ToLower().Contains(_searchItem) || subItem[1].Text.ToLower().Contains(_searchItem) ||
+            //               subItem[2].Text.ToLower().Contains(_searchItem);
+            //    }).ToList();
+
             listView.Items.AddRange(itemColl.ToArray());
             listView.EndUpdate();
 
@@ -194,13 +201,13 @@ namespace pylorak.TinyWall
                 return;
             }
 
-            _searchText = txtBxSearch.Text.ToLower();
+            _searchItem = txtBxSearch.Text.ToLower();
             await UpdateListAsync();
         }
 
         private async void btnClear_Click(object sender, EventArgs e)
         {
-            _searchText = string.Empty;
+            _searchItem = string.Empty;
             txtBxSearch.Text = string.Empty;
 
             await UpdateListAsync();

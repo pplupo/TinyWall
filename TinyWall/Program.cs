@@ -106,7 +106,9 @@ namespace pylorak.TinyWall
             try
             {
                 // Prevent Windows Error Reporting running for us
-                Utils.SafeNativeMethods.WerAddExcludedApplication(Utils.ExecutablePath, true);
+                if (File.Exists(Utils.ExecutablePath))
+                    Utils.SafeNativeMethods.WerAddExcludedApplication(Utils.ExecutablePath, true);
+
             }
             catch
             {

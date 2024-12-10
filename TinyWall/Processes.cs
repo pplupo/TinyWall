@@ -93,6 +93,10 @@ namespace pylorak.TinyWall
             ServicePidMap servicePids = new ServicePidMap();
 
             Process[] procs = Process.GetProcesses();
+
+            if (!string.IsNullOrWhiteSpace(_searchItem))
+                procs = procs.Where(p => p.ProcessName.ToLower().Contains(_searchItem.ToLower())).ToArray();
+
             foreach (var t in procs)
             {
                 using Process p = t;
@@ -150,16 +154,16 @@ namespace pylorak.TinyWall
             listView.Items.Clear();
             listView.ListViewItemSorter = new ListViewItemComparer(0);
 
-            if (!string.IsNullOrWhiteSpace(_searchItem))
-                itemColl = itemColl.Where(item =>
-                    {
-                        var subItem = item.SubItems;
+            //if (!string.IsNullOrWhiteSpace(_searchItem))
+            //    itemColl = itemColl.Where(item =>
+            //        {
+            //            var subItem = item.SubItems;
 
-                        return (subItem[0].Text.ToLower().Contains(_searchItem) ||
-                                subItem[1].Text.ToLower().Contains(_searchItem) ||
-                                subItem[2].Text.ToLower().Contains(_searchItem));
-                    })
-                    .ToList();
+            //            return (subItem[0].Text.ToLower().Contains(_searchItem) ||
+            //                    subItem[1].Text.ToLower().Contains(_searchItem) ||
+            //                    subItem[2].Text.ToLower().Contains(_searchItem));
+            //        })
+            //        .ToList();
 
             listView.Items.AddRange(itemColl.ToArray());
             listView.EndUpdate();

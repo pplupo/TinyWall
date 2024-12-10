@@ -1,11 +1,13 @@
-﻿using System.IO.Pipes;
-using System.Threading;
+﻿using NeoSmart.AsyncLock;
+using System;
+using System.IO.Pipes;
+using System.Threading.Tasks;
 
 namespace pylorak.TinyWall
 {
     public class PipeClientEndpoint
     {
-        private readonly object _senderSyncRoot = new();
+        private readonly AsyncLock _asyncLock = new();
         private readonly string _mPipeName;
 
         public PipeClientEndpoint(string clientPipeName)
@@ -16,24 +18,24 @@ namespace pylorak.TinyWall
         private void SendRequest(TwRequest req)
         {
             TwMessage ret = TwMessageComError.Instance;
-            lock (_senderSyncRoot)
+
+            Task.Run(async () =>
             {
-                // In case of a communication error,
-                // retry a small number of times.
-                for (int i = 0; i < 2; ++i)
+                using (await _asyncLock.LockAsync())
                 {
-                    var resp = SendRequest(req.Request);
-                    if (resp.Type != MessageType.COM_ERROR)
+                    for (var i = 0; i < 2; ++i)
                     {
-                        ret = resp;
-                        break;
+                        var resp = SendRequest(req.Request);
+                        if (resp.Type != MessageType.COM_ERROR)
+                        {
+                            ret = resp;
+                            break;
+                        }
+                        await Task.Delay(TimeSpan.FromMilliseconds(200));
                     }
-
-                    Thread.Sleep(200);
                 }
-            }
-
-            req.Response = ret;
+                req.Response = ret;
+            });
         }
 
         private TwMessage SendRequest(TwMessage msg)

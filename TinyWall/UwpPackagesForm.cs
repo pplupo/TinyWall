@@ -91,6 +91,13 @@ namespace pylorak.TinyWall
             var itemColl = new List<ListViewItem>();
 
             var packages = UwpPackage.GetPackages();
+
+            if (!string.IsNullOrWhiteSpace(_searchItem))
+                packages = packages.Where(p =>
+                    p.Name.ToLower().Contains(_searchItem.ToLower())
+                    || p.Publisher.ToLower().Contains(_searchItem.ToLower())
+                    ).ToArray();
+
             foreach (var package in packages)
             {
                 // Add list item
@@ -106,15 +113,15 @@ namespace pylorak.TinyWall
             listView.Items.Clear();
             listView.ListViewItemSorter = new ListViewItemComparer(0);
 
-            if (!string.IsNullOrWhiteSpace(_searchItem))
-                itemColl = itemColl.Where(item =>
-                    {
-                        var subItem = item.SubItems;
+            //if (!string.IsNullOrWhiteSpace(_searchItem))
+            //    itemColl = itemColl.Where(item =>
+            //        {
+            //            var subItem = item.SubItems;
 
-                        return (subItem[0].Text.ToLower().Contains(_searchItem) ||
-                                subItem[1].Text.ToLower().Contains(_searchItem));
-                    })
-                    .ToList();
+            //            return (subItem[0].Text.ToLower().Contains(_searchItem) ||
+            //                    subItem[1].Text.ToLower().Contains(_searchItem));
+            //        })
+            //        .ToList();
 
             listView.Items.AddRange(itemColl.ToArray());
             listView.EndUpdate();
