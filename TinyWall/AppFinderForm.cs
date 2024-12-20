@@ -14,6 +14,8 @@ namespace pylorak.TinyWall
         private Thread? _searcherThread;
         private bool _runSearch;
         private Size _iconSize = new((int)Math.Round(16 * Utils.DpiScalingFactor), (int)Math.Round(16 * Utils.DpiScalingFactor));
+        private DateTime _lastEnterDoSearchPath = DateTime.Now;
+        private readonly SearchResults _searchResult = new();
 
         internal List<FirewallExceptionV3> SelectedExceptions { get; } = new List<FirewallExceptionV3>();
 
@@ -21,11 +23,11 @@ namespace pylorak.TinyWall
         {
             InitialiseComponent();
             Utils.SetRightToLeft(this);
-            this.IconList.ImageSize = _iconSize;
-            this.Icon = Resources.Icons.firewall;
-            this.btnCancel.Image = GlobalInstances.CancelBtnIcon;
-            this.btnOK.Image = GlobalInstances.ApplyBtnIcon;
-            this.btnStartDetection.Image = GlobalInstances.ApplyBtnIcon;
+            IconList.ImageSize = _iconSize;
+            Icon = Resources.Icons.firewall;
+            btnCancel.Image = GlobalInstances.CancelBtnIcon;
+            btnOK.Image = GlobalInstances.ApplyBtnIcon;
+            btnStartDetection.Image = GlobalInstances.ApplyBtnIcon;
 
             btnSelectImportant.Visible = false;
         }
@@ -35,13 +37,15 @@ namespace pylorak.TinyWall
             if (!_runSearch)
             {
                 btnStartDetection.Text = Resources.Messages.Stop;
-                this.btnStartDetection.Image = GlobalInstances.CancelBtnIcon;
+                btnStartDetection.Image = GlobalInstances.CancelBtnIcon;
                 list.Items.Clear();
 
                 _runSearch = true;
-                _searcherThread = new Thread(SearcherWorkerMethod);
-                _searcherThread.Name = "AppFinder";
-                _searcherThread.IsBackground = true;
+                _searcherThread = new Thread(SearcherWorkerMethod)
+                {
+                    Name = "AppFinder",
+                    IsBackground = true
+                };
                 _searcherThread.Start();
             }
             else
@@ -66,14 +70,19 @@ namespace pylorak.TinyWall
                     _list.Add(app, new List<ExecutableSubject>());
 
                 var subjList = _list[app];
-                foreach (var subj in subjList)
+                if (subjList.Any(subj => subj.Equals(resolvedSubject)))
                 {
-                    if (subj.Equals(resolvedSubject))
-                        // Duplicate, so don't add it again
-                        return;
+                    return;
                 }
 
                 _list[app].Add(resolvedSubject);
+            }
+
+            public List<DatabaseClasses.Application> GetFoundApps()
+            {
+                List<DatabaseClasses.Application> ret = new();
+                ret.AddRange(_list.Keys);
+                return ret;
             }
 
             public List<ExecutableSubject> GetFoundComponents(DatabaseClasses.Application app)
@@ -99,7 +108,7 @@ namespace pylorak.TinyWall
                     if (subject is not ExecutableSubject exe) continue;
 
                     _searchResult.AddEntry(app, exe);
-                    this.BeginInvoke((MethodInvoker)delegate
+                    BeginInvoke((MethodInvoker)delegate
                     {
                         AddRecognisedAppToList(app, exe.ExecutablePath);
                     });
@@ -123,17 +132,13 @@ namespace pylorak.TinyWall
 
             // Construct a list of all file extensions we are looking for
             var exts = new HashSet<string>();
-            foreach (DatabaseClasses.Application app in GlobalInstances.AppDatabase.KnownApplications)
+            foreach (var subjTemplate in GlobalInstances.AppDatabase.KnownApplications.SelectMany(app => app.Components))
             {
-                foreach (DatabaseClasses.SubjectIdentity subjTemplate in app.Components)
-                {
-                    if (subjTemplate.Subject is ExecutableSubject exesub)
-                    {
-                        string extFilter = "*" + Path.GetExtension(exesub.ExecutableName).ToUpperInvariant();
-                        if (extFilter != "*")
-                            exts.Add(extFilter);
-                    }
-                }
+                if (subjTemplate.Subject is not ExecutableSubject exesub) continue;
+
+                var extFilter = "*" + Path.GetExtension(exesub.ExecutableName).ToUpperInvariant();
+                if (extFilter != "*")
+                    exts.Add(extFilter);
             }
 
             // Perform search for each path
@@ -149,7 +154,7 @@ namespace pylorak.TinyWall
             {
                 // Update status
                 _runSearch = false;
-                this.BeginInvoke((MethodInvoker)delegate
+                BeginInvoke((MethodInvoker)delegate
                 {
                     try
                     {
@@ -168,9 +173,6 @@ namespace pylorak.TinyWall
             { }
         }
 
-        private DateTime _lastEnterDoSearchPath = DateTime.Now;
-        private readonly SearchResults _searchResult = new();
-
         private void DoSearchPath(string path, HashSet<string> exts, DatabaseClasses.AppDatabase db)
         {
             #region Update user feedback periodically
@@ -178,7 +180,7 @@ namespace pylorak.TinyWall
             if (now - _lastEnterDoSearchPath > TimeSpan.FromMilliseconds(500))
             {
                 _lastEnterDoSearchPath = now;
-                this.BeginInvoke((MethodInvoker)delegate
+                BeginInvoke((MethodInvoker)delegate
                 {
                     lblStatus.Text = string.Format(CultureInfo.CurrentCulture, Resources.Messages.SearchingPath, path);
                 });
@@ -188,10 +190,9 @@ namespace pylorak.TinyWall
             try
             {
                 // Inspect all interesting extensions in the current directory
-                foreach (string extFilter in exts)
+                foreach (var files in exts.Select(extFilter => Directory.GetFiles(path, extFilter, SearchOption.TopDirectoryOnly)))
                 {
-                    string[] files = Directory.GetFiles(path, extFilter, SearchOption.TopDirectoryOnly);
-                    foreach (string file in files)
+                    foreach (var file in files)
                     {
                         // Abort if asked to
                         if (!_runSearch)
@@ -205,7 +206,7 @@ namespace pylorak.TinyWall
                             _searchResult.AddEntry(app, subject);
 
                             // We have a match. This file belongs to a known application!
-                            this.BeginInvoke((MethodInvoker)delegate
+                            BeginInvoke((MethodInvoker)delegate
                             {
                                 AddRecognisedAppToList(app, subject.ExecutablePath);
                             });
@@ -241,17 +242,19 @@ namespace pylorak.TinyWall
 
             if (!IconList.Images.ContainsKey(app.Name))
             {
-                string iconPath = path;
-                if (!File.Exists(iconPath))
-                    IconList.Images.Add(app.Name, Resources.Icons.window);
-                else
-                    IconList.Images.Add(app.Name, Utils.GetIconContained(iconPath, _iconSize.Width, _iconSize.Height));
+                var iconPath = path;
+                IconList.Images.Add(app.Name,
+                    !File.Exists(iconPath)
+                        ? Resources.Icons.window
+                        : Utils.GetIconContained(iconPath, _iconSize.Width, _iconSize.Height));
             }
 
-            var li = new ListViewItem(app.Name);
-            li.ImageKey = app.Name;
-            li.Tag = app;
-            li.Checked = app.HasFlag("TWUI:Recommended");
+            var li = new ListViewItem(app.Name)
+            {
+                ImageKey = app.Name,
+                Tag = app,
+                Checked = app.HasFlag("TWUI:Recommended")
+            };
 
             list.Items.Add(li);
         }
@@ -259,14 +262,13 @@ namespace pylorak.TinyWall
         private void WaitForThread()
         {
             _runSearch = false;
-            if (null != _searcherThread)
-                _searcherThread.Join();
+            _searcherThread?.Join();
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
             WaitForThread();
-            this.DialogResult = DialogResult.Cancel;
+            DialogResult = DialogResult.Cancel;
         }
 
         private void btnSelectImportant_Click(object sender, EventArgs e)
@@ -302,28 +304,26 @@ namespace pylorak.TinyWall
             // Populate settings
             foreach (ListViewItem li in list.Items)
             {
-                if (li.Checked)
+                if (!li.Checked) continue;
+                var app = (DatabaseClasses.Application)li.Tag;
+                var appFoundFiles = _searchResult.GetFoundComponents(app);
+                foreach (ExecutableSubject subject in appFoundFiles)
                 {
-                    var app = (DatabaseClasses.Application)li.Tag;
-                    var appFoundFiles = _searchResult.GetFoundComponents(app);
-                    foreach (ExecutableSubject subject in appFoundFiles)
+                    app = GlobalInstances.AppDatabase.TryGetApp(subject, out FirewallExceptionV3? fwex, false);
+                    if ((fwex != null) && (app != null) && (!subject.IsSigned || subject.CertValid))
                     {
-                        app = GlobalInstances.AppDatabase.TryGetApp(subject, out FirewallExceptionV3? fwex, false);
-                        if ((fwex != null) && (app != null) && (!subject.IsSigned || subject.CertValid))
-                        {
-                            SelectedExceptions.Add(fwex);
-                        }
+                        SelectedExceptions.Add(fwex);
                     }
                 }
             }
 
-            this.DialogResult = DialogResult.OK;
+            DialogResult = DialogResult.OK;
         }
 
         private void AppFinderForm_Shown(object sender, EventArgs e)
         {
-            this.Activate();
-            this.BringToFront();
+            Activate();
+            BringToFront();
             btnStartDetection_Click(btnStartDetection, EventArgs.Empty);
             Utils.SetDoubleBuffering(list, true);
         }
