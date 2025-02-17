@@ -57,12 +57,12 @@ If you prefer that, you can also build and distribute your own version of the bi
 
 ## Licence
 
-- TaskDialog wrapper (code in directory `pylorak.Windows\TaskDialog`) written by KevinGre ([link](https://www.codeproject.com/Articles/17026/TaskDialog-for-WinForms)) and placed under Public Domain.
+- Task Dialogue wrapper (code in directory `pylorak.Windows\TaskDialog`) written by KevinGre ([link](https://www.codeproject.com/Articles/17026/TaskDialog-for-WinForms)) and placed under Public Domain.
 
 - All other code in the repository is under the GNU GPLv3 Licence. See `LICENCE.txt` for more information.
 
 
-## Contact
+## Original Author Contact Details
 
 Károly Pados - find e-mail at the bottom of the project website
 
