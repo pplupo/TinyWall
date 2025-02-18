@@ -238,7 +238,7 @@ namespace pylorak.TinyWall
                 default:
                     throw new NotImplementedException();
             }
-			
+
             li.SubItems.Add(ex.CreationDate.ToString("yyyy/MM/dd HH:mm"));
 
             if (ex.Policy.PolicyType == PolicyType.HardBlock)
@@ -260,10 +260,10 @@ namespace pylorak.TinyWall
                 if (NetworkPath.IsNetworkPath(exeSubj.ExecutablePath))
                 {
                     /* We do not load icons from network drives, to avoid 30s timeout if the drive is unavailable.
-                     * If this is ever changed in the future, also remember that .Net's Icon.ExtractAssociatedIcon()
-                     * does not work with UNC paths. For workaround see:
-                     * http://stackoverflow.com/questions/1842226/how-to-get-the-associated-icon-from-a-network-share-file
-                     */
+					 * If this is ever changed in the future, also remember that .Net's Icon.ExtractAssociatedIcon()
+					 * does not work with UNC paths. For workaround see:
+					 * http://stackoverflow.com/questions/1842226/how-to-get-the-associated-icon-from-a-network-share-file
+					 */
                     li.ImageIndex = IconList.Images.IndexOfKey("network-drive");
                 }
                 else if (File.Exists(exeSubj.ExecutablePath))
@@ -576,8 +576,8 @@ namespace pylorak.TinyWall
 #endif
 
 #if !DEBUG
-            // TODO: Make submissions work
-            btnSubmitAssoc.Visible = false;
+			// TODO: Make submissions work
+			btnSubmitAssoc.Visible = false;
 #endif
             //            loadingDone.Value = true;
         }

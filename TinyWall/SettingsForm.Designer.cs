@@ -45,6 +45,7 @@
             this.columnApp = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnType = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnDetails = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnLastModified = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.IconList = new System.Windows.Forms.ImageList(this.components);
             this.label4 = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
@@ -191,7 +192,8 @@
             this.listApplications.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnApp,
             this.columnType,
-            this.columnDetails});
+            this.columnDetails,
+            this.columnLastModified});
             this.listApplications.FullRowSelect = true;
             this.listApplications.GridLines = true;
             this.listApplications.HideSelection = false;
@@ -220,6 +222,11 @@
             // 
             this.columnDetails.Tag = "colDetails";
             resources.ApplyResources(this.columnDetails, "columnDetails");
+            // 
+            // columnLastModified
+            // 
+            this.columnLastModified.Tag = "colLastModified";
+            resources.ApplyResources(this.columnLastModified, "columnLastModified");
             // 
             // IconList
             // 
@@ -586,6 +593,7 @@
         private System.Windows.Forms.ListView listApplications;
         private System.Windows.Forms.ColumnHeader columnApp;
         private System.Windows.Forms.ColumnHeader columnDetails;
+        private System.Windows.Forms.ColumnHeader columnLastModified;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.Label label5;
