@@ -238,7 +238,8 @@ namespace pylorak.TinyWall
                 default:
                     throw new NotImplementedException();
             }
-
+			
+            li.SubItems.Add(ex.CreationDate.ToString("yyyy/MM/dd HH:mm"));
 
             if (ex.Policy.PolicyType == PolicyType.HardBlock)
             {
