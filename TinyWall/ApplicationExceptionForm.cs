@@ -11,6 +11,8 @@ namespace pylorak.TinyWall
 {
     internal partial class ApplicationExceptionForm : Form
     {
+	    private static readonly char[] PORT_LIST_SEPARATORS = new char[] { ',' };
+			
         internal List<FirewallExceptionV3> ExceptionSettings { get; } = new();
 
         internal ApplicationExceptionForm(FirewallExceptionV3 firewallExceptionV3)
@@ -149,12 +151,13 @@ namespace pylorak.TinyWall
             }
             else if (uwpSubj != null)
             {
-                UwpPackage.Package? package = UwpPackage.FindPackageDetails(uwpSubj.Sid);
-
-                if (package.HasValue && (package.Value.Tampered != UwpPackage.TamperedState.Unknown))
+                var packageList = new UwpPackageList();
+                var package = packageList.FindPackage(uwpSubj.Sid);
+				
+                if (package.HasValue && (package.Value.Tampered != UwpPackageList.TamperedState.Unknown))
                 {
                     hasSignature = true;
-                    validSignature = (package.Value.Tampered == UwpPackage.TamperedState.No);
+                    validSignature = (package.Value.Tampered == UwpPackageList.TamperedState.No);
                 }
             }
 
@@ -287,7 +290,7 @@ namespace pylorak.TinyWall
                 return string.Empty;
 
             // Check validity
-            string[] elems = res.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] elems = res.Split(PORT_LIST_SEPARATORS, StringSplitOptions.RemoveEmptyEntries);
 
             res = string.Empty;
 

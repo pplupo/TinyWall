@@ -1,12 +1,14 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
 using Windows.Management.Deployment;
 
 namespace pylorak.Windows
 {
-    public class UwpPackage
+    public class UwpPackageList : IReadOnlyList<UwpPackageList.Package>
     {
         public enum TamperedState
         {
@@ -15,7 +17,7 @@ namespace pylorak.Windows
             Yes
         }
 
-        public readonly struct Package  // TODO: Use record struct from C# 10
+        public readonly struct Package : IEquatable<Package>
         {
             [SuppressUnmanagedCodeSecurity]
             private static class NativeMethods
@@ -60,12 +62,9 @@ namespace pylorak.Windows
                     ^ Tampered.GetHashCode();
             }
 
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
             {
-                if (obj is Package other)
-                    return Equals(other);
-                else
-                    return false;
+                return obj is Package other && Equals(other);
             }
 
             public bool Equals(Package other)
@@ -89,7 +88,32 @@ namespace pylorak.Windows
             }
         }
 
-        public static Package[] GetPackages()
+        private List<Package>? _packages;
+        private List<Package> Packages
+        {
+            get
+            {
+                if (_packages is not null) return _packages;
+
+                try
+                {
+                    _packages = CreatePackageList();
+                }
+                catch
+                {
+                    // Return an empty list if we cannot enumerate the packages on the system.
+                    // This happens for exmaple when the AppXSVC service is disabled.
+                    _packages = new List<Package>();
+                }
+                return _packages;
+            }
+        }
+
+        public int Count => ((IReadOnlyCollection<Package>)Packages).Count;
+
+        public Package this[int index] => ((IReadOnlyList<Package>)Packages)[index];
+
+        private static List<Package> CreatePackageList()
         {
             var pm = new PackageManager();
             var packageList = pm.FindPackagesForUser(string.Empty);
@@ -100,46 +124,41 @@ namespace pylorak.Windows
                 {
                     resultList.Add(new Package(p));
                 }
-                catch { }
+                catch
+                {
+                    // ignored
+                }
             }
 
-            return resultList.ToArray();
+            return resultList;
         }
 
-        private static Package? FindPackageDetails(string? sid, Package[] list)
+        public Package? FindPackage(string? sid)
         {
             if (string.IsNullOrEmpty(sid))
                 return null;
 
-            foreach (var package in list)
+            foreach (var package in Packages.Where(package => package.Sid.Equals(sid)))
             {
-                if (package.Sid.Equals(sid))
-                    return package;
+                return package;
             }
 
             return null;
         }
 
-        public static Package? FindPackageDetails(string? sid)
+        public Package? FindPackageForProcess(uint pid)
         {
-            if (string.IsNullOrEmpty(sid))
-                return null;
-
-            var packages = GetPackages();
-
-            return FindPackageDetails(sid, packages);
+            return FindPackage(ProcessManager.GetAppContainerSid(pid));
         }
 
-        public Package[] Packages { get; private set; }
-
-        public UwpPackage()
+        public IEnumerator<Package> GetEnumerator()
         {
-            Packages = GetPackages();
+            return ((IEnumerable<Package>)Packages).GetEnumerator();
         }
 
-        public Package? FindPackage(string? sid)
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            return FindPackageDetails(sid, Packages);
+            return ((IEnumerable)Packages).GetEnumerator();
         }
     }
 }

@@ -89,7 +89,7 @@ namespace pylorak.TinyWall
             }
 
             List<ListViewItem> itemColl = new List<ListViewItem>();
-            UwpPackage packages = new UwpPackage();
+            var packageList = new UwpPackageList();
             ServicePidMap servicePids = new ServicePidMap();
 
             Process[] procs = Process.GetProcesses();
@@ -103,7 +103,7 @@ namespace pylorak.TinyWall
                 try
                 {
                     var pid = unchecked((uint)p.Id);
-                    var e = ProcessInfo.Create(pid, packages, servicePids);
+                    var e = ProcessInfo.Create(pid, packageList, servicePids);
 
                     if (string.IsNullOrEmpty(e.Path))
                         continue;

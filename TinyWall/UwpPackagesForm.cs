@@ -10,7 +10,7 @@ namespace pylorak.TinyWall
 {
     public partial class UwpPackagesForm : Form
     {
-        private readonly List<UwpPackage.Package> _selectedPackages = new();
+        private readonly List<UwpPackageList.Package> _selectedPackages = new();
         private readonly Size _iconSize = new((int)Math.Round(16 * Utils.DpiScalingFactor), (int)Math.Round(16 * Utils.DpiScalingFactor));
 
         private string _searchItem = string.Empty;
@@ -28,23 +28,19 @@ namespace pylorak.TinyWall
             IconList.Images.Add("store", Resources.Icons.store);
         }
 
-        internal static List<UwpPackage.Package> ChoosePackage(IWin32Window parent, bool multiSelect)
+        internal static List<UwpPackageList.Package> ChoosePackage(IWin32Window parent, bool multiSelect)
         {
             using var pf = new UwpPackagesForm(multiSelect);
-            var pathList = new List<UwpPackage.Package>();
+            var pathList = new List<UwpPackageList.Package>();
 
-            if (pf.ShowDialog(parent) == DialogResult.Cancel)
-                return pathList;
-
-            pathList.AddRange(pf._selectedPackages);
-            return pathList;
+            return (pf.ShowDialog(parent) == DialogResult.Cancel) ? new List<UwpPackageList.Package>() : pf._selectedPackages;
         }
 
         private void btnOK_Click(object sender, EventArgs e)
         {
             for (var i = 0; i < listView.SelectedItems.Count; ++i)
             {
-                _selectedPackages.Add((UwpPackage.Package)listView.SelectedItems[i].Tag);
+                _selectedPackages.Add((UwpPackageList.Package)listView.SelectedItems[i].Tag);
             }
             DialogResult = DialogResult.OK;
         }
@@ -90,13 +86,21 @@ namespace pylorak.TinyWall
 
             var itemColl = new List<ListViewItem>();
 
-            var packages = UwpPackage.GetPackages();
+            var packageList = new UwpPackageList();
+
+            List<UwpPackageList.Package> packages;
 
             if (!string.IsNullOrWhiteSpace(_searchItem))
-                packages = packages.Where(p =>
+            {
+                packages = packageList.Where(p =>
                     p.Name.ToLower().Contains(_searchItem.ToLower())
                     || p.Publisher.ToLower().Contains(_searchItem.ToLower())
-                    ).ToArray();
+                ).ToList();
+            }
+            else
+            {
+                packages = packageList.ToList();
+            }
 
             foreach (var package in packages)
             {
@@ -112,16 +116,6 @@ namespace pylorak.TinyWall
             listView.BeginUpdate();
             listView.Items.Clear();
             listView.ListViewItemSorter = new ListViewItemComparer(0);
-
-            //if (!string.IsNullOrWhiteSpace(_searchItem))
-            //    itemColl = itemColl.Where(item =>
-            //        {
-            //            var subItem = item.SubItems;
-
-            //            return (subItem[0].Text.ToLower().Contains(_searchItem) ||
-            //                    subItem[1].Text.ToLower().Contains(_searchItem));
-            //        })
-            //        .ToList();
 
             listView.Items.AddRange(itemColl.ToArray());
             listView.EndUpdate();

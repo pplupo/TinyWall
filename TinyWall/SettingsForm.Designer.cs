@@ -226,7 +226,6 @@
             // columnLastModified
             // 
             this.columnLastModified.Tag = "colLastModified";
-            resources.ApplyResources(this.columnLastModified, "columnLastModified");
             // 
             // IconList
             // 

@@ -156,7 +156,7 @@ namespace pylorak.TinyWall
 
         private void RebuildExceptionsList()
         {
-            UwpPackage packageList = new UwpPackage();
+            var packageList = new UwpPackageList();
             _exceptionItems.Clear();
 
             foreach (var ex in TmpConfig.Service.ActiveProfile.AppExceptions)
@@ -202,7 +202,7 @@ namespace pylorak.TinyWall
             listApplications_SelectedIndexChanged(listApplications, EventArgs.Empty);
         }
 
-        private ListViewItem ListItemFromAppException(FirewallExceptionV3 ex, UwpPackage packageList)
+        private ListViewItem ListItemFromAppException(FirewallExceptionV3 ex, UwpPackageList packageList)
         {
             var li = new ListViewItem { Tag = ex };
 
@@ -665,7 +665,7 @@ namespace pylorak.TinyWall
 
         private void btnGithub_Click(object sender, EventArgs e)
         {
-            var psi = new ProcessStartInfo(@"https://github.com/pylorak/tinywall") { UseShellExecute = true };
+            var psi = new ProcessStartInfo(@"https://github.com/ShirazAdam/tinywall") { UseShellExecute = true };
             Process.Start(psi);
         }
     }

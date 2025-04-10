@@ -13,21 +13,21 @@ namespace pylorak.TinyWall
         {
             var ret = (MessageType)discriminator switch
             {
-                MessageType.GET_SETTINGS => (TwMessage?)JsonSerializer.Deserialize<TwMessageGetSettings>(ref reader, SourceGenerationContext.Default.TwMessageGetSettings),
-                MessageType.PUT_SETTINGS => (TwMessage?)JsonSerializer.Deserialize<TwMessagePutSettings>(ref reader, SourceGenerationContext.Default.TwMessagePutSettings),
-                MessageType.COM_ERROR => (TwMessage?)JsonSerializer.Deserialize<TwMessageComError>(ref reader, SourceGenerationContext.Default.TwMessageComError),
-                MessageType.RESPONSE_ERROR => (TwMessage?)JsonSerializer.Deserialize<TwMessageError>(ref reader, SourceGenerationContext.Default.TwMessageError),
-                MessageType.RESPONSE_LOCKED => (TwMessage?)JsonSerializer.Deserialize<TwMessageLocked>(ref reader, SourceGenerationContext.Default.TwMessageLocked),
-                MessageType.GET_PROCESS_PATH => (TwMessage?)JsonSerializer.Deserialize<TwMessageGetProcessPath>(ref reader, SourceGenerationContext.Default.TwMessageGetProcessPath),
-                MessageType.READ_FW_LOG => (TwMessage?)JsonSerializer.Deserialize<TwMessageReadFwLog>(ref reader, SourceGenerationContext.Default.TwMessageReadFwLog),
-                MessageType.IS_LOCKED => (TwMessage?)JsonSerializer.Deserialize<TwMessageIsLocked>(ref reader, SourceGenerationContext.Default.TwMessageIsLocked),
-                MessageType.UNLOCK => (TwMessage?)JsonSerializer.Deserialize<TwMessageUnlock>(ref reader, SourceGenerationContext.Default.TwMessageUnlock),
-                MessageType.MODE_SWITCH => (TwMessage?)JsonSerializer.Deserialize<TwMessageModeSwitch>(ref reader, SourceGenerationContext.Default.TwMessageModeSwitch),
-                MessageType.SET_PASSPHRASE => (TwMessage?)JsonSerializer.Deserialize<TwMessageSetPassword>(ref reader, SourceGenerationContext.Default.TwMessageSetPassword),
-                MessageType.REINIT => (TwMessage?)JsonSerializer.Deserialize<TwMessageSimple>(ref reader, SourceGenerationContext.Default.TwMessageSimple),
-                MessageType.LOCK => (TwMessage?)JsonSerializer.Deserialize<TwMessageSimple>(ref reader, SourceGenerationContext.Default.TwMessageSimple),
-                MessageType.STOP_SERVICE => (TwMessage?)JsonSerializer.Deserialize<TwMessageSimple>(ref reader, SourceGenerationContext.Default.TwMessageSimple),
-                MessageType.MINUTE_TIMER => (TwMessage?)JsonSerializer.Deserialize<TwMessageSimple>(ref reader, SourceGenerationContext.Default.TwMessageSimple),
+                MessageType.GET_SETTINGS => JsonSerializer.Deserialize<TwMessageGetSettings>(ref reader, SourceGenerationContext.Default.TwMessageGetSettings),
+                MessageType.PUT_SETTINGS => JsonSerializer.Deserialize<TwMessagePutSettings>(ref reader, SourceGenerationContext.Default.TwMessagePutSettings),
+                MessageType.COM_ERROR => JsonSerializer.Deserialize<TwMessageComError>(ref reader, SourceGenerationContext.Default.TwMessageComError),
+                MessageType.RESPONSE_ERROR => JsonSerializer.Deserialize<TwMessageError>(ref reader, SourceGenerationContext.Default.TwMessageError),
+                MessageType.RESPONSE_LOCKED => JsonSerializer.Deserialize<TwMessageLocked>(ref reader, SourceGenerationContext.Default.TwMessageLocked),
+                MessageType.GET_PROCESS_PATH => JsonSerializer.Deserialize<TwMessageGetProcessPath>(ref reader, SourceGenerationContext.Default.TwMessageGetProcessPath),
+                MessageType.READ_FW_LOG => JsonSerializer.Deserialize<TwMessageReadFwLog>(ref reader, SourceGenerationContext.Default.TwMessageReadFwLog),
+                MessageType.IS_LOCKED => JsonSerializer.Deserialize<TwMessageIsLocked>(ref reader, SourceGenerationContext.Default.TwMessageIsLocked),
+                MessageType.UNLOCK => JsonSerializer.Deserialize<TwMessageUnlock>(ref reader, SourceGenerationContext.Default.TwMessageUnlock),
+                MessageType.MODE_SWITCH => JsonSerializer.Deserialize<TwMessageModeSwitch>(ref reader, SourceGenerationContext.Default.TwMessageModeSwitch),
+                MessageType.SET_PASSPHRASE => JsonSerializer.Deserialize<TwMessageSetPassword>(ref reader, SourceGenerationContext.Default.TwMessageSetPassword),
+                MessageType.REINIT => JsonSerializer.Deserialize<TwMessageSimple>(ref reader, SourceGenerationContext.Default.TwMessageSimple),
+                MessageType.LOCK => JsonSerializer.Deserialize<TwMessageSimple>(ref reader, SourceGenerationContext.Default.TwMessageSimple),
+                MessageType.STOP_SERVICE => JsonSerializer.Deserialize<TwMessageSimple>(ref reader, SourceGenerationContext.Default.TwMessageSimple),
+                MessageType.MINUTE_TIMER => JsonSerializer.Deserialize<TwMessageSimple>(ref reader, SourceGenerationContext.Default.TwMessageSimple),
                 MessageType.ADD_TEMPORARY_EXCEPTION => (TwMessage?)JsonSerializer.Deserialize<TwMessageAddTempException>(ref reader, SourceGenerationContext.Default.TwMessageAddTempException),
                 _ => throw new JsonException($"Tried to deserialize unsupported type with discriminator {(MessageType)discriminator}."),
             };
@@ -66,7 +66,7 @@ namespace pylorak.TinyWall
                     JsonSerializer.Serialize<TwMessageAddTempException>(writer, typedVal, SourceGenerationContext.Default.TwMessageAddTempException); break;
                 default:
                     throw new JsonException($"Tried to serialize unsupported type {value.GetType()}.");
-            };
+            }
         }
     }
 
@@ -77,7 +77,7 @@ namespace pylorak.TinyWall
         public MessageType Type { get; }
 
         [JsonConstructor]
-        public TwMessage(MessageType type)
+        protected TwMessage(MessageType type)
         {
             Type = type;
         }
@@ -110,7 +110,7 @@ namespace pylorak.TinyWall
 
     public record TwMessageLocked : TwMessage
     {
-        public static TwMessageLocked Instance { get; } = new TwMessageLocked();
+        public static TwMessageLocked Instance { get; } = new();
 
         [JsonConstructor]
         public TwMessageLocked() :
@@ -133,19 +133,23 @@ namespace pylorak.TinyWall
             State = state;
         }
 
-        public static TwMessageGetSettings NewRequest(Guid clientChangeset)
+        public static TwMessageGetSettings CreateRequest(Guid clientChangeset)
         {
             return new TwMessageGetSettings(clientChangeset, null, null);
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>")]
-        public TwMessageGetSettings NewResponse(Guid serverChangeset, ServerConfiguration config, ServerState state)
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static")]
+#pragma warning restore IDE0079 // Remove unnecessary suppression
+        public TwMessageGetSettings CreateResponse(Guid serverChangeset, ServerConfiguration config, ServerState state)
         {
             return new TwMessageGetSettings(serverChangeset, config, state);
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>")]
-        public TwMessageGetSettings NewResponse(Guid serverChangeset)
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static")]
+#pragma warning restore IDE0079 // Remove unnecessary suppression
+        public TwMessageGetSettings CreateResponse(Guid serverChangeset)
         {
             return new TwMessageGetSettings(serverChangeset, null, null);
         }
@@ -168,13 +172,15 @@ namespace pylorak.TinyWall
             Warning = warning;
         }
 
-        public static TwMessagePutSettings NewRequest(Guid clientChangeset, ServerConfiguration config)
+        public static TwMessagePutSettings CreateRequest(Guid clientChangeset, ServerConfiguration config)
         {
             return new TwMessagePutSettings(clientChangeset, config, null, false);
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>")]
-        public TwMessagePutSettings NewResponse(Guid serverChangeset, ServerConfiguration config, ServerState? state, bool warning)
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static")]
+#pragma warning restore IDE0079 // Remove unnecessary suppression
+        public TwMessagePutSettings CreateResponse(Guid serverChangeset, ServerConfiguration config, ServerState? state, bool warning)
         {
             return new TwMessagePutSettings(serverChangeset, config, state, warning);
         }
@@ -193,11 +199,15 @@ namespace pylorak.TinyWall
             Path = path;
         }
 
-        public static TwMessageGetProcessPath NewRequest(uint pid)
+        public static TwMessageGetProcessPath CreateRequest(uint pid)
         {
             return new TwMessageGetProcessPath(pid, string.Empty);
         }
-        public TwMessageGetProcessPath NewResponse(string path)
+
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static")]
+#pragma warning restore IDE0079 // Remove unnecessary suppression
+        public TwMessageGetProcessPath CreateResponse(string path)
         {
             return new TwMessageGetProcessPath(Pid, path);
         }
@@ -214,13 +224,15 @@ namespace pylorak.TinyWall
             Entries = entries;
         }
 
-        public static TwMessageReadFwLog NewRequest()
+        public static TwMessageReadFwLog CreateRequest()
         {
             return new TwMessageReadFwLog(Array.Empty<FirewallLogEntry>());
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>")]
-        public TwMessageReadFwLog NewResponse(FirewallLogEntry[] entries)
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static")]
+#pragma warning restore IDE0079 // Remove unnecessary suppression
+        public TwMessageReadFwLog CreateResponse(FirewallLogEntry[] entries)
         {
             return new TwMessageReadFwLog(entries);
         }
@@ -237,13 +249,15 @@ namespace pylorak.TinyWall
             LockedStatus = lockedStatus;
         }
 
-        public static TwMessageIsLocked NewRequest()
+        public static TwMessageIsLocked CreateRequest()
         {
             return new TwMessageIsLocked(false);
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>")]
-        public TwMessageIsLocked NewResponse(bool lockedStatus)
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static")]
+#pragma warning restore IDE0079 // Remove unnecessary suppression
+        public TwMessageIsLocked CreateResponse(bool lockedStatus)
         {
             return new TwMessageIsLocked(lockedStatus);
         }
@@ -260,13 +274,15 @@ namespace pylorak.TinyWall
             Password = password;
         }
 
-        public static TwMessageUnlock NewRequest(string password)
+        public static TwMessageUnlock CreateRequest(string password)
         {
             return new TwMessageUnlock(password);
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>")]
-        public TwMessageUnlock NewResponse()
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static")]
+#pragma warning restore IDE0079 // Remove unnecessary suppression
+        public TwMessageUnlock CreateResponse()
         {
             return new TwMessageUnlock(string.Empty);
         }
@@ -283,13 +299,15 @@ namespace pylorak.TinyWall
             Mode = mode;
         }
 
-        public static TwMessageModeSwitch NewRequest(FirewallMode mode)
+        public static TwMessageModeSwitch CreateRequest(FirewallMode mode)
         {
             return new TwMessageModeSwitch(mode);
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>")]
-        public TwMessageModeSwitch NewResponse(FirewallMode mode)
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static")]
+#pragma warning restore IDE0079 // Remove unnecessary suppression
+        public TwMessageModeSwitch CreateResponse(FirewallMode mode)
         {
             return new TwMessageModeSwitch(mode);
         }
@@ -306,13 +324,15 @@ namespace pylorak.TinyWall
             Password = password;
         }
 
-        public static TwMessageSetPassword NewRequest(string pwd)
+        public static TwMessageSetPassword CreateRequest(string pwd)
         {
             return new TwMessageSetPassword(pwd);
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>")]
-        public TwMessageSetPassword NewResponse()
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static")]
+#pragma warning restore IDE0079 // Remove unnecessary suppression
+        public TwMessageSetPassword CreateResponse()
         {
             return new TwMessageSetPassword(string.Empty);
         }
@@ -325,12 +345,15 @@ namespace pylorak.TinyWall
             base(type)
         { }
 
-        public static TwMessageSimple NewRequest(MessageType type)
+        public static TwMessageSimple CreateRequest(MessageType type)
         {
             return new TwMessageSimple(type);
         }
 
-        public TwMessageSimple NewResponse()
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static")]
+#pragma warning restore IDE0079 // Remove unnecessary suppression
+        public TwMessageSimple CreateResponse()
         {
             return new TwMessageSimple(Type);
         }
@@ -347,13 +370,15 @@ namespace pylorak.TinyWall
             Exceptions = exceptions;
         }
 
-        public static TwMessageAddTempException NewRequest(FirewallExceptionV3[] exceptions)
+        public static TwMessageAddTempException CreateRequest(FirewallExceptionV3[] exceptions)
         {
             return new TwMessageAddTempException(exceptions);
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>")]
-        public TwMessageAddTempException NewResponse()
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static")]
+#pragma warning restore IDE0079 // Remove unnecessary suppression
+        public TwMessageAddTempException CreateResponse()
         {
             return new TwMessageAddTempException(Array.Empty<FirewallExceptionV3>());
         }
@@ -370,13 +395,15 @@ namespace pylorak.TinyWall
             PowerOn = powerOn;
         }
 
-        public static TwMessageDisplayPowerEvent NewRequest(bool powerOn)
+        public static TwMessageDisplayPowerEvent CreateRequest(bool powerOn)
         {
             return new TwMessageDisplayPowerEvent(powerOn);
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>")]
-        public TwMessageDisplayPowerEvent NewResponse(bool powerOn)
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static")]
+#pragma warning restore IDE0079 // Remove unnecessary suppression
+        public TwMessageDisplayPowerEvent CreateResponse(bool powerOn)
         {
             return new TwMessageDisplayPowerEvent(powerOn);
         }

@@ -1,10 +1,9 @@
-﻿using System;
-using System.IO;
-using System.Text;
-using System.Diagnostics.CodeAnalysis;
+﻿using pylorak.Utilities;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Runtime.Serialization;
-using pylorak.Utilities;
+using System.Text;
 using System.Text.Json.Serialization.Metadata;
 
 namespace pylorak.TinyWall
@@ -137,23 +136,23 @@ namespace pylorak.TinyWall
         }
     }
 
-    public sealed class PasswordManager
+    public static class PasswordLock
     {
         internal static string PasswordFilePath { get; } = Path.Combine(Utils.AppDataPath, "pwd");
 
-        private bool _Locked;
+        private static bool _locked;
 
-        internal bool Locked
+        internal static bool Locked
         {
-            get { return _Locked && HasPassword; }
+            get => _locked && HasPassword;
             set
             {
                 if (value && HasPassword)
-                    _Locked = true;
+                    _locked = true;
             }
         }
 
-        internal void SetPass(string password)
+        internal static void SetPass(string password)
         {
             // Construct file path
             string SettingsFile = PasswordFilePath;
@@ -163,17 +162,15 @@ namespace pylorak.TinyWall
                 File.Delete(SettingsFile);
             else
             {
-                using (AtomicFileUpdater fileUpdater = new AtomicFileUpdater(PasswordFilePath))
-                {
-                    string salt = Utils.RandomString(8);
-                    string hash = Pbkdf2.GetHashForStorage(password, salt, 150000, 16);
-                    File.WriteAllText(fileUpdater.TemporaryFilePath, hash, Encoding.UTF8);
-                    fileUpdater.Commit();
-                }
+                using var fileUpdater = new AtomicFileUpdater(PasswordFilePath);
+                string salt = Utils.RandomString(8);
+                string hash = Pbkdf2.GetHashForStorage(password, salt, 150000, 16);
+                File.WriteAllText(fileUpdater.TemporaryFilePath, hash, Encoding.UTF8);
+                fileUpdater.Commit();
             }
         }
 
-        internal bool Unlock(string password)
+        internal static bool Unlock(string password)
         {
             if (!HasPassword)
                 return true;
@@ -181,28 +178,28 @@ namespace pylorak.TinyWall
             try
             {
                 string storedHash = System.IO.File.ReadAllText(PasswordFilePath, System.Text.Encoding.UTF8);
-                _Locked = !Pbkdf2.CompareHash(storedHash, password);
+                _locked = !Pbkdf2.CompareHash(storedHash, password);
             }
             catch { }
 
-            return !_Locked;
+            return !_locked;
         }
 
-        internal bool HasPassword
+        internal static bool HasPassword
         {
             get
             {
                 if (!File.Exists(PasswordFilePath))
                     return false;
 
-                FileInfo fi = new FileInfo(PasswordFilePath);
+                var fi = new FileInfo(PasswordFilePath);
                 return (fi.Length != 0);
             }
         }
     }
 
     [DataContract(Namespace = "http://schemas.datacontract.org/2004/07/PKSoft")]
-     public sealed class ConfigContainer : ISerializable<ConfigContainer>
+    public sealed class ConfigContainer : ISerializable<ConfigContainer>
     {
         [DataMember(EmitDefaultValue = false)]
         public ServerConfiguration Service;

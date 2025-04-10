@@ -1,9 +1,10 @@
-﻿using System;
-using System.Security.Cryptography.X509Certificates;
+﻿using pylorak.TinyWall.Parser;
+using pylorak.Windows;
+using System;
 using System.Runtime.Serialization;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using pylorak.Windows;
 
 namespace pylorak.TinyWall
 {
@@ -381,7 +382,7 @@ namespace pylorak.TinyWall
             this.PublisherId = publisherId;
         }
 
-        public AppContainerSubject(UwpPackage.Package package) :
+        public AppContainerSubject(UwpPackageList.Package package) :
             this(package.Sid, package.Name, package.Publisher, package.PublisherId)
         { }
 
