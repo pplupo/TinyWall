@@ -699,19 +699,19 @@ namespace pylorak.TinyWall
 
         private void InstallWsl2Filters(bool permit)
         {
-            const string ifAlias = "vEthernet (WSL)";
+            const string IF_ALIAS = "vEthernet (WSL)";
             try
             {
-                if (!LocalInterfaceCondition.InterfaceAliasExists(ifAlias)) return;
+                if (!LocalInterfaceCondition.InterfaceAliasExists(IF_ALIAS)) return;
 
-                InstallWsl2Filters(permit, ifAlias, LayerKeyEnum.FWPM_LAYER_ALE_AUTH_CONNECT_V4);
-                InstallWsl2Filters(permit, ifAlias, LayerKeyEnum.FWPM_LAYER_ALE_AUTH_CONNECT_V6);
-                InstallWsl2Filters(permit, ifAlias, LayerKeyEnum.FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4);
-                InstallWsl2Filters(permit, ifAlias, LayerKeyEnum.FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6);
-                InstallWsl2Filters(permit, ifAlias, LayerKeyEnum.FWPM_LAYER_OUTBOUND_ICMP_ERROR_V4);
-                InstallWsl2Filters(permit, ifAlias, LayerKeyEnum.FWPM_LAYER_OUTBOUND_ICMP_ERROR_V6);
-                InstallWsl2Filters(permit, ifAlias, LayerKeyEnum.FWPM_LAYER_INBOUND_ICMP_ERROR_V4);
-                InstallWsl2Filters(permit, ifAlias, LayerKeyEnum.FWPM_LAYER_INBOUND_ICMP_ERROR_V6);
+                InstallWsl2Filters(permit, IF_ALIAS, LayerKeyEnum.FWPM_LAYER_ALE_AUTH_CONNECT_V4);
+                InstallWsl2Filters(permit, IF_ALIAS, LayerKeyEnum.FWPM_LAYER_ALE_AUTH_CONNECT_V6);
+                InstallWsl2Filters(permit, IF_ALIAS, LayerKeyEnum.FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4);
+                InstallWsl2Filters(permit, IF_ALIAS, LayerKeyEnum.FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6);
+                InstallWsl2Filters(permit, IF_ALIAS, LayerKeyEnum.FWPM_LAYER_OUTBOUND_ICMP_ERROR_V4);
+                InstallWsl2Filters(permit, IF_ALIAS, LayerKeyEnum.FWPM_LAYER_OUTBOUND_ICMP_ERROR_V6);
+                InstallWsl2Filters(permit, IF_ALIAS, LayerKeyEnum.FWPM_LAYER_INBOUND_ICMP_ERROR_V4);
+                InstallWsl2Filters(permit, IF_ALIAS, LayerKeyEnum.FWPM_LAYER_INBOUND_ICMP_ERROR_V6);
             }
             catch
             {
@@ -1294,19 +1294,18 @@ namespace pylorak.TinyWall
 
         private bool CommitLearnedRules()
         {
-            bool config_changed = false;
+            var configChanged = false;
             lock (_learningNewExceptions)
             {
-                if (_learningNewExceptions.Count > 0)
-                {
-                    GlobalInstances.ServerChangeset = Guid.NewGuid();
-                    ActiveConfig.Service.ActiveProfile.AddExceptions(_learningNewExceptions);
-                    _learningNewExceptions.Clear();
-                    config_changed = true;
-                }
+                if (_learningNewExceptions.Count <= 0) return configChanged;
+
+                GlobalInstances.ServerChangeset = Guid.NewGuid();
+                ActiveConfig.Service.ActiveProfile.AddExceptions(_learningNewExceptions);
+                _learningNewExceptions.Clear();
+                configChanged = true;
             }
 
-            return config_changed;
+            return configChanged;
         }
 
         private static bool HasSystemRebooted()
@@ -1525,8 +1524,8 @@ namespace pylorak.TinyWall
                 case MessageType.MINUTE_TIMER:
                     {
                         var args = (TwMessageSimple)req;
-                        bool save_needed = false;
-                        bool rule_reload_needed = false;
+                        var saveNeeded = false;
+                        var ruleReloadNeeded = false;
 
                         // Check for inactivity and lock if necessary
                         if (DateTime.Now - _lastControllerCommandTime > TimeSpan.FromMinutes(10))
@@ -1536,22 +1535,22 @@ namespace pylorak.TinyWall
 
                         if (PruneExpiredRules())
                         {
-                            save_needed = true;
-                            rule_reload_needed = true;
+                            saveNeeded = true;
+                            ruleReloadNeeded = true;
                         }
 
                         // Periodically reload all rules.
                         // This is needed to clear out temprary rules added due to child-process rule inheritance.
                         if (DateTime.Now - _lastRuleReloadTime > TimeSpan.FromMinutes(30))
                         {
-                            rule_reload_needed = true;
+                            ruleReloadNeeded = true;
                         }
 
-                        if (save_needed)
+                        if (saveNeeded)
                         {
                             ActiveConfig.Service.Save(ConfigSavePath);
                         }
-                        if (rule_reload_needed)
+                        if (ruleReloadNeeded)
                         {
                             InstallFirewallRules();
                         }
@@ -1718,7 +1717,7 @@ namespace pylorak.TinyWall
             ReenumerateAdresses();
 
             // Fire up pipe
-            _serverPipe = new PipeServerEndpoint(new PipeDataReceived(PipeServerDataReceived), "TinyWallController");
+            _serverPipe = new PipeServerEndpoint(PipeServerDataReceived, "TinyWallController");
         }
 
         // Entry point for thread that actually issues commands to Windows Firewall.
@@ -2026,7 +2025,7 @@ namespace pylorak.TinyWall
 
     internal sealed class TinyWallService : ServiceBase
     {
-        internal readonly static string[] ServiceDependencies = new string[]
+        internal static readonly string[] ServiceDependencies = new string[]
         {
             "Schedule",
             "Winmgmt",
@@ -2034,9 +2033,11 @@ namespace pylorak.TinyWall
         };
 
         internal const string SERVICE_NAME = "TinyWall";
+
         internal const string SERVICE_DISPLAY_NAME = "TinyWall Service";
 
         private TinyWallServer? _server;
+
         private Thread? _firewallWorkerThread;
 #if !DEBUG
 		private bool IsComputerShuttingDown;
