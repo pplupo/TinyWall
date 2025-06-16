@@ -1,4 +1,5 @@
 ﻿using pylorak.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -80,16 +81,11 @@ namespace pylorak.TinyWall
         [OnDeserialized]
         private void OnDeserialized(StreamingContext sc)
         {
-            if (ConnFormColumnWidths == null)
-                ConnFormColumnWidths = new Dictionary<string, int>();
-            if (ProcessesFormColumnWidths == null)
-                ProcessesFormColumnWidths = new Dictionary<string, int>();
-            if (ServicesFormColumnWidths == null)
-                ServicesFormColumnWidths = new Dictionary<string, int>();
-            if (UwpPackagesFormColumnWidths == null)
-                UwpPackagesFormColumnWidths = new Dictionary<string, int>();
-            if (SettingsFormAppListColumnWidths == null)
-                SettingsFormAppListColumnWidths = new Dictionary<string, int>();
+            ConnFormColumnWidths ??= new Dictionary<string, int>();
+            ProcessesFormColumnWidths ??= new Dictionary<string, int>();
+            ServicesFormColumnWidths ??= new Dictionary<string, int>();
+            UwpPackagesFormColumnWidths ??= new Dictionary<string, int>();
+            SettingsFormAppListColumnWidths ??= new Dictionary<string, int>();
         }
 
         internal static string UserDataPath
