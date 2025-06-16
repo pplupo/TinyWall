@@ -362,7 +362,7 @@ namespace pylorak.TinyWall
             provider.serviceName = TinyWallService.SERVICE_NAME;
             provider.flags = FWPM_PROVIDER_FLAGS.FWPM_PROVIDER_FLAG_PERSISTENT;
             provider.providerKey = TinywallProviderKey;
-            Guid providerKey = Guid.Empty;
+            var providerKey = _wfpEngine.RegisterProvider(ref provider);
             Debug.Assert(TinywallProviderKey == providerKey);
 
             // Install sublayers
