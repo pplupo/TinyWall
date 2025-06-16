@@ -1,5 +1,4 @@
 ﻿using pylorak.Utilities;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -93,7 +92,7 @@ namespace pylorak.TinyWall
             get
             {
 #if DEBUG
-                return Path.GetDirectoryName(Utils.ExecutablePath);
+                return Path.GetDirectoryName(Utils.ExecutablePath) ?? string.Empty;
 #else
                 string dir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
                 dir = System.IO.Path.Combine(dir, "TinyWall");
