@@ -26,11 +26,31 @@ jobs:
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v2
 
-      # THIS IS THE CORRECTED LINE:
-      - name: Setup WiX v3 Toolset
-        uses: wixtoolset/wix3-action@v1 # The typo is fixed here
-        with:
-          version: v3.14.0
+      # --- WORKAROUND: Manual WiX Installation ---
+      # This replaces the 'uses: wixtoolset/wix3-action@v1' step
+      - name: Setup WiX Toolset Manually
+        shell: pwsh
+        run: |
+          # 1. Download WiX Toolset 3.14
+          Write-Host "Downloading WiX Toolset..."
+          $wixUrl = "https://github.com/wixtoolset/wix3/releases/download/wix3141rtm/wix314.exe"
+          $wixInstaller = "$env:TEMP\wix314.exe"
+          Invoke-WebRequest -Uri $wixUrl -OutFile $wixInstaller
+
+          # 2. Install WiX Toolset quietly
+          Write-Host "Installing WiX Toolset..."
+          Start-Process -FilePath $wixInstaller -ArgumentList "/install", "/quiet", "/norestart" -Wait
+
+          # 3. Add WiX tools directory to the GITHUB_PATH for subsequent steps
+          Write-Host "Adding WiX to PATH..."
+          $wixPath = "${env:ProgramFiles(x86)}\WiX Toolset v3.14\bin"
+          if (Test-Path $wixPath) {
+            Add-Content -Path $env:GITHUB_PATH -Value $wixPath
+            Write-Host "✓ WiX Toolset added to PATH: $wixPath"
+          } else {
+            Write-Error "ERROR: WiX installation directory not found at $wixPath"
+            exit 1
+          }
 
       - name: Cache NuGet packages
         uses: actions/cache@v4
@@ -50,27 +70,17 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
-
           $appExe = "TinyWall\bin\Release\TinyWall.exe"
-          if (-Not (Test-Path $appExe)) {
-            Write-Error "ERROR: $appExe not found after build. Check the build log for errors."
-            exit 1
-          }
+          if (-Not (Test-Path $appExe)) { Write-Error "ERROR: $appExe not found after build."; exit 1 }
           Write-Host "✓ Application executable found."
-
           $targetDir = "MsiSetup\Sources\ProgramFiles\TinyWall"
           New-Item -ItemType Directory -Force -Path $targetDir
-
           $sourceDir = "TinyWall\bin\Release"
           Copy-Item -Path "$sourceDir\*" -Destination $targetDir -Recurse -Force
-          Write-Host "✓ Copied application files from $sourceDir to $targetDir"
-
-          $dbSourceDir = "TinyWall\Database"
-          $dbTargetDir = "MsiSetup\Sources\CommonAppData\TinyWall"
+          Write-Host "✓ Copied application files to $targetDir"
+          $dbSourceDir = "TinyWall\Database"; $dbTargetDir = "MsiSetup\Sources\CommonAppData\TinyWall"
           if (Test-Path $dbSourceDir) {
-            if (-Not (Test-Path $dbTargetDir)) {
-              New-Item -ItemType Directory -Path $dbTargetDir -Force
-            }
+            if (-Not (Test-Path $dbTargetDir)) { New-Item -ItemType Directory -Path $dbTargetDir -Force }
             Copy-Item -Path "$dbSourceDir\*" -Destination $dbTargetDir -Recurse -Force
             Write-Host "✓ Copied database files to $dbTargetDir"
           }
@@ -82,10 +92,7 @@ jobs:
         shell: pwsh
         run: |
           $msiFile = "MsiSetup\bin\Release\TinyWallInstaller.msi"
-          if (-Not (Test-Path $msiFile)) {
-            Write-Error "ERROR: Installer file $msiFile not found after WiX build."
-            exit 1
-          }
+          if (-Not (Test-Path $msiFile)) { Write-Error "ERROR: Installer file not found."; exit 1 }
           $msiInfo = Get-Item $msiFile
           Write-Host "✓ MSI installer created successfully: $($msiInfo.Name) ($([math]::Round($msiInfo.Length / 1MB, 2)) MB)"
 
