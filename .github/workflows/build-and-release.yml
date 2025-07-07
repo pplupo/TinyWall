@@ -1,6 +1,6 @@
 name: Build and Release MSI Installer
 
-on:
+"on":
   # Run on pushes to the main development branch
   push:
     branches: [ devel ]
@@ -27,37 +27,91 @@ jobs:
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v2
 
+      - name: Setup .NET Framework 4.8 Developer Pack
+        run: |
+          # Download and install .NET Framework 4.8 Developer Pack
+          $url = "https://download.microsoft.com/download/7/4/0/74078208-B793-4B83-9FA3-B71142C23E0D/NDP48-DevPack-ENU.exe"
+          $installer = "$env:TEMP\NDP48-DevPack-ENU.exe"
+          Invoke-WebRequest -Uri $url -OutFile $installer
+          Start-Process -FilePath $installer -ArgumentList "/quiet" -Wait
+
+      - name: Cache WiX Toolset
+        id: cache-wix
+        uses: actions/cache@v4
+        with:
+          path: "C:\\Program Files (x86)\\WiX Toolset v3.14"
+          key: wix-toolset-3.14
+
       - name: Setup WiX Toolset
+        if: steps.cache-wix.outputs.cache-hit != 'true'
         run: |
           # Download and install WiX Toolset 3.14
           $wixUrl = "https://github.com/wixtoolset/wix3/releases/download/wix3141rtm/wix314.exe"
           $wixInstaller = "$env:TEMP\wix314.exe"
           Invoke-WebRequest -Uri $wixUrl -OutFile $wixInstaller
           Start-Process -FilePath $wixInstaller -ArgumentList "/quiet" -Wait
-          
+
+      - name: Add WiX to PATH
+        run: |
           # Add WiX to PATH
           $wixPath = "${env:ProgramFiles(x86)}\WiX Toolset v3.14\bin"
           echo "$wixPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.sln') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
 
       - name: Restore NuGet packages
         run: nuget restore TinyWall.sln
 
       - name: Build TinyWall Application
-        run: msbuild TinyWall.sln -p:Configuration=Release -p:Platform="Any CPU"
+        run: |
+          msbuild TinyWall.sln -p:Configuration=Release -p:Platform="Any CPU" -p:WarningLevel=0 -nologo
+
+      - name: Verify build output
+        run: |
+          if (-Not (Test-Path "TinyWall\bin\Release\TinyWall.exe")) {
+            Write-Error "TinyWall.exe not found in build output"
+            exit 1
+          }
+          Write-Host "✓ TinyWall.exe found in build output"
 
       - name: Copy application files to MSI source directory
         run: |
+          # Enable strict error handling
+          $ErrorActionPreference = "Stop"
+          
           # Create the target directory if it doesn't exist
           $targetDir = "MsiSetup\Sources\ProgramFiles\TinyWall"
           if (-Not (Test-Path $targetDir)) {
             New-Item -ItemType Directory -Path $targetDir -Force
+            Write-Host "✓ Created target directory: $targetDir"
           }
           
           # Copy the built application files
-          Copy-Item -Path "TinyWall\bin\Release\*" -Destination $targetDir -Recurse -Force
+          $sourceDir = "TinyWall\bin\Release"
+          if (Test-Path $sourceDir) {
+            Copy-Item -Path "$sourceDir\*" -Destination $targetDir -Recurse -Force
+            Write-Host "✓ Copied application files from $sourceDir to $targetDir"
+            
+            # List copied files for verification
+            $copiedFiles = Get-ChildItem -Path $targetDir -File
+            Write-Host "  Copied $($copiedFiles.Count) files:"
+            $copiedFiles | ForEach-Object { Write-Host "    - $($_.Name)" }
+          } else {
+            Write-Error "Source directory $sourceDir not found"
+            exit 1
+          }
 
       - name: Update database files
         run: |
+          # Enable strict error handling
+          $ErrorActionPreference = "Stop"
+          
           # Copy database files if they exist
           $dbSourceDir = "TinyWall\Database"
           $dbTargetDir = "MsiSetup\Sources\CommonAppData\TinyWall"
@@ -65,12 +119,35 @@ jobs:
           if (Test-Path $dbSourceDir) {
             if (-Not (Test-Path $dbTargetDir)) {
               New-Item -ItemType Directory -Path $dbTargetDir -Force
+              Write-Host "✓ Created database target directory: $dbTargetDir"
             }
+            
             Copy-Item -Path "$dbSourceDir\*" -Destination $dbTargetDir -Recurse -Force
+            Write-Host "✓ Copied database files from $dbSourceDir to $dbTargetDir"
+            
+            # List copied database files
+            $dbFiles = Get-ChildItem -Path $dbTargetDir -File
+            Write-Host "  Copied $($dbFiles.Count) database files:"
+            $dbFiles | ForEach-Object { Write-Host "    - $($_.Name)" }
+          } else {
+            Write-Host "⚠ Database source directory $dbSourceDir not found, skipping database files"
           }
 
       - name: Build MSI Installer
-        run: msbuild MsiSetup\MsiSetup.wixproj -p:Configuration=Release -p:Platform=x86
+        run: |
+          msbuild MsiSetup\MsiSetup.wixproj -p:Configuration=Release -p:Platform=x86 -p:WarningLevel=0 -nologo
+
+      - name: Verify MSI output
+        run: |
+          if (-Not (Test-Path "MsiSetup\bin\Release\TinyWallInstaller.msi")) {
+            Write-Error "TinyWallInstaller.msi not found in build output"
+            exit 1
+          }
+          $msiInfo = Get-Item "MsiSetup\bin\Release\TinyWallInstaller.msi"
+          Write-Host "✓ MSI installer created successfully"
+          Write-Host "  File: $($msiInfo.Name)"
+          Write-Host "  Size: $([math]::Round($msiInfo.Length / 1MB, 2)) MB"
+          Write-Host "  Created: $($msiInfo.CreationTime)"
 
       - name: Upload MSI as an artifact
         uses: actions/upload-artifact@v4
