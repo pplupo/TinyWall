@@ -48,8 +48,8 @@ This repository includes GitHub Actions workflows for automated building and rel
 ### Build Workflow
 
 The workflow automatically builds the TinyWall application and MSI installer when:
-- Code is pushed to the `devel` branch
-- Pull requests are created targeting the `devel` branch  
+- Code is pushed to the `master` branch
+- Pull requests are created targeting the `master` branch  
 - GitHub releases are created
 
 ### Release Workflow

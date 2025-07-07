@@ -3,10 +3,10 @@ name: Build and Release MSI Installer
 "on":
   # Run on pushes to the main development branch
   push:
-    branches: [ devel ]
+    branches: [ master ]
   # Run on pull requests targeting the main development branch
   pull_request:
-    branches: [ devel ]
+    branches: [ master ]
   # Run when a tag is pushed (e.g., v1.0.0, v1.2.3)
   release:
     types: [created]
@@ -161,7 +161,7 @@ jobs:
     # This job needs the 'build' job to complete successfully first
     needs: build
     runs-on: windows-latest
-    # This condition ensures the job only runs for tag pushes, not on every push to 'devel'
+    # This condition ensures the job only runs for tag pushes, not on every push to 'master'
     if: github.event_name == 'release'
 
     steps:
