@@ -77,7 +77,7 @@ namespace pylorak.TinyWall.MaterialDesign
                 new NavigationItem("Dashboard", "🏠", "dashboard"),
                 new NavigationItem("Connections", "🔗", "connections"),
                 new NavigationItem("Processes", "⚙️", "processes"),
-                new NavigationItem("Services", "🔧", "services"),
+                new NavigationItem("Services", "🛠️", "services"),
                 new NavigationItem("Settings", "⚙️", "settings"),
                 new NavigationItem("Help", "❓", "help")
             };

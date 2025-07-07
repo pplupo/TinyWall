@@ -1478,6 +1478,17 @@ namespace pylorak.TinyWall
         {
             ShowMainDashboard();
         }
+        
+        // Public properties to expose firewall data to the dashboard
+        public ServerState CurrentFirewallState => this.FirewallState;
+        public TrafficRateMonitor CurrentTrafficMonitor => this.TrafficMonitor;
+        public string FirewallModeName { get; private set; } = string.Empty;
+        
+        public int GetActiveRulesCount()
+        {
+            // Get count from actual firewall configuration
+            return ActiveConfig.Service?.ApplicationExceptions?.Count ?? 0;
+        }
     }
 
     internal class AnyEventArgs : EventArgs

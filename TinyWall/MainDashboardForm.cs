@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Globalization;
+using System.Linq;
 using System.Windows.Forms;
 using pylorak.TinyWall.MaterialDesign;
 
@@ -203,13 +204,37 @@ namespace pylorak.TinyWall
             MaterialHelper.StyleMaterialHeader(chartTitle, 3);
             chartPanel.Controls.Add(chartTitle);
             
+            // Traffic rate labels
+            var inLabel = new Label
+            {
+                Text = "In: 0 KB/s",
+                Location = new Point(250, 16),
+                Size = new Size(100, 24),
+                BackColor = Color.Transparent,
+                ForeColor = MaterialColors.Success
+            };
+            MaterialHelper.StyleMaterialLabel(inLabel);
+            chartPanel.Controls.Add(inLabel);
+            
+            var outLabel = new Label
+            {
+                Text = "Out: 0 KB/s",
+                Location = new Point(360, 16),
+                Size = new Size(100, 24),
+                BackColor = Color.Transparent,
+                ForeColor = MaterialColors.Primary
+            };
+            MaterialHelper.StyleMaterialLabel(outLabel);
+            chartPanel.Controls.Add(outLabel);
+            
             // Simple chart placeholder (could be replaced with actual charting library)
             var chartArea = new Panel
             {
                 Location = new Point(16, 50),
                 Size = new Size(568, 134),
                 BackColor = Color.FromArgb(248, 248, 248),
-                BorderStyle = BorderStyle.FixedSingle
+                BorderStyle = BorderStyle.FixedSingle,
+                Tag = new { InLabel = inLabel, OutLabel = outLabel } // Store labels for updates
             };
             
             // Add some basic chart visualization
@@ -224,31 +249,63 @@ namespace pylorak.TinyWall
         
         private void DrawTrafficChart(Graphics graphics, Size size)
         {
-            // Simple line chart for traffic data
-            var points = new[]
+            // Get current traffic data
+            var trafficMonitor = _controller.CurrentTrafficMonitor;
+            if (trafficMonitor == null)
             {
-                new Point(10, size.Height - 20),
-                new Point(60, size.Height - 40),
-                new Point(110, size.Height - 30),
-                new Point(160, size.Height - 60),
-                new Point(210, size.Height - 45),
-                new Point(260, size.Height - 70),
-                new Point(310, size.Height - 55),
-                new Point(360, size.Height - 80),
-                new Point(410, size.Height - 65),
-                new Point(460, size.Height - 90),
-                new Point(510, size.Height - 75)
-            };
+                // Draw placeholder if no data available
+                using var font = new Font("Segoe UI", 10f);
+                using var brush = new SolidBrush(MaterialColors.TextSecondary);
+                var text = "Traffic data not available";
+                var textSize = graphics.MeasureString(text, font);
+                graphics.DrawString(text, font, brush, 
+                    (size.Width - textSize.Width) / 2, (size.Height - textSize.Height) / 2);
+                return;
+            }
             
-            using var pen = new Pen(MaterialColors.Primary, 2);
-            graphics.DrawLines(pen, points);
+            // Simple bar chart for current traffic rates
+            var inKBps = Math.Max(0, trafficMonitor.BytesReceivedPerSec / 1024.0);
+            var outKBps = Math.Max(0, trafficMonitor.BytesSentPerSec / 1024.0);
             
-            // Add axis labels
+            var maxRate = Math.Max(Math.Max(inKBps, outKBps), 100); // Minimum scale of 100 KB/s
+            var barWidth = 40;
+            var barSpacing = 60;
+            var maxBarHeight = size.Height - 40;
+            
+            // Draw incoming traffic bar
+            var inHeight = (int)((inKBps / maxRate) * maxBarHeight);
+            var inBarRect = new Rectangle(size.Width / 4 - barWidth / 2, size.Height - 20 - inHeight, barWidth, inHeight);
+            using (var inBrush = new SolidBrush(MaterialColors.Success))
+            {
+                graphics.FillRectangle(inBrush, inBarRect);
+            }
+            
+            // Draw outgoing traffic bar
+            var outHeight = (int)((outKBps / maxRate) * maxBarHeight);
+            var outBarRect = new Rectangle(3 * size.Width / 4 - barWidth / 2, size.Height - 20 - outHeight, barWidth, outHeight);
+            using (var outBrush = new SolidBrush(MaterialColors.Primary))
+            {
+                graphics.FillRectangle(outBrush, outBarRect);
+            }
+            
+            // Draw labels
             using var font = new Font("Segoe UI", 8f);
-            using var brush = new SolidBrush(MaterialColors.TextSecondary);
+            using var brush = new SolidBrush(MaterialColors.TextPrimary);
             
-            graphics.DrawString("Time", font, brush, new Point(size.Width - 40, size.Height - 15));
-            graphics.DrawString("Traffic", font, brush, new Point(5, 5));
+            var inLabel = "IN";
+            var outLabel = "OUT";
+            var inLabelSize = graphics.MeasureString(inLabel, font);
+            var outLabelSize = graphics.MeasureString(outLabel, font);
+            
+            graphics.DrawString(inLabel, font, brush, 
+                size.Width / 4 - inLabelSize.Width / 2, size.Height - 15);
+            graphics.DrawString(outLabel, font, brush, 
+                3 * size.Width / 4 - outLabelSize.Width / 2, size.Height - 15);
+            
+            // Draw scale
+            using var scaleBrush = new SolidBrush(MaterialColors.TextSecondary);
+            var scaleText = $"Max: {maxRate:F0} KB/s";
+            graphics.DrawString(scaleText, font, scaleBrush, new Point(5, 5));
         }
         
         private void CreateRecentActivity()
@@ -265,7 +322,7 @@ namespace pylorak.TinyWall
             // Activity title
             var activityTitle = new Label
             {
-                Text = "Recent Activity",
+                Text = "Firewall Status",
                 Location = new Point(16, 16),
                 Size = new Size(200, 24),
                 BackColor = Color.Transparent
@@ -273,24 +330,65 @@ namespace pylorak.TinyWall
             MaterialHelper.StyleMaterialHeader(activityTitle, 3);
             activityPanel.Controls.Add(activityTitle);
             
-            // Activity list
-            var activityList = new ListBox
+            // Status information
+            var statusList = new Panel
             {
                 Location = new Point(16, 50),
                 Size = new Size(318, 134),
                 BackColor = Color.Transparent,
-                BorderStyle = BorderStyle.None,
-                Font = new Font("Segoe UI", 9f)
+                AutoScroll = true
             };
             
-            // Add sample activity items
-            activityList.Items.Add("🔒 Blocked connection from 192.168.1.100");
-            activityList.Items.Add("✅ Allowed Chrome.exe");
-            activityList.Items.Add("🔒 Blocked suspicious port scan");
-            activityList.Items.Add("⚙️ Firewall rules updated");
-            activityList.Items.Add("✅ Allowed Steam.exe");
+            // Add firewall mode status
+            var modeLabel = new Label
+            {
+                Text = $"Mode: {GetFirewallStatusText()}",
+                Location = new Point(0, 5),
+                Size = new Size(300, 20),
+                BackColor = Color.Transparent,
+                ForeColor = GetFirewallStatusColor(),
+                Font = new Font("Segoe UI", 9f, FontStyle.Bold)
+            };
+            statusList.Controls.Add(modeLabel);
             
-            activityPanel.Controls.Add(activityList);
+            // Add rules count
+            var rulesLabel = new Label
+            {
+                Text = $"Active Rules: {GetActiveRulesCount()}",
+                Location = new Point(0, 30),
+                Size = new Size(300, 20),
+                BackColor = Color.Transparent
+            };
+            MaterialHelper.StyleMaterialLabel(rulesLabel);
+            statusList.Controls.Add(rulesLabel);
+            
+            // Add last update time
+            var updateLabel = new Label
+            {
+                Text = $"Last Updated: {DateTime.Now:HH:mm:ss}",
+                Location = new Point(0, 55),
+                Size = new Size(300, 20),
+                BackColor = Color.Transparent
+            };
+            MaterialHelper.StyleMaterialLabel(updateLabel, true);
+            statusList.Controls.Add(updateLabel);
+            
+            // Add service status placeholder
+            var serviceLabel = new Label
+            {
+                Text = "Service: Running",
+                Location = new Point(0, 80),
+                Size = new Size(300, 20),
+                BackColor = Color.Transparent,
+                ForeColor = MaterialColors.Success
+            };
+            MaterialHelper.StyleMaterialLabel(serviceLabel);
+            statusList.Controls.Add(serviceLabel);
+            
+            // Tag the panel for easy updates
+            statusList.Tag = "StatusInfo";
+            
+            activityPanel.Controls.Add(statusList);
             _statsPanel.Controls.Add(activityPanel);
         }
         
@@ -394,6 +492,60 @@ namespace pylorak.TinyWall
                             }
                         }
                     }
+                    
+                    // Check if this panel contains the status info panel
+                    var statusPanel = panel.Controls.OfType<Panel>().FirstOrDefault(p => p.Tag as string == "StatusInfo");
+                    if (statusPanel != null)
+                    {
+                        var labels = statusPanel.Controls.OfType<Label>().ToArray();
+                        if (labels.Length >= 4)
+                        {
+                            // Update mode
+                            labels[0].Text = $"Mode: {GetFirewallStatusText()}";
+                            labels[0].ForeColor = GetFirewallStatusColor();
+                            
+                            // Update rules count
+                            labels[1].Text = $"Active Rules: {GetActiveRulesCount()}";
+                            
+                            // Update last update time
+                            labels[2].Text = $"Last Updated: {DateTime.Now:HH:mm:ss}";
+                        }
+                    }
+                }
+                // Update traffic chart
+                else if (control is Panel chartPanel && chartPanel.Controls.Count > 0)
+                {
+                    var chartArea = chartPanel.Controls.OfType<Panel>().FirstOrDefault(p => p.Tag != null && p.Tag.GetType().Name.Contains("AnonymousType"));
+                    if (chartArea?.Tag != null)
+                    {
+                        try
+                        {
+                            var tagProps = chartArea.Tag.GetType().GetProperties();
+                            var inLabelProp = tagProps.FirstOrDefault(p => p.Name == "InLabel");
+                            var outLabelProp = tagProps.FirstOrDefault(p => p.Name == "OutLabel");
+                            
+                            if (inLabelProp?.GetValue(chartArea.Tag) is Label inLabel && 
+                                outLabelProp?.GetValue(chartArea.Tag) is Label outLabel)
+                            {
+                                // Update traffic rates
+                                var trafficMonitor = _controller.CurrentTrafficMonitor;
+                                if (trafficMonitor != null)
+                                {
+                                    var inKBps = trafficMonitor.BytesReceivedPerSec / 1024.0;
+                                    var outKBps = trafficMonitor.BytesSentPerSec / 1024.0;
+                                    
+                                    inLabel.Text = $"In: {inKBps:F1} KB/s";
+                                    outLabel.Text = $"Out: {outKBps:F1} KB/s";
+                                }
+                            }
+                            
+                            chartArea.Invalidate(); // Refresh the chart
+                        }
+                        catch
+                        {
+                            // Ignore any reflection errors
+                        }
+                    }
                 }
             }
         }
@@ -401,32 +553,55 @@ namespace pylorak.TinyWall
         // Helper methods to get current firewall statistics
         private string GetFirewallStatusText()
         {
-            // This would get actual firewall status from the controller
-            return "Active"; // Placeholder
+            if (_controller.CurrentFirewallState?.Mode != null)
+            {
+                return _controller.CurrentFirewallState.Mode switch
+                {
+                    FirewallMode.Normal => "Normal",
+                    FirewallMode.BlockAll => "Block All",
+                    FirewallMode.AllowOutgoing => "Allow Outgoing",
+                    FirewallMode.Disabled => "Disabled",
+                    FirewallMode.Learning => "Learning",
+                    _ => "Unknown"
+                };
+            }
+            return "Unknown";
         }
         
         private Color GetFirewallStatusColor()
         {
-            // This would determine color based on actual firewall status
-            return MaterialColors.FirewallEnabled; // Placeholder
+            if (_controller.CurrentFirewallState?.Mode != null)
+            {
+                return _controller.CurrentFirewallState.Mode switch
+                {
+                    FirewallMode.Normal => MaterialColors.FirewallEnabled,
+                    FirewallMode.BlockAll => MaterialColors.Warning,
+                    FirewallMode.AllowOutgoing => MaterialColors.Warning,
+                    FirewallMode.Disabled => MaterialColors.FirewallDisabled,
+                    FirewallMode.Learning => MaterialColors.Primary,
+                    _ => MaterialColors.FirewallDisabled
+                };
+            }
+            return MaterialColors.FirewallDisabled;
         }
         
         private int GetBlockedConnectionsCount()
         {
-            // This would get actual blocked connections count
-            return 127; // Placeholder
+            // This would need to be implemented by adding connection tracking to TinyWall
+            // For now, return a placeholder that could be extended later
+            return 0; // TODO: Implement actual blocked connections counting
         }
         
         private int GetAllowedConnectionsCount()
         {
-            // This would get actual allowed connections count
-            return 2543; // Placeholder
+            // This would need to be implemented by adding connection tracking to TinyWall
+            // For now, return a placeholder that could be extended later
+            return 0; // TODO: Implement actual allowed connections counting
         }
         
         private int GetActiveRulesCount()
         {
-            // This would get actual active rules count
-            return 24; // Placeholder
+            return _controller.GetActiveRulesCount();
         }
         
         protected override void OnFormClosing(FormClosingEventArgs e)
