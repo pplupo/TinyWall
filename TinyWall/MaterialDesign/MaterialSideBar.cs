@@ -42,6 +42,13 @@ namespace pylorak.TinyWall.MaterialDesign
             Width = ExpandedWidth;
             Dock = DockStyle.Left;
             
+            // Add subtle border
+            Paint += (sender, e) =>
+            {
+                using var pen = new Pen(Color.FromArgb(30, MaterialColors.TextSecondary), 1);
+                e.Graphics.DrawLine(pen, Width - 1, 0, Width - 1, Height);
+            };
+            
             // Add toggle button
             var toggleButton = new Button
             {

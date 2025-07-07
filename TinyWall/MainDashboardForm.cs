@@ -44,6 +44,7 @@ namespace pylorak.TinyWall
             
             SetupForm();
             CreateDashboard();
+            CreateQuickActions();
             
             // Update timer for live stats
             _updateTimer = new Timer
@@ -390,6 +391,97 @@ namespace pylorak.TinyWall
             
             activityPanel.Controls.Add(statusList);
             _statsPanel.Controls.Add(activityPanel);
+        }
+        
+        private void CreateQuickActions()
+        {
+            var actionsPanel = new Panel
+            {
+                Location = new Point(16, 440),
+                Size = new Size(974, 80),
+                BackColor = MaterialColors.Surface
+            };
+            
+            MaterialHelper.StyleMaterialPanel(actionsPanel, true);
+            
+            // Actions title
+            var actionsTitle = new Label
+            {
+                Text = "Quick Actions",
+                Location = new Point(16, 16),
+                Size = new Size(150, 24),
+                BackColor = Color.Transparent
+            };
+            MaterialHelper.StyleMaterialHeader(actionsTitle, 3);
+            actionsPanel.Controls.Add(actionsTitle);
+            
+            // Add action buttons
+            var buttonWidth = 120;
+            var buttonHeight = 36;
+            var buttonSpacing = 16;
+            var startX = 200;
+            
+            var buttons = new[]
+            {
+                new { Text = "Block All", Action = "block_all", Color = MaterialColors.Error },
+                new { Text = "Normal Mode", Action = "normal", Color = MaterialColors.Success },
+                new { Text = "Open Settings", Action = "settings", Color = MaterialColors.Primary },
+                new { Text = "View Connections", Action = "connections", Color = MaterialColors.Primary },
+                new { Text = "Refresh", Action = "refresh", Color = MaterialColors.Primary }
+            };
+            
+            for (int i = 0; i < buttons.Length; i++)
+            {
+                var button = new Button
+                {
+                    Text = buttons[i].Text,
+                    Location = new Point(startX + i * (buttonWidth + buttonSpacing), 20),
+                    Size = new Size(buttonWidth, buttonHeight),
+                    Tag = buttons[i].Action,
+                    BackColor = buttons[i].Color,
+                    ForeColor = Color.White,
+                    FlatStyle = FlatStyle.Flat,
+                    Font = new Font("Segoe UI", 9f, FontStyle.Regular),
+                    Cursor = Cursors.Hand
+                };
+                
+                button.FlatAppearance.BorderSize = 0;
+                MaterialHelper.ApplyRippleEffect(button);
+                
+                button.Click += QuickActionButton_Click;
+                actionsPanel.Controls.Add(button);
+            }
+            
+            _statsPanel.Controls.Add(actionsPanel);
+        }
+        
+        private void QuickActionButton_Click(object? sender, EventArgs e)
+        {
+            if (sender is Button button && button.Tag is string action)
+            {
+                switch (action)
+                {
+                    case "block_all":
+                        // Set firewall to block all mode
+                        MessageBox.Show("Setting firewall to Block All mode...", "TinyWall", 
+                                      MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        break;
+                    case "normal":
+                        // Set firewall to normal mode
+                        MessageBox.Show("Setting firewall to Normal mode...", "TinyWall", 
+                                      MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        break;
+                    case "settings":
+                        ShowSettings();
+                        break;
+                    case "connections":
+                        ShowConnections();
+                        break;
+                    case "refresh":
+                        UpdateStats();
+                        break;
+                }
+            }
         }
         
         private void OnNavigationItemClicked(object? sender, NavigationItemEventArgs e)
