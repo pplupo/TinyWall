@@ -1,0 +1,109 @@
+name: Build and Release MSI Installer
+
+on:
+  # Run on pushes to the main development branch
+  push:
+    branches: [ devel ]
+  # Run on pull requests targeting the main development branch
+  pull_request:
+    branches: [ devel ]
+  # Run when a tag is pushed (e.g., v1.0.0, v1.2.3)
+  release:
+    types: [created]
+
+jobs:
+  # This job builds the MSI installer. It runs on every trigger.
+  build:
+    name: Build MSI Installer
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
+
+      - name: Setup WiX Toolset
+        run: |
+          # Download and install WiX Toolset 3.14
+          $wixUrl = "https://github.com/wixtoolset/wix3/releases/download/wix3141rtm/wix314.exe"
+          $wixInstaller = "$env:TEMP\wix314.exe"
+          Invoke-WebRequest -Uri $wixUrl -OutFile $wixInstaller
+          Start-Process -FilePath $wixInstaller -ArgumentList "/quiet" -Wait
+          
+          # Add WiX to PATH
+          $wixPath = "${env:ProgramFiles(x86)}\WiX Toolset v3.14\bin"
+          echo "$wixPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Restore NuGet packages
+        run: nuget restore TinyWall.sln
+
+      - name: Build TinyWall Application
+        run: msbuild TinyWall.sln -p:Configuration=Release -p:Platform="Any CPU"
+
+      - name: Copy application files to MSI source directory
+        run: |
+          # Create the target directory if it doesn't exist
+          $targetDir = "MsiSetup\Sources\ProgramFiles\TinyWall"
+          if (-Not (Test-Path $targetDir)) {
+            New-Item -ItemType Directory -Path $targetDir -Force
+          }
+          
+          # Copy the built application files
+          Copy-Item -Path "TinyWall\bin\Release\*" -Destination $targetDir -Recurse -Force
+
+      - name: Update database files
+        run: |
+          # Copy database files if they exist
+          $dbSourceDir = "TinyWall\Database"
+          $dbTargetDir = "MsiSetup\Sources\CommonAppData\TinyWall"
+          
+          if (Test-Path $dbSourceDir) {
+            if (-Not (Test-Path $dbTargetDir)) {
+              New-Item -ItemType Directory -Path $dbTargetDir -Force
+            }
+            Copy-Item -Path "$dbSourceDir\*" -Destination $dbTargetDir -Recurse -Force
+          }
+
+      - name: Build MSI Installer
+        run: msbuild MsiSetup\MsiSetup.wixproj -p:Configuration=Release -p:Platform=x86
+
+      - name: Upload MSI as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TinyWall-Installer
+          path: MsiSetup\bin\Release\TinyWallInstaller.msi
+
+  # This job creates the release. It only runs when a tag is pushed.
+  release:
+    name: Create GitHub Release
+    # This job needs the 'build' job to complete successfully first
+    needs: build
+    runs-on: windows-latest
+    # This condition ensures the job only runs for tag pushes, not on every push to 'devel'
+    if: github.event_name == 'release'
+
+    steps:
+      - name: Download MSI from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: TinyWall-Installer
+          # The artifact will be downloaded into the current directory
+          
+      - name: Create Release and Upload MSI
+        uses: softprops/action-gh-release@v2
+        with:
+          # The release will be created with the name of the tag
+          tag_name: ${{ github.event.release.tag_name }}
+          # The name of the release in the GitHub UI
+          name: Release ${{ github.event.release.name }}
+          # Use the body from the release event, which you can pre-fill in the GitHub UI
+          body: ${{ github.event.release.body }}
+          # This will mark the release as a pre-release if the tag contains 'alpha', 'beta', or 'rc'
+          prerelease: ${{ github.event.release.prerelease }}
+          # List of files to attach to the release
+          files: TinyWallInstaller.msi
