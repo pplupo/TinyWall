@@ -41,6 +41,28 @@ This is the source code of TinyWall as found at its [website](https://tinywall.p
 1. Open the solution file in Visual Studio and compile the `MsiSetup` project.
 1. Done.
 
+## Automated Builds
+
+This repository includes GitHub Actions workflows for automated building and releasing:
+
+### Build Workflow
+
+The workflow automatically builds the TinyWall application and MSI installer when:
+- Code is pushed to the `devel` branch
+- Pull requests are created targeting the `devel` branch  
+- GitHub releases are created
+
+### Release Workflow
+
+When a new release is created in GitHub:
+1. The workflow builds the application and MSI installer
+2. The MSI installer is automatically attached to the release
+3. The release becomes available for download
+
+### Manual Build Process
+
+If you prefer to build manually, follow the instructions above in the "How to build" section.
+
 ## Contributing
 
 Please don't open issues for feature requests or bug reports. Any changes you'd like you will need to implement yourself. If you have improvements that you would like to integrate into TinyWall, please fork the repo and create a pull request.
