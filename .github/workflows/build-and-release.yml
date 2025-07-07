@@ -21,28 +21,21 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup MSBuild
-        # This action finds the pre-installed MSBuild and adds it to the PATH
         uses: microsoft/setup-msbuild@v2
 
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v2
 
-      # CORRECT WAY TO SETUP WIX: Use the official action.
-      # This is faster and more reliable than manual download/cache/path steps.
+      # THIS IS THE CORRECTED LINE:
       - name: Setup WiX v3 Toolset
-        uses: wixtoolset/wix-v3-action@v1
+        uses: wixtoolset/wix3-action@v1 # The typo is fixed here
         with:
-          # You can specify the exact version you need
           version: v3.14.0
-
-      # The failing ".NET Framework 4.8 Developer Pack" step has been REMOVED.
-      # It is already included in the 'windows-latest' runner environment.
 
       - name: Cache NuGet packages
         uses: actions/cache@v4
         with:
           path: ~/.nuget/packages
-          # This key is more robust and will invalidate the cache if any project file changes.
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.sln') }}
           restore-keys: |
             ${{ runner.os }}-nuget-
@@ -51,7 +44,6 @@ jobs:
         run: nuget restore TinyWall.sln
 
       - name: Build TinyWall Application
-        # Building the entire solution ensures all project dependencies are built.
         run: msbuild TinyWall.sln /p:Configuration=Release /p:Platform="Any CPU"
 
       - name: Prepare files for installer
@@ -59,7 +51,6 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
 
-          # 1. Verify that the main application was built successfully
           $appExe = "TinyWall\bin\Release\TinyWall.exe"
           if (-Not (Test-Path $appExe)) {
             Write-Error "ERROR: $appExe not found after build. Check the build log for errors."
@@ -67,16 +58,13 @@ jobs:
           }
           Write-Host "✓ Application executable found."
 
-          # 2. Create the target directory for the installer files
           $targetDir = "MsiSetup\Sources\ProgramFiles\TinyWall"
           New-Item -ItemType Directory -Force -Path $targetDir
 
-          # 3. Copy the built application files into the installer source folder
           $sourceDir = "TinyWall\bin\Release"
           Copy-Item -Path "$sourceDir\*" -Destination $targetDir -Recurse -Force
           Write-Host "✓ Copied application files from $sourceDir to $targetDir"
 
-          # 4. Copy the database and other common data files
           $dbSourceDir = "TinyWall\Database"
           $dbTargetDir = "MsiSetup\Sources\CommonAppData\TinyWall"
           if (Test-Path $dbSourceDir) {
@@ -110,7 +98,7 @@ jobs:
   release:
     name: Create GitHub Release
     needs: build
-    runs-on: ubuntu-latest # Can be ubuntu-latest, as it's just downloading/uploading
+    runs-on: ubuntu-latest
     if: github.event_name == 'release'
 
     steps:
