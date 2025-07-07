@@ -1,18 +1,17 @@
-name: Build and Release MSI Installer
+name: Build and Release .NET Installer
 
-"on":
-  # Run on pushes to the main development branch
+on:
+  # Run on pushes to your main development branch (e.g., master, main, devel)
   push:
     branches: [ master ]
-  # Run on pull requests targeting the main development branch
+  # Run on pull requests targeting your main development branch
   pull_request:
     branches: [ master ]
-  # Run when a tag is pushed (e.g., v1.0.0, v1.2.3)
+  # Run when a release is created in the GitHub UI
   release:
     types: [created]
 
 jobs:
-  # This job builds the MSI installer. It runs on every trigger.
   build:
     name: Build MSI Installer
     runs-on: windows-latest
@@ -22,45 +21,28 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup MSBuild
+        # This action finds the pre-installed MSBuild and adds it to the PATH
         uses: microsoft/setup-msbuild@v2
 
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v2
 
-      - name: Setup .NET Framework 4.8 Developer Pack
-        run: |
-          # Download and install .NET Framework 4.8 Developer Pack
-          $url = "https://download.visualstudio.microsoft.com/download/pr/9f2ff7c9-3e3a-4c15-9f8b-4741e1e9de0c/0f71b1c4b8b704a22a3e2f6e3e7cde7d/ndp48-devpack-enu.exe"
-          $installer = "$env:TEMP\NDP48-DevPack-ENU.exe"
-          Invoke-WebRequest -Uri $url -OutFile $installer
-          Start-Process -FilePath $installer -ArgumentList "/quiet" -Wait
-
-      - name: Cache WiX Toolset
-        id: cache-wix
-        uses: actions/cache@v4
+      # CORRECT WAY TO SETUP WIX: Use the official action.
+      # This is faster and more reliable than manual download/cache/path steps.
+      - name: Setup WiX v3 Toolset
+        uses: wixtoolset/wix-v3-action@v1
         with:
-          path: "C:\\Program Files (x86)\\WiX Toolset v3.14"
-          key: wix-toolset-3.14
+          # You can specify the exact version you need
+          version: v3.14.0
 
-      - name: Setup WiX Toolset
-        if: steps.cache-wix.outputs.cache-hit != 'true'
-        run: |
-          # Download and install WiX Toolset 3.14
-          $wixUrl = "https://github.com/wixtoolset/wix3/releases/download/wix3141rtm/wix314.exe"
-          $wixInstaller = "$env:TEMP\wix314.exe"
-          Invoke-WebRequest -Uri $wixUrl -OutFile $wixInstaller
-          Start-Process -FilePath $wixInstaller -ArgumentList "/quiet" -Wait
-
-      - name: Add WiX to PATH
-        run: |
-          # Add WiX to PATH
-          $wixPath = "${env:ProgramFiles(x86)}\WiX Toolset v3.14\bin"
-          echo "$wixPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      # The failing ".NET Framework 4.8 Developer Pack" step has been REMOVED.
+      # It is already included in the 'windows-latest' runner environment.
 
       - name: Cache NuGet packages
         uses: actions/cache@v4
         with:
           path: ~/.nuget/packages
+          # This key is more robust and will invalidate the cache if any project file changes.
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.sln') }}
           restore-keys: |
             ${{ runner.os }}-nuget-
@@ -69,99 +51,66 @@ jobs:
         run: nuget restore TinyWall.sln
 
       - name: Build TinyWall Application
-        run: |
-          msbuild TinyWall.sln -p:Configuration=Release -p:Platform="Any CPU" -p:WarningLevel=0 -nologo
+        # Building the entire solution ensures all project dependencies are built.
+        run: msbuild TinyWall.sln /p:Configuration=Release /p:Platform="Any CPU"
 
-      - name: Verify build output
+      - name: Prepare files for installer
+        shell: pwsh
         run: |
-          if (-Not (Test-Path "TinyWall\bin\Release\TinyWall.exe")) {
-            Write-Error "TinyWall.exe not found in build output"
+          $ErrorActionPreference = "Stop"
+
+          # 1. Verify that the main application was built successfully
+          $appExe = "TinyWall\bin\Release\TinyWall.exe"
+          if (-Not (Test-Path $appExe)) {
+            Write-Error "ERROR: $appExe not found after build. Check the build log for errors."
             exit 1
           }
-          Write-Host "✓ TinyWall.exe found in build output"
+          Write-Host "✓ Application executable found."
 
-      - name: Copy application files to MSI source directory
-        run: |
-          # Enable strict error handling
-          $ErrorActionPreference = "Stop"
-          
-          # Create the target directory if it doesn't exist
+          # 2. Create the target directory for the installer files
           $targetDir = "MsiSetup\Sources\ProgramFiles\TinyWall"
-          if (-Not (Test-Path $targetDir)) {
-            New-Item -ItemType Directory -Path $targetDir -Force
-            Write-Host "✓ Created target directory: $targetDir"
-          }
-          
-          # Copy the built application files
-          $sourceDir = "TinyWall\bin\Release"
-          if (Test-Path $sourceDir) {
-            Copy-Item -Path "$sourceDir\*" -Destination $targetDir -Recurse -Force
-            Write-Host "✓ Copied application files from $sourceDir to $targetDir"
-            
-            # List copied files for verification
-            $copiedFiles = Get-ChildItem -Path $targetDir -File
-            Write-Host "  Copied $($copiedFiles.Count) files:"
-            $copiedFiles | ForEach-Object { Write-Host "    - $($_.Name)" }
-          } else {
-            Write-Error "Source directory $sourceDir not found"
-            exit 1
-          }
+          New-Item -ItemType Directory -Force -Path $targetDir
 
-      - name: Update database files
-        run: |
-          # Enable strict error handling
-          $ErrorActionPreference = "Stop"
-          
-          # Copy database files if they exist
+          # 3. Copy the built application files into the installer source folder
+          $sourceDir = "TinyWall\bin\Release"
+          Copy-Item -Path "$sourceDir\*" -Destination $targetDir -Recurse -Force
+          Write-Host "✓ Copied application files from $sourceDir to $targetDir"
+
+          # 4. Copy the database and other common data files
           $dbSourceDir = "TinyWall\Database"
           $dbTargetDir = "MsiSetup\Sources\CommonAppData\TinyWall"
-          
           if (Test-Path $dbSourceDir) {
             if (-Not (Test-Path $dbTargetDir)) {
               New-Item -ItemType Directory -Path $dbTargetDir -Force
-              Write-Host "✓ Created database target directory: $dbTargetDir"
             }
-            
             Copy-Item -Path "$dbSourceDir\*" -Destination $dbTargetDir -Recurse -Force
-            Write-Host "✓ Copied database files from $dbSourceDir to $dbTargetDir"
-            
-            # List copied database files
-            $dbFiles = Get-ChildItem -Path $dbTargetDir -File
-            Write-Host "  Copied $($dbFiles.Count) database files:"
-            $dbFiles | ForEach-Object { Write-Host "    - $($_.Name)" }
-          } else {
-            Write-Host "⚠ Database source directory $dbSourceDir not found, skipping database files"
+            Write-Host "✓ Copied database files to $dbTargetDir"
           }
 
       - name: Build MSI Installer
-        run: |
-          msbuild MsiSetup\MsiSetup.wixproj -p:Configuration=Release -p:Platform=x86 -p:WarningLevel=0 -nologo
+        run: msbuild MsiSetup\MsiSetup.wixproj /p:Configuration=Release /p:Platform=x86
 
       - name: Verify MSI output
+        shell: pwsh
         run: |
-          if (-Not (Test-Path "MsiSetup\bin\Release\TinyWallInstaller.msi")) {
-            Write-Error "TinyWallInstaller.msi not found in build output"
+          $msiFile = "MsiSetup\bin\Release\TinyWallInstaller.msi"
+          if (-Not (Test-Path $msiFile)) {
+            Write-Error "ERROR: Installer file $msiFile not found after WiX build."
             exit 1
           }
-          $msiInfo = Get-Item "MsiSetup\bin\Release\TinyWallInstaller.msi"
-          Write-Host "✓ MSI installer created successfully"
-          Write-Host "  File: $($msiInfo.Name)"
-          Write-Host "  Size: $([math]::Round($msiInfo.Length / 1MB, 2)) MB"
-          Write-Host "  Created: $($msiInfo.CreationTime)"
+          $msiInfo = Get-Item $msiFile
+          Write-Host "✓ MSI installer created successfully: $($msiInfo.Name) ($([math]::Round($msiInfo.Length / 1MB, 2)) MB)"
 
       - name: Upload MSI as an artifact
         uses: actions/upload-artifact@v4
         with:
           name: TinyWall-Installer
-          path: MsiSetup\bin\Release\TinyWallInstaller.msi
+          path: MsiSetup/bin/Release/TinyWallInstaller.msi
 
-  # This job creates the release. It only runs when a tag is pushed.
   release:
     name: Create GitHub Release
-    # This job needs the 'build' job to complete successfully first
     needs: build
-    runs-on: windows-latest
-    # This condition ensures the job only runs for tag pushes, not on every push to 'master'
+    runs-on: ubuntu-latest # Can be ubuntu-latest, as it's just downloading/uploading
     if: github.event_name == 'release'
 
     steps:
@@ -169,18 +118,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: TinyWall-Installer
-          # The artifact will be downloaded into the current directory
           
       - name: Create Release and Upload MSI
         uses: softprops/action-gh-release@v2
         with:
-          # The release will be created with the name of the tag
           tag_name: ${{ github.event.release.tag_name }}
-          # The name of the release in the GitHub UI
           name: Release ${{ github.event.release.name }}
-          # Use the body from the release event, which you can pre-fill in the GitHub UI
           body: ${{ github.event.release.body }}
-          # This will mark the release as a pre-release if the tag contains 'alpha', 'beta', or 'rc'
           prerelease: ${{ github.event.release.prerelease }}
-          # List of files to attach to the release
           files: TinyWallInstaller.msi
