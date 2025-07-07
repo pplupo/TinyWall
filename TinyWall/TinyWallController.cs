@@ -32,6 +32,7 @@ namespace pylorak.TinyWall
             nameof(mnuModeBlockAll),
             nameof(mnuModeDisabled),
             nameof(mnuManage),
+            nameof(mnuDashboard),
             nameof(toolStripMenuItem5),
             nameof(mnuWhitelistByExecutable),
             nameof(mnuWhitelistByProcess),
@@ -62,6 +63,7 @@ namespace pylorak.TinyWall
             this.mnuModeDisabled = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuModeLearn = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuManage = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuDashboard = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuConnections = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuLock = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuElevate = new System.Windows.Forms.ToolStripMenuItem();
@@ -91,6 +93,7 @@ namespace pylorak.TinyWall
             this.mnuTrafficRate,
             this.toolStripMenuItem1,
             this.mnuMode,
+            this.mnuDashboard,
             this.mnuManage,
             this.mnuConnections,
             this.mnuLock,
@@ -168,6 +171,13 @@ namespace pylorak.TinyWall
             this.mnuManage.Name = "mnuManage";
             resources.ApplyResources(this.mnuManage, "mnuManage");
             this.mnuManage.Click += new System.EventHandler(this.mnuManage_Click);
+            // 
+            // mnuDashboard
+            // 
+            this.mnuDashboard.Image = global::pylorak.TinyWall.Resources.Icons.firewall;
+            this.mnuDashboard.Name = "mnuDashboard";
+            this.mnuDashboard.Text = "Dashboard";
+            this.mnuDashboard.Click += new System.EventHandler(this.mnuDashboard_Click);
             // 
             // mnuConnections
             // 
@@ -261,6 +271,7 @@ namespace pylorak.TinyWall
         private System.Windows.Forms.ToolStripMenuItem mnuModeBlockAll;
         private System.Windows.Forms.ToolStripMenuItem mnuModeDisabled;
         private System.Windows.Forms.ToolStripMenuItem mnuManage;
+        private System.Windows.Forms.ToolStripMenuItem mnuDashboard;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem5;
         private System.Windows.Forms.ToolStripMenuItem mnuWhitelistByExecutable;
         private System.Windows.Forms.ToolStripMenuItem mnuWhitelistByProcess;
@@ -1359,6 +1370,12 @@ namespace pylorak.TinyWall
            if ((FirewallState.Mode != FirewallMode.Unknown) || (!StartupOpts.startup))
             {
                 Tray.Visible = true;
+                
+                // Show the main dashboard if not starting up minimized
+                if (!StartupOpts.startup)
+                {
+                    ShowMainDashboard();
+                }
 
                 if (StartupOpts.autowhitelist)
                 {
@@ -1388,6 +1405,78 @@ namespace pylorak.TinyWall
                 ServiceTimer.Enabled = false;
                 Tray.Visible = true;
             }
+        }
+        
+        // New methods for dashboard integration
+        private MainDashboardForm? _mainDashboard;
+        
+        public void ShowMainDashboard()
+        {
+            if (_mainDashboard == null || _mainDashboard.IsDisposed)
+            {
+                _mainDashboard = new MainDashboardForm(this);
+                _mainDashboard.Show();
+            }
+            else
+            {
+                _mainDashboard.BringToFront();
+                _mainDashboard.WindowState = FormWindowState.Normal;
+            }
+        }
+        
+        public void ShowConnections()
+        {
+            mnuConnections_Click(this, EventArgs.Empty);
+        }
+        
+        public void ShowProcesses()
+        {
+            // Open processes form
+            if (FlashIfOpen(typeof(SettingsForm)))
+                return;
+            if (FlashIfOpen(typeof(Processes)))
+                return;
+
+            using var pf = new Processes();
+            try
+            {
+                ActiveForms.Add(pf);
+                pf.ShowDialog();
+            }
+            finally
+            {
+                ActiveForms.Remove(pf);
+            }
+        }
+        
+        public void ShowServices()
+        {
+            // Open services form
+            if (FlashIfOpen(typeof(SettingsForm)))
+                return;
+            if (FlashIfOpen(typeof(Services)))
+                return;
+
+            using var sf = new Services();
+            try
+            {
+                ActiveForms.Add(sf);
+                sf.ShowDialog();
+            }
+            finally
+            {
+                ActiveForms.Remove(sf);
+            }
+        }
+        
+        public void ShowSettings()
+        {
+            mnuManage_Click(this, EventArgs.Empty);
+        }
+        
+        private void mnuDashboard_Click(object sender, EventArgs e)
+        {
+            ShowMainDashboard();
         }
     }
 
