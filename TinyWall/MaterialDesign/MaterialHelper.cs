@@ -129,10 +129,10 @@ namespace pylorak.TinyWall.MaterialDesign
             
             label.Font = level switch
             {
-                1 => new Font("Segoe UI", 24f, FontStyle.Light),
-                2 => new Font("Segoe UI", 18f, FontStyle.Regular),
-                3 => new Font("Segoe UI", 14f, FontStyle.Medium),
-                _ => new Font("Segoe UI", 12f, FontStyle.Regular)
+                1 => new Font(new FontFamily("Segoe UI"), 24f, FontStyle.Regular),
+                2 => new Font(new FontFamily("Segoe UI"), 18f, FontStyle.Regular),
+                3 => new Font(new FontFamily("Segoe UI"), 14f, FontStyle.Regular),
+                _ => new Font(new FontFamily("Segoe UI"), 12f, FontStyle.Regular)
             };
         }
         

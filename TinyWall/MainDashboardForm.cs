@@ -290,23 +290,23 @@ namespace pylorak.TinyWall
             }
             
             // Draw labels
-            using var font = new Font("Segoe UI", 8f);
-            using var brush = new SolidBrush(MaterialColors.TextPrimary);
+            using var labelFont = new Font("Segoe UI", 8f);
+            using var labelBrush = new SolidBrush(MaterialColors.TextPrimary);
             
             var inLabel = "IN";
             var outLabel = "OUT";
-            var inLabelSize = graphics.MeasureString(inLabel, font);
-            var outLabelSize = graphics.MeasureString(outLabel, font);
+            var inLabelSize = graphics.MeasureString(inLabel, labelFont);
+            var outLabelSize = graphics.MeasureString(outLabel, labelFont);
             
-            graphics.DrawString(inLabel, font, brush, 
+            graphics.DrawString(inLabel, labelFont, labelBrush, 
                 size.Width / 4 - inLabelSize.Width / 2, size.Height - 15);
-            graphics.DrawString(outLabel, font, brush, 
+            graphics.DrawString(outLabel, labelFont, labelBrush, 
                 3 * size.Width / 4 - outLabelSize.Width / 2, size.Height - 15);
             
             // Draw scale
             using var scaleBrush = new SolidBrush(MaterialColors.TextSecondary);
             var scaleText = $"Max: {maxRate:F0} KB/s";
-            graphics.DrawString(scaleText, font, scaleBrush, new Point(5, 5));
+            graphics.DrawString(scaleText, labelFont, scaleBrush, new Point(5, 5));
         }
         
         private void CreateRecentActivity()
