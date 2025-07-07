@@ -10,7 +10,7 @@ namespace pylorak.TinyWall
     /// <summary>
     /// Main dashboard form with Material Design interface
     /// </summary>
-    public partial class MainDashboardForm : Form
+    internal partial class MainDashboardForm : Form
     {
         private readonly TinyWallController _controller;
         private readonly MaterialSideBar _sideBar;
