@@ -30,7 +30,7 @@ jobs:
       - name: Setup .NET Framework 4.8 Developer Pack
         run: |
           # Download and install .NET Framework 4.8 Developer Pack
-          $url = "https://download.microsoft.com/download/7/4/0/74078208-B793-4B83-9FA3-B71142C23E0D/NDP48-DevPack-ENU.exe"
+          $url = "https://download.visualstudio.microsoft.com/download/pr/9f2ff7c9-3e3a-4c15-9f8b-4741e1e9de0c/0f71b1c4b8b704a22a3e2f6e3e7cde7d/ndp48-devpack-enu.exe"
           $installer = "$env:TEMP\NDP48-DevPack-ENU.exe"
           Invoke-WebRequest -Uri $url -OutFile $installer
           Start-Process -FilePath $installer -ArgumentList "/quiet" -Wait
