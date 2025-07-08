@@ -1487,7 +1487,7 @@ namespace pylorak.TinyWall
         public int GetActiveRulesCount()
         {
             // Get count from actual firewall configuration
-            return ActiveConfig.Service?.AppExceptions?.Count ?? 0;
+            return ActiveConfig.Service?.ActiveProfile?.AppExceptions?.Count ?? 0;
         }
     }
 
