@@ -1,6 +1,6 @@
 namespace pylorak.TinyWall
 {
-    partial class MainDashboardForm
+    internal partial class MainDashboardForm
     {
         /// <summary>
         /// Required designer variable.

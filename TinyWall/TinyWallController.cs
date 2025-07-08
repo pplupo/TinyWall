@@ -174,7 +174,7 @@ namespace pylorak.TinyWall
             // 
             // mnuDashboard
             // 
-            this.mnuDashboard.Image = global::pylorak.TinyWall.Resources.Icons.firewall;
+            this.mnuDashboard.Image = global::pylorak.TinyWall.Resources.Icons.firewall.ToBitmap();
             this.mnuDashboard.Name = "mnuDashboard";
             this.mnuDashboard.Text = "Dashboard";
             this.mnuDashboard.Click += new System.EventHandler(this.mnuDashboard_Click);
@@ -1434,10 +1434,10 @@ namespace pylorak.TinyWall
             // Open processes form
             if (FlashIfOpen(typeof(SettingsForm)))
                 return;
-            if (FlashIfOpen(typeof(Processes)))
+            if (FlashIfOpen(typeof(ProcessesForm)))
                 return;
 
-            using var pf = new Processes();
+            using var pf = new ProcessesForm(true);
             try
             {
                 ActiveForms.Add(pf);
@@ -1454,10 +1454,10 @@ namespace pylorak.TinyWall
             // Open services form
             if (FlashIfOpen(typeof(SettingsForm)))
                 return;
-            if (FlashIfOpen(typeof(Services)))
+            if (FlashIfOpen(typeof(ServicesForm)))
                 return;
 
-            using var sf = new Services();
+            using var sf = new ServicesForm();
             try
             {
                 ActiveForms.Add(sf);
@@ -1487,7 +1487,7 @@ namespace pylorak.TinyWall
         public int GetActiveRulesCount()
         {
             // Get count from actual firewall configuration
-            return ActiveConfig.Service?.ApplicationExceptions?.Count ?? 0;
+            return ActiveConfig.Service?.ActiveProfile?.AppExceptions?.Count ?? 0;
         }
     }
 
