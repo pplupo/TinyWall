@@ -88,163 +88,163 @@ namespace pylorak.TinyWall
             //
             // TrayMenu
             //
-            this.TrayMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuTrafficRate,
-            this.toolStripMenuItem1,
+            TrayMenu.Items.AddRange(new ToolStripItem[] {
+            mnuTrafficRate,
+            toolStripMenuItem1,
             this.mnuMode,
-            this.mnuManage,
-            this.mnuConnections,
-            this.mnuLock,
-            this.mnuElevate,
-            this.toolStripMenuItem2,
-            this.mnuAllowLocalSubnet,
-            this.mnuEnableHostsBlocklist,
-            this.toolStripMenuItem3,
-            this.mnuWhitelistByExecutable,
-            this.mnuWhitelistByProcess,
-            this.mnuWhitelistByWindow,
-            this.toolStripMenuItem5,
-            this.mnuQuit});
-            this.TrayMenu.Name = "TrayMenu";
-            resources.ApplyResources(this.TrayMenu, "TrayMenu");
-            this.TrayMenu.Opening += new System.ComponentModel.CancelEventHandler(this.TrayMenu_Opening);
+            mnuManage,
+            mnuConnections,
+            mnuLock,
+            mnuElevate,
+            toolStripMenuItem2,
+            mnuAllowLocalSubnet,
+            mnuEnableHostsBlocklist,
+            toolStripMenuItem3,
+            mnuWhitelistByExecutable,
+            mnuWhitelistByProcess,
+            mnuWhitelistByWindow,
+            toolStripMenuItem5,
+            mnuQuit});
+            TrayMenu.Name = "TrayMenu";
+            resources.ApplyResources(TrayMenu, "TrayMenu");
+            TrayMenu.Opening += TrayMenu_Opening;
             //
             // mnuTrafficRate
             //
-            this.mnuTrafficRate.AccessibleRole = System.Windows.Forms.AccessibleRole.StaticText;
-            this.mnuTrafficRate.Image = global::pylorak.TinyWall.Resources.Icons.info;
-            this.mnuTrafficRate.Name = "mnuTrafficRate";
-            resources.ApplyResources(this.mnuTrafficRate, "mnuTrafficRate");
+            mnuTrafficRate.AccessibleRole = AccessibleRole.StaticText;
+            mnuTrafficRate.Image = Resources.Icons.info;
+            mnuTrafficRate.Name = "mnuTrafficRate";
+            resources.ApplyResources(mnuTrafficRate, "mnuTrafficRate");
             //
             // toolStripMenuItem1
             //
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            resources.ApplyResources(this.toolStripMenuItem1, "toolStripMenuItem1");
+            toolStripMenuItem1.Name = "toolStripMenuItem1";
+            resources.ApplyResources(toolStripMenuItem1, "toolStripMenuItem1");
             //
             // mnuMode
             //
-            this.mnuMode.AccessibleRole = System.Windows.Forms.AccessibleRole.ButtonMenu;
-            this.mnuMode.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuModeNormal,
-            this.mnuModeBlockAll,
-            this.mnuModeAllowOutgoing,
-            this.mnuModeDisabled,
-            this.mnuModeLearn});
-            this.mnuMode.Name = "mnuMode";
-            resources.ApplyResources(this.mnuMode, "mnuMode");
+            mnuMode.AccessibleRole = AccessibleRole.ButtonMenu;
+            mnuMode.DropDownItems.AddRange(new ToolStripItem[] {
+            mnuModeNormal,
+            mnuModeBlockAll,
+            mnuModeAllowOutgoing,
+            mnuModeDisabled,
+            mnuModeLearn});
+            mnuMode.Name = "mnuMode";
+            resources.ApplyResources(mnuMode, "mnuMode");
             //
             // mnuModeNormal
             //
-            this.mnuModeNormal.Name = "mnuModeNormal";
-            resources.ApplyResources(this.mnuModeNormal, "mnuModeNormal");
-            this.mnuModeNormal.Click += new System.EventHandler(this.mnuModeNormal_Click);
+            mnuModeNormal.Name = "mnuModeNormal";
+            resources.ApplyResources(mnuModeNormal, "mnuModeNormal");
+            mnuModeNormal.Click += mnuModeNormal_Click;
             //
             // mnuModeBlockAll
             //
-            this.mnuModeBlockAll.Name = "mnuModeBlockAll";
-            resources.ApplyResources(this.mnuModeBlockAll, "mnuModeBlockAll");
-            this.mnuModeBlockAll.Click += new System.EventHandler(this.mnuModeBlockAll_Click);
+            mnuModeBlockAll.Name = "mnuModeBlockAll";
+            resources.ApplyResources(mnuModeBlockAll, "mnuModeBlockAll");
+            mnuModeBlockAll.Click += mnuModeBlockAll_Click;
             //
             // mnuModeAllowOutgoing
             //
-            this.mnuModeAllowOutgoing.Name = "mnuModeAllowOutgoing";
-            resources.ApplyResources(this.mnuModeAllowOutgoing, "mnuModeAllowOutgoing");
-            this.mnuModeAllowOutgoing.Click += new System.EventHandler(this.mnuAllowOutgoing_Click);
+            mnuModeAllowOutgoing.Name = "mnuModeAllowOutgoing";
+            resources.ApplyResources(mnuModeAllowOutgoing, "mnuModeAllowOutgoing");
+            mnuModeAllowOutgoing.Click += mnuAllowOutgoing_Click;
             //
             // mnuModeDisabled
             //
             this.mnuModeDisabled.Name = "mnuModeDisabled";
-            resources.ApplyResources(this.mnuModeDisabled, "mnuModeDisabled");
-            this.mnuModeDisabled.Click += new System.EventHandler(this.mnuModeDisabled_Click);
+            resources.ApplyResources(mnuModeDisabled, "mnuModeDisabled");
+            this.mnuModeDisabled.Click += mnuModeDisabled_Click;
             //
             // mnuModeLearn
             //
             this.mnuModeLearn.Name = "mnuModeLearn";
-            resources.ApplyResources(this.mnuModeLearn, "mnuModeLearn");
-            this.mnuModeLearn.Click += new System.EventHandler(this.mnuModeLearn_Click);
+            resources.ApplyResources(mnuModeLearn, "mnuModeLearn");
+            this.mnuModeLearn.Click += mnuModeLearn_Click;
             //
             // mnuManage
             //
-            this.mnuManage.Image = global::pylorak.TinyWall.Resources.Icons.manage;
+            this.mnuManage.Image = Resources.Icons.manage;
             this.mnuManage.Name = "mnuManage";
-            resources.ApplyResources(this.mnuManage, "mnuManage");
-            this.mnuManage.Click += new System.EventHandler(this.mnuManage_Click);
+            resources.ApplyResources(mnuManage, "mnuManage");
+            this.mnuManage.Click += mnuManage_Click;
             //
             // mnuConnections
             //
-            this.mnuConnections.Image = global::pylorak.TinyWall.Resources.Icons.connections;
+            this.mnuConnections.Image = Resources.Icons.connections;
             this.mnuConnections.Name = "mnuConnections";
-            resources.ApplyResources(this.mnuConnections, "mnuConnections");
-            this.mnuConnections.Click += new System.EventHandler(this.mnuConnections_Click);
+            resources.ApplyResources(mnuConnections, "mnuConnections");
+            this.mnuConnections.Click += mnuConnections_Click;
             //
             // mnuLock
             //
-            this.mnuLock.Image = global::pylorak.TinyWall.Resources.Icons.lock_small;
+            this.mnuLock.Image = Resources.Icons.lock_small;
             this.mnuLock.Name = "mnuLock";
-            resources.ApplyResources(this.mnuLock, "mnuLock");
-            this.mnuLock.Click += new System.EventHandler(this.mnuLock_Click);
+            resources.ApplyResources(mnuLock, "mnuLock");
+            this.mnuLock.Click += mnuLock_Click;
             //
             // mnuElevate
             //
-            this.mnuElevate.Image = global::pylorak.TinyWall.Resources.Icons.w7uacshield;
+            this.mnuElevate.Image = Resources.Icons.w7uacshield;
             this.mnuElevate.Name = "mnuElevate";
-            resources.ApplyResources(this.mnuElevate, "mnuElevate");
-            this.mnuElevate.Click += new System.EventHandler(this.mnuElevate_Click);
+            resources.ApplyResources(mnuElevate, "mnuElevate");
+            this.mnuElevate.Click += mnuElevate_Click;
             //
             // toolStripMenuItem2
             //
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            resources.ApplyResources(this.toolStripMenuItem2, "toolStripMenuItem2");
+            resources.ApplyResources(toolStripMenuItem2, "toolStripMenuItem2");
             //
             // mnuAllowLocalSubnet
             //
             this.mnuAllowLocalSubnet.Name = "mnuAllowLocalSubnet";
-            resources.ApplyResources(this.mnuAllowLocalSubnet, "mnuAllowLocalSubnet");
-            this.mnuAllowLocalSubnet.Click += new System.EventHandler(this.mnuAllowLocalSubnet_Click);
+            resources.ApplyResources(mnuAllowLocalSubnet, "mnuAllowLocalSubnet");
+            this.mnuAllowLocalSubnet.Click += mnuAllowLocalSubnet_Click;
             //
             // mnuEnableHostsBlocklist
             //
             this.mnuEnableHostsBlocklist.Name = "mnuEnableHostsBlocklist";
-            resources.ApplyResources(this.mnuEnableHostsBlocklist, "mnuEnableHostsBlocklist");
-            this.mnuEnableHostsBlocklist.Click += new System.EventHandler(this.mnuEnableHostsBlocklist_Click);
+            resources.ApplyResources(mnuEnableHostsBlocklist, "mnuEnableHostsBlocklist");
+            this.mnuEnableHostsBlocklist.Click += mnuEnableHostsBlocklist_Click;
             //
             // toolStripMenuItem3
             //
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            resources.ApplyResources(this.toolStripMenuItem3, "toolStripMenuItem3");
+            resources.ApplyResources(toolStripMenuItem3, "toolStripMenuItem3");
             //
             // mnuWhitelistByExecutable
             //
-            this.mnuWhitelistByExecutable.Image = global::pylorak.TinyWall.Resources.Icons.executable;
+            this.mnuWhitelistByExecutable.Image = Resources.Icons.executable;
             this.mnuWhitelistByExecutable.Name = "mnuWhitelistByExecutable";
-            resources.ApplyResources(this.mnuWhitelistByExecutable, "mnuWhitelistByExecutable");
-            this.mnuWhitelistByExecutable.Click += new System.EventHandler(this.mnuWhitelistByExecutable_Click);
+            resources.ApplyResources(mnuWhitelistByExecutable, "mnuWhitelistByExecutable");
+            this.mnuWhitelistByExecutable.Click += mnuWhitelistByExecutable_Click;
             //
             // mnuWhitelistByProcess
             //
-            this.mnuWhitelistByProcess.Image = global::pylorak.TinyWall.Resources.Icons.process;
+            this.mnuWhitelistByProcess.Image = Resources.Icons.process;
             this.mnuWhitelistByProcess.Name = "mnuWhitelistByProcess";
-            resources.ApplyResources(this.mnuWhitelistByProcess, "mnuWhitelistByProcess");
-            this.mnuWhitelistByProcess.Click += new System.EventHandler(this.mnuWhitelistByProcess_Click);
+            resources.ApplyResources(mnuWhitelistByProcess, "mnuWhitelistByProcess");
+            this.mnuWhitelistByProcess.Click += mnuWhitelistByProcess_Click;
             //
             // mnuWhitelistByWindow
             //
-            this.mnuWhitelistByWindow.Image = global::pylorak.TinyWall.Resources.Icons.window;
+            this.mnuWhitelistByWindow.Image = Resources.Icons.window;
             this.mnuWhitelistByWindow.Name = "mnuWhitelistByWindow";
-            resources.ApplyResources(this.mnuWhitelistByWindow, "mnuWhitelistByWindow");
-            this.mnuWhitelistByWindow.Click += new System.EventHandler(this.mnuWhitelistByWindow_Click);
+            resources.ApplyResources(mnuWhitelistByWindow, "mnuWhitelistByWindow");
+            this.mnuWhitelistByWindow.Click += mnuWhitelistByWindow_Click;
             //
             // toolStripMenuItem5
             //
             this.toolStripMenuItem5.Name = "toolStripMenuItem5";
-            resources.ApplyResources(this.toolStripMenuItem5, "toolStripMenuItem5");
+            resources.ApplyResources(toolStripMenuItem5, "toolStripMenuItem5");
             //
             // mnuQuit
             //
-            this.mnuQuit.Image = global::pylorak.TinyWall.Resources.Icons.exit;
+            this.mnuQuit.Image = Resources.Icons.exit;
             this.mnuQuit.Name = "mnuQuit";
-            resources.ApplyResources(this.mnuQuit, "mnuQuit");
-            this.mnuQuit.Click += new System.EventHandler(this.mnuQuit_Click);
+            resources.ApplyResources(mnuQuit, "mnuQuit");
+            this.mnuQuit.Click += mnuQuit_Click;
             //
             // ofd
             //
@@ -252,30 +252,30 @@ namespace pylorak.TinyWall
             this.TrayMenu.ResumeLayout(false);
         }
 
-        private System.Windows.Forms.NotifyIcon Tray;
-        private System.Windows.Forms.ContextMenuStrip TrayMenu;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
-        private System.Windows.Forms.ToolStripMenuItem mnuQuit;
-        private System.Windows.Forms.ToolStripMenuItem mnuMode;
-        private System.Windows.Forms.ToolStripMenuItem mnuModeNormal;
-        private System.Windows.Forms.ToolStripMenuItem mnuModeBlockAll;
-        private System.Windows.Forms.ToolStripMenuItem mnuModeDisabled;
-        private System.Windows.Forms.ToolStripMenuItem mnuManage;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem5;
-        private System.Windows.Forms.ToolStripMenuItem mnuWhitelistByExecutable;
-        private System.Windows.Forms.ToolStripMenuItem mnuWhitelistByProcess;
-        private System.Windows.Forms.ToolStripMenuItem mnuWhitelistByWindow;
-        private System.Windows.Forms.ToolStripMenuItem mnuLock;
-        private System.Windows.Forms.ToolStripMenuItem mnuElevate;
-        private System.Windows.Forms.ToolStripMenuItem mnuConnections;
-        private System.Windows.Forms.ToolStripMenuItem mnuModeAllowOutgoing;
-        private System.Windows.Forms.OpenFileDialog ofd;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
-        private System.Windows.Forms.ToolStripMenuItem mnuAllowLocalSubnet;
-        private System.Windows.Forms.ToolStripMenuItem mnuEnableHostsBlocklist;
-        private System.Windows.Forms.ToolStripMenuItem mnuTrafficRate;
-        private System.Windows.Forms.ToolStripMenuItem mnuModeLearn;
+        private NotifyIcon Tray;
+        private ContextMenuStrip TrayMenu;
+        private ToolStripSeparator toolStripMenuItem1;
+        private ToolStripSeparator toolStripMenuItem2;
+        private ToolStripMenuItem mnuQuit;
+        private ToolStripMenuItem mnuMode;
+        private ToolStripMenuItem mnuModeNormal;
+        private ToolStripMenuItem mnuModeBlockAll;
+        private ToolStripMenuItem mnuModeDisabled;
+        private ToolStripMenuItem mnuManage;
+        private ToolStripSeparator toolStripMenuItem5;
+        private ToolStripMenuItem mnuWhitelistByExecutable;
+        private ToolStripMenuItem mnuWhitelistByProcess;
+        private ToolStripMenuItem mnuWhitelistByWindow;
+        private ToolStripMenuItem mnuLock;
+        private ToolStripMenuItem mnuElevate;
+        private ToolStripMenuItem mnuConnections;
+        private ToolStripMenuItem mnuModeAllowOutgoing;
+        private OpenFileDialog ofd;
+        private ToolStripSeparator toolStripMenuItem3;
+        private ToolStripMenuItem mnuAllowLocalSubnet;
+        private ToolStripMenuItem mnuEnableHostsBlocklist;
+        private ToolStripMenuItem mnuTrafficRate;
+        private ToolStripMenuItem mnuModeLearn;
 
         #endregion
 
@@ -418,7 +418,7 @@ namespace pylorak.TinyWall
                     Utils.Invoke(_syncCtx, (SendOrPostCallback)delegate (object o)
                     {
                         string prompt = string.Format(CultureInfo.CurrentCulture, pylorak.TinyWall.Resources.Messages.UpdateAvailableBubble, mainAppModule.ComponentVersion);
-                        ShowBalloonTip(prompt, ToolTipIcon.Info, 5000, StartUpdate, mainAppModule.UpdateURL);
+                        ShowBalloonTip(prompt, ToolTipIcon.Info, 5000, StartUpdate, mainAppModule.UpdateUrl);
                     });
                 }
             }

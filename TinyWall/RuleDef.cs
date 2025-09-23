@@ -64,47 +64,46 @@ namespace pylorak.TinyWall
             return copy;
         }
 
-        public void SetSubject(ExceptionSubject subject)
+        public void SetSubject(ExceptionSubject? subject)
         {
-            if (subject != null)
+            if (subject == null) return;
+
+            switch (subject)
             {
-                switch (subject)
-                {
-                    case ServiceSubject service:
-                        this.Application = service.ExecutablePath;
-                        this.ServiceName = service.ServiceName;
-                        this.AppContainerSid = null;
-                        break;
-                    case ExecutableSubject exe:
-                        this.Application = exe.ExecutablePath;
-                        this.ServiceName = null;
-                        this.AppContainerSid = null;
-                        break;
-                    case AppContainerSubject uwp:
-                        this.Application = null;
-                        this.ServiceName = null;
-                        this.AppContainerSid = uwp.Sid;
-                        break;
-                    case GlobalSubject _:
-                        this.Application = null;
-                        this.ServiceName = null;
-                        this.AppContainerSid = null;
-                        break;
-                    default:
-                        throw new NotImplementedException();
-                }
+                case ServiceSubject service:
+                    Application = service.ExecutablePath;
+                    ServiceName = service.ServiceName;
+                    AppContainerSid = null;
+                    break;
+                case ExecutableSubject exe:
+                    Application = exe.ExecutablePath;
+                    ServiceName = null;
+                    AppContainerSid = null;
+                    break;
+                case AppContainerSubject uwp:
+                    Application = null;
+                    ServiceName = null;
+                    AppContainerSid = uwp.Sid;
+                    break;
+                case GlobalSubject _:
+                    Application = null;
+                    ServiceName = null;
+                    AppContainerSid = null;
+                    break;
+                default:
+                    throw new NotImplementedException();
             }
         }
 
         public RuleDef(Guid exceptionId, string name, ExceptionSubject subject, RuleAction action, RuleDirection direction, Protocol protocol, ulong weight)
         {
             SetSubject(subject);
-            this.Name = name;
-            this.ExceptionId = exceptionId;
-            this.Action = action;
-            this.Direction = direction;
-            this.Protocol = protocol;
-            this.Weight = weight;
+            Name = name;
+            ExceptionId = exceptionId;
+            Action = action;
+            Direction = direction;
+            Protocol = protocol;
+            Weight = weight;
         }
     }
 }

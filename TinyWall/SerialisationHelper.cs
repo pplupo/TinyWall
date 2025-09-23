@@ -148,7 +148,7 @@ namespace pylorak.TinyWall
             {
                 // Try loading from old serialization format, and save in new format if allowed
                 var xmlPath = filepath.EndsWith(".json") ? Path.ChangeExtension(filepath, ".xml") : filepath;
-                var ret = LoadFromXMLFile<T>(xmlPath);
+                var ret = LoadFromXmlFile<T>(xmlPath);
                 if (!readOnlySource) SerialiseToFile(ret, filepath);
                 return ret;
             }
@@ -183,7 +183,7 @@ namespace pylorak.TinyWall
             {
                 // Try loading from old serialization format, and save in new format if allowed
                 var xmlPath = filepath.EndsWith(".json") ? Path.ChangeExtension(filepath, ".xml") : filepath;
-                var ret = LoadFromEncryptedXMLFile<T>(xmlPath, key, iv);
+                var ret = LoadFromEncryptedXmlFile<T>(xmlPath, key, iv);
                 SerialiseToEncryptedFile(ret, filepath, key, iv);
                 return ret;
             }
@@ -233,13 +233,13 @@ namespace pylorak.TinyWall
             typeof(UpdateDescriptor),
         };
 
-        public static T DeserialiseDC<T>(Stream stream)
+        public static T DeserialiseDc<T>(Stream stream)
         {
             var serializer = new DataContractSerializer(typeof(T), KnownDataContractTypes);
             return (T?)serializer.ReadObject(stream) ?? throw new NullResultExceptions("DataContractSerializer.ReadObject()");
         }
 
-        public static T LoadFromEncryptedXMLFile<T>(string filepath, string key, string iv)
+        public static T LoadFromEncryptedXmlFile<T>(string filepath, string key, string iv)
         {
             // Construct encryptor
             using var symmetricKey = new AesCryptoServiceProvider();
@@ -250,13 +250,13 @@ namespace pylorak.TinyWall
             // Decrypt
             using var fs = new FileStream(filepath, FileMode.Open, FileAccess.Read);
             using var cryptoStream = new CryptoStream(fs, symmetricKey.CreateDecryptor(), CryptoStreamMode.Read);
-            return DeserialiseDC<T>(cryptoStream);
+            return DeserialiseDc<T>(cryptoStream);
         }
 
-        public static T LoadFromXMLFile<T>(string filepath)
+        public static T LoadFromXmlFile<T>(string filepath)
         {
             using var stream = new FileStream(filepath, FileMode.Open, FileAccess.Read);
-            return DeserialiseDC<T>(stream);
+            return DeserialiseDc<T>(stream);
         }
     }
 }

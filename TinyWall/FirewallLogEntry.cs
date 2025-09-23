@@ -24,7 +24,7 @@ namespace pylorak.TinyWall
         InOut = In | Out
     }
 
-    public sealed record FirewallLogEntry : IEquatable<FirewallLogEntry>
+    public sealed record FirewallLogEntry
     {
         public DateTime Timestamp;
         public EventLogEvent Event;

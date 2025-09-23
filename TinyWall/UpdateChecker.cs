@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Microsoft.Samples;
+using pylorak.Windows;
+using System;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Threading;
 using System.Windows.Forms;
-using Microsoft.Samples;
-using pylorak.Windows;
 
 namespace pylorak.TinyWall
 {
@@ -43,7 +43,7 @@ namespace pylorak.TinyWall
             TDialog.CallbackData = updater;
             TDialog.CallbackTimer = true;
 
-            var UpdateThread = new Thread( () =>
+            var UpdateThread = new Thread(() =>
             {
                 try
                 {
@@ -115,7 +115,7 @@ namespace pylorak.TinyWall
             State = UpdaterState.DownloadingUpdate;
 
             var tmpFile = Path.GetTempFileName() + ".msi";
-            var UpdateURL = new Uri(mainModule.UpdateURL);
+            var UpdateURL = new Uri(mainModule.UpdateUrl);
             using var HTTPClient = new WebClient();
             HTTPClient.DownloadFileCompleted += new AsyncCompletedEventHandler(Updater_DownloadFinished);
             HTTPClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(Updater_DownloadProgressChanged);
@@ -174,7 +174,7 @@ namespace pylorak.TinyWall
                             taskDialogue.ClickButton((int)DialogResult.OK);
                             break;
                         case UpdaterState.DownloadingUpdate:
-                        taskDialogue.SetProgressBarPosition(DownloadProgress);
+                            taskDialogue.SetProgressBarPosition(DownloadProgress);
                             break;
                     }
                     break;

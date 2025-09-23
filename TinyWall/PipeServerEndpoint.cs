@@ -46,7 +46,7 @@ namespace pylorak.TinyWall
             _mRcvCallback = recvCallback;
             _mPipeName = serverPipeName;
 
-            _mPipeWorkerThread = new Thread(new ThreadStart(PipeServerWorker))
+            _mPipeWorkerThread = new Thread(PipeServerWorker)
             {
                 Name = "ServerPipeWorker",
                 IsBackground = true
@@ -57,8 +57,8 @@ namespace pylorak.TinyWall
         private void PipeServerWorker()
         {
             // Allow authenticated users access to the pipe
-            SecurityIdentifier AuthenticatedSID = new(WellKnownSidType.AuthenticatedUserSid, null);
-            PipeAccessRule par = new(AuthenticatedSID, PipeAccessRights.ReadWrite, System.Security.AccessControl.AccessControlType.Allow);
+            SecurityIdentifier authenticatedSid = new(WellKnownSidType.AuthenticatedUserSid, null);
+            PipeAccessRule par = new(authenticatedSid, PipeAccessRights.ReadWrite, System.Security.AccessControl.AccessControlType.Allow);
             PipeSecurity ps = new();
             ps.AddAccessRule(par);
 

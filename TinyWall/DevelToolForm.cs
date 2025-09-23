@@ -226,7 +226,7 @@ namespace pylorak.TinyWall
                 Component = "TinyWall",
                 ComponentVersion = installerInfo.ProductVersion.Trim(),
                 DownloadHash = Hasher.HashFile(msiPath),
-                UpdateURL = txtUpdateURL.Text + MSI_FILENAME
+                UpdateUrl = txtUpdateURL.Text + MSI_FILENAME
             };
 
             update.Modules[1] = new UpdateModule
@@ -234,7 +234,7 @@ namespace pylorak.TinyWall
                 Component = "Database",
                 ComponentVersion = PLACEHOLDER,
                 DownloadHash = Hasher.HashFile(profilesPath),
-                UpdateURL = txtUpdateURL.Text + DB_OUT_NAME
+                UpdateUrl = txtUpdateURL.Text + DB_OUT_NAME
             };
 
             update.Modules[2] = new UpdateModule
@@ -242,7 +242,7 @@ namespace pylorak.TinyWall
                 Component = "HostsFile",
                 ComponentVersion = PLACEHOLDER,
                 DownloadHash = Hasher.HashFile(hostsPath),
-                UpdateURL = txtUpdateURL.Text + HOSTS_OUT_NAME
+                UpdateUrl = txtUpdateURL.Text + HOSTS_OUT_NAME
             };
 
             File.Copy(msiPath, Path.Combine(txtUpdateOutput.Text, MSI_FILENAME), true);

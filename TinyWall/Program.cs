@@ -21,13 +21,13 @@ namespace pylorak.TinyWall
             return 0;
         }
 
-        private static int StartService(TinyWallService tw)
+        private static void StartService(TinyWallService tw)
         {
 #if DEBUG
             if (!Utils.RunningAsAdmin())
             {
                 Console.WriteLine(@"Error: Not started as an admin process.");
-                return -1;
+                return;
             }
 #endif
 
@@ -35,7 +35,7 @@ namespace pylorak.TinyWall
 
             if (!mutexok)
             {
-                return -1;
+                return;
             }
 
 #if DEBUG
@@ -44,7 +44,6 @@ namespace pylorak.TinyWall
 #else
             pylorak.Windows.Services.ServiceBase.Run(tw);
 #endif
-            return 0;
         }
 
         private static int StartController(CmdLineArgs opts)

@@ -1,165 +1,139 @@
-﻿using System;
+﻿using pylorak.TinyWall.DatabaseClasses;
+using System;
 using System.Drawing;
-using System.Diagnostics.CodeAnalysis;
-using pylorak.TinyWall.DatabaseClasses;
 
 namespace pylorak.TinyWall
 {
     internal static class GlobalInstances
     {
-        [AllowNull]
-        internal static AppDatabase AppDatabase;
-        [AllowNull]
-        internal static Controller Controller;
+        internal static AppDatabase? AppDatabase;
+        internal static Controller? Controller;
         internal static Guid ClientChangeset;
         internal static Guid ServerChangeset;
 
         public static void InitClient()
         {
-            if (Controller == null)
-                Controller = new Controller("TinyWallController");
+            Controller ??= new Controller("TinyWallController");
         }
 
-        [AllowNull]
-        private static Bitmap _ApplyBtnIcon = null;
+        private static Bitmap? _applyBtnIcon;
         internal static Bitmap ApplyBtnIcon
         {
             get
             {
-                if (null == _ApplyBtnIcon)
-                    _ApplyBtnIcon = Utils.ScaleImage(Resources.Icons.accept, Utils.DpiScalingFactor, Utils.DpiScalingFactor);
+                _applyBtnIcon ??= Utils.ScaleImage(Resources.Icons.accept, Utils.DpiScalingFactor, Utils.DpiScalingFactor);
 
-                return _ApplyBtnIcon;
+                return _applyBtnIcon;
             }
         }
 
-        [AllowNull]
-        private static Bitmap _CancelBtnIcon = null;
+        private static Bitmap? _cancelBtnIcon;
         internal static Bitmap CancelBtnIcon
         {
             get
             {
-                if (null == _CancelBtnIcon)
-                    _CancelBtnIcon = Utils.ScaleImage(Resources.Icons.cancel, Utils.DpiScalingFactor, Utils.DpiScalingFactor);
+                _cancelBtnIcon ??= Utils.ScaleImage(Resources.Icons.cancel, Utils.DpiScalingFactor, Utils.DpiScalingFactor);
 
-                return _CancelBtnIcon;
+                return _cancelBtnIcon;
             }
         }
 
-        [AllowNull]
-        private static Bitmap _UninstallBtnIcon = null;
+        private static Bitmap? _uninstallBtnIcon;
         internal static Bitmap UninstallBtnIcon
         {
             get
             {
-                if (null == _UninstallBtnIcon)
-                    _UninstallBtnIcon = Utils.ScaleImage(Resources.Icons.uninstall, Utils.DpiScalingFactor, Utils.DpiScalingFactor);
+                _uninstallBtnIcon ??= Utils.ScaleImage(Resources.Icons.uninstall, Utils.DpiScalingFactor, Utils.DpiScalingFactor);
 
-                return _UninstallBtnIcon;
+                return _uninstallBtnIcon;
             }
         }
 
-        [AllowNull]
-        private static Bitmap _AddBtnIcon = null;
+        private static Bitmap? _addBtnIcon;
         internal static Bitmap AddBtnIcon
         {
             get
             {
-                if (null == _AddBtnIcon)
-                    _AddBtnIcon = Utils.ScaleImage(Resources.Icons.add, Utils.DpiScalingFactor, Utils.DpiScalingFactor);
+                _addBtnIcon ??= Utils.ScaleImage(Resources.Icons.add, Utils.DpiScalingFactor, Utils.DpiScalingFactor);
 
-                return _AddBtnIcon;
+                return _addBtnIcon;
             }
         }
 
-        [AllowNull]
-        private static Bitmap _ModifyBtnIcon = null;
+        private static Bitmap? _modifyBtnIcon;
         internal static Bitmap ModifyBtnIcon
         {
             get
             {
-                if (null == _ModifyBtnIcon)
-                    _ModifyBtnIcon = Utils.ScaleImage(Resources.Icons.modify, Utils.DpiScalingFactor, Utils.DpiScalingFactor);
+                _modifyBtnIcon ??= Utils.ScaleImage(Resources.Icons.modify, Utils.DpiScalingFactor, Utils.DpiScalingFactor);
 
-                return _ModifyBtnIcon;
+                return _modifyBtnIcon;
             }
         }
 
-        [AllowNull]
-        private static Bitmap _RemoveBtnIcon = null;
+        private static Bitmap? _removeBtnIcon;
         internal static Bitmap RemoveBtnIcon
         {
             get
             {
-                if (null == _RemoveBtnIcon)
-                    _RemoveBtnIcon = Utils.ScaleImage(Resources.Icons.remove, Utils.DpiScalingFactor, Utils.DpiScalingFactor);
+                _removeBtnIcon ??= Utils.ScaleImage(Resources.Icons.remove, Utils.DpiScalingFactor, Utils.DpiScalingFactor);
 
-                return _RemoveBtnIcon;
+                return _removeBtnIcon;
             }
         }
 
-        [AllowNull]
-        private static Bitmap _SubmitBtnIcon = null;
+        private static Bitmap? _submitBtnIcon;
         internal static Bitmap SubmitBtnIcon
         {
             get
             {
-                if (null == _SubmitBtnIcon)
-                    _SubmitBtnIcon = Utils.ScaleImage(Resources.Icons.submit, Utils.DpiScalingFactor, Utils.DpiScalingFactor);
+                _submitBtnIcon ??= Utils.ScaleImage(Resources.Icons.submit, Utils.DpiScalingFactor, Utils.DpiScalingFactor);
 
-                return _SubmitBtnIcon;
+                return _submitBtnIcon;
             }
         }
 
-        [AllowNull]
-        private static Bitmap _ImportBtnIcon = null;
+        private static Bitmap? _importBtnIcon;
         internal static Bitmap ImportBtnIcon
         {
             get
             {
-                if (null == _ImportBtnIcon)
-                    _ImportBtnIcon = Utils.ScaleImage(Resources.Icons.import, Utils.DpiScalingFactor, Utils.DpiScalingFactor);
+                _importBtnIcon ??= Utils.ScaleImage(Resources.Icons.import, Utils.DpiScalingFactor, Utils.DpiScalingFactor);
 
-                return _ImportBtnIcon;
+                return _importBtnIcon;
             }
         }
 
-        [AllowNull]
-        private static Bitmap _ExportBtnIcon = null;
+        private static Bitmap? _exportBtnIcon;
         internal static Bitmap ExportBtnIcon
         {
             get
             {
-                if (null == _ExportBtnIcon)
-                    _ExportBtnIcon = Utils.ScaleImage(Resources.Icons.export, Utils.DpiScalingFactor, Utils.DpiScalingFactor);
+                _exportBtnIcon ??= Utils.ScaleImage(Resources.Icons.export, Utils.DpiScalingFactor, Utils.DpiScalingFactor);
 
-                return _ExportBtnIcon;
+                return _exportBtnIcon;
             }
         }
 
-        [AllowNull]
-        private static Bitmap _UpdateBtnIcon = null;
+        private static Bitmap? _updateBtnIcon;
         internal static Bitmap UpdateBtnIcon
         {
             get
             {
-                if (null == _UpdateBtnIcon)
-                    _UpdateBtnIcon = Utils.ScaleImage(Resources.Icons.update, Utils.DpiScalingFactor, Utils.DpiScalingFactor);
+                _updateBtnIcon ??= Utils.ScaleImage(Resources.Icons.update, Utils.DpiScalingFactor, Utils.DpiScalingFactor);
 
-                return _UpdateBtnIcon;
+                return _updateBtnIcon;
             }
         }
 
-        [AllowNull]
-        private static Bitmap _WebBtnIcon = null;
+        private static Bitmap? _webBtnIcon;
         internal static Bitmap WebBtnIcon
         {
             get
             {
-                if (null == _WebBtnIcon)
-                    _WebBtnIcon = Utils.ScaleImage(Resources.Icons.web, Utils.DpiScalingFactor, Utils.DpiScalingFactor);
+                _webBtnIcon ??= Utils.ScaleImage(Resources.Icons.web, Utils.DpiScalingFactor, Utils.DpiScalingFactor);
 
-                return _WebBtnIcon;
+                return _webBtnIcon;
             }
         }
     }

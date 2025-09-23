@@ -74,7 +74,7 @@ namespace pylorak.TinyWall
 
                 var path = GetPathFromPidCached(procCache, tcpRow.ProcessId);
 
-                    var pi = ProcessInfo.Create(tcpRow.ProcessId, path, packageList, servicePids);
+                var pi = ProcessInfo.Create(tcpRow.ProcessId, path, packageList, servicePids);
                 ConstructListItem(_itemColl, pi, "TCP", tcpRow.LocalEndPoint, tcpRow.RemoteEndPoint, tcpRow.State.ToString(), now, RuleDirection.Invalid);
             }
 
@@ -87,7 +87,7 @@ namespace pylorak.TinyWall
 
                 var path = GetPathFromPidCached(procCache, tcpRow.ProcessId);
 
-                    var pi = ProcessInfo.Create(tcpRow.ProcessId, path, packageList, servicePids);
+                var pi = ProcessInfo.Create(tcpRow.ProcessId, path, packageList, servicePids);
                 ConstructListItem(_itemColl, pi, "TCP", tcpRow.LocalEndPoint, tcpRow.RemoteEndPoint, tcpRow.State.ToString(), now, RuleDirection.Invalid);
             }
 
@@ -530,14 +530,28 @@ namespace pylorak.TinyWall
 
         private async void btnSearch_Click(object sender, EventArgs e)
         {
-            _searchText = txtSearch.Text.ToLower();
-            await UpdateListAsync();
+            try
+            {
+                _searchText = txtSearch.Text.ToLower();
+                await UpdateListAsync();
+            }
+            catch (Exception e)
+            {
+                throw; // TODO handle exception
+            }
         }
 
         private async void BtnClear_Click(object sender, EventArgs e)
         {
-            _searchText = string.Empty;
-            await UpdateListAsync();
+            try
+            {
+                _searchText = string.Empty;
+                await UpdateListAsync();
+            }
+            catch (Exception e)
+            {
+                throw; // TODO handle exception
+            }
         }
 
         private void txtSearch_KeyDown(object sender, KeyEventArgs e)

@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -15,9 +15,9 @@ namespace pylorak.TinyWall
         {
             var ret = (PolicyType)discriminator switch
             {
-                PolicyType.HardBlock => (ExceptionPolicy?)JsonSerializer.Deserialize<HardBlockPolicy>(ref reader, SourceGenerationContext.Default.HardBlockPolicy),
-                PolicyType.Unrestricted => (ExceptionPolicy?)JsonSerializer.Deserialize<UnrestrictedPolicy>(ref reader, SourceGenerationContext.Default.UnrestrictedPolicy),
-                PolicyType.TcpUdpOnly => (ExceptionPolicy?)JsonSerializer.Deserialize<TcpUdpPolicy>(ref reader, SourceGenerationContext.Default.TcpUdpPolicy),
+                PolicyType.HardBlock => JsonSerializer.Deserialize<HardBlockPolicy>(ref reader, SourceGenerationContext.Default.HardBlockPolicy),
+                PolicyType.Unrestricted => JsonSerializer.Deserialize<UnrestrictedPolicy>(ref reader, SourceGenerationContext.Default.UnrestrictedPolicy),
+                PolicyType.TcpUdpOnly => JsonSerializer.Deserialize<TcpUdpPolicy>(ref reader, SourceGenerationContext.Default.TcpUdpPolicy),
                 PolicyType.RuleList => (ExceptionPolicy?)JsonSerializer.Deserialize<RuleListPolicy>(ref reader, SourceGenerationContext.Default.RuleListPolicy),
                 _ => throw new JsonException($"Tried to deserialize unsupported type with discriminator {(PolicyType)discriminator}."),
             };
@@ -78,9 +78,9 @@ namespace pylorak.TinyWall
         {
             other = other.PolicyType switch
             {
-                PolicyType.RuleList or 
+                PolicyType.RuleList or
                     PolicyType.HardBlock or
-                    PolicyType.TcpUdpOnly or 
+                    PolicyType.TcpUdpOnly or
                     PolicyType.Unrestricted => HardBlockPolicy.Instance,
                 PolicyType.Invalid => throw new InvalidOperationException(),
                 _ => throw new NotImplementedException(),
@@ -104,11 +104,11 @@ namespace pylorak.TinyWall
             switch (target.PolicyType)
             {
                 case PolicyType.Unrestricted:
-                {
-                    var other = (UnrestrictedPolicy)target;
-                    other.LocalNetworkOnly &= this.LocalNetworkOnly;
-                    break;
-                }
+                    {
+                        var other = (UnrestrictedPolicy)target;
+                        other.LocalNetworkOnly &= this.LocalNetworkOnly;
+                        break;
+                    }
                 case PolicyType.HardBlock:
                     // No change to target
                     break;
@@ -117,12 +117,12 @@ namespace pylorak.TinyWall
                     target = this;
                     break;
                 case PolicyType.TcpUdpOnly:
-                {
-                    var other = (TcpUdpPolicy)target;
-                    this.LocalNetworkOnly &= other.LocalNetworkOnly;
-                    target = this;
-                    break;
-                }
+                    {
+                        var other = (TcpUdpPolicy)target;
+                        this.LocalNetworkOnly &= other.LocalNetworkOnly;
+                        target = this;
+                        break;
+                    }
                 default:
                     throw new NotImplementedException();
             }
@@ -212,22 +212,20 @@ namespace pylorak.TinyWall
                 return str1;
 
             // We allow the union of the two rules.
-            // If any of the two rules allowed all ports (*), we just put 
+            // If any of the two rules allowed all ports (*), we just put
             // a wildcard into the new merged rule too.
             // Otherwise, we just join the two port lists.
 
-            string[] list1 = str1.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (string elem in list1)
+            var list1 = str1.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            if (list1.Any(elem => elem.Equals("*")))
             {
-                if (elem.Equals("*"))
-                    return "*";
+                return "*";
             }
 
-            string[] list2 = str2.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (string elem in list2)
+            var list2 = str2.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            if (list2.Any(elem => elem.Equals("*")))
             {
-                if (elem.Equals("*"))
-                    return "*";
+                return "*";
             }
 
             var mergedList = new List<string>();
@@ -254,22 +252,23 @@ namespace pylorak.TinyWall
             switch (target.PolicyType)
             {
                 case PolicyType.RuleList:
-                {
-                    var other = (RuleListPolicy)target;
-                    other.Rules.AddRange(this.Rules);
-                    break;
-                }
+                    {
+                        var other = (RuleListPolicy)target;
+                        other.Rules.AddRange(this.Rules);
+                        break;
+                    }
                 case PolicyType.TcpUdpOnly:
                     return false;
                 case PolicyType.HardBlock:
                     // No change to target
                     break;
                 case PolicyType.Unrestricted:
-                {
-                    var other = (UnrestrictedPolicy)target;
-                    other.LocalNetworkOnly = false;
-                    break;
-                }
+                    {
+                        var other = (UnrestrictedPolicy)target;
+                        other.LocalNetworkOnly = false;
+                        break;
+                    }
+                case PolicyType.Invalid:
                 default:
                     throw new NotImplementedException();
             }
