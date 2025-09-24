@@ -7,6 +7,7 @@
 
 /.vs/
 /.tx/
+/.vscode/
 
 /LocalizationPack/**/*.resx
 /LocalizationPack/**/*.pdf
