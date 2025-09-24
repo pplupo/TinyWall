@@ -34,7 +34,7 @@ namespace pylorak.TinyWall
 
         private readonly BlockingCollection<TwRequest> _q = new(32);
         private readonly PipeServerEndpoint _serverPipe;
-        private readonly Timer _minuteTimer;
+        private readonly Timer? _minuteTimer;
 
         private readonly CircularBuffer<FirewallLogEntry> _firewallLogEntries = new(500);
         private readonly FileLocker _fileLocker = new();
@@ -197,10 +197,8 @@ namespace pylorak.TinyWall
                 {
                     timer.NewSubTask("Rule inheritance processing");
 
-                    var sbuilder = new StringBuilder(1024);
-                    var procTree = new Dictionary<uint, ProcessSnapshotEntry>();
-                    foreach (var p in ProcessManager.CreateToolhelp32SnapshotExtended())
-                        procTree.Add(p.ProcessId, p);
+                    //var sbuilder = new StringBuilder(1024);
+                    var procTree = ProcessManager.CreateToolhelp32SnapshotExtended().ToDictionary(p => p.ProcessId);
 
                     // This list will hold parents that we already checked for a process.
                     // Used to avoid inf. loop when parent-PID info is unreliable.
@@ -253,17 +251,18 @@ namespace pylorak.TinyWall
                                 // We have already processed this parent-child combination
                                 break;
 
-                            if (_childInheritance.TryGetValue(parentEntry.ImagePath, out List<FirewallExceptionV3> exList))
-                            {
-                                var subj = new ExecutableSubject(procPath);
-                                foreach (var userEx in exList)
-                                    GetRulesForException(new FirewallExceptionV3(subj, userEx.Policy), rules, rawSocketExceptions, (ulong)FilterWeights.UserPermit, (ulong)FilterWeights.UserBlock);
+                            if (!_childInheritance.TryGetValue(parentEntry.ImagePath,
+                                    out var exList)) continue;
 
-                                if (!_childInheritedSubjectExes.ContainsKey(procPath))
-                                    _childInheritedSubjectExes.Add(procPath, new HashSet<string>());
-                                _childInheritedSubjectExes[procPath].Add(parentEntry.ImagePath);
-                                break;
-                            }
+                            var subj = new ExecutableSubject(procPath);
+
+                            foreach (var userEx in exList)
+                                GetRulesForException(new FirewallExceptionV3(subj, userEx.Policy), rules, rawSocketExceptions, (ulong)FilterWeights.UserPermit, (ulong)FilterWeights.UserBlock);
+
+                            if (!_childInheritedSubjectExes.ContainsKey(procPath))
+                                _childInheritedSubjectExes.Add(procPath, new HashSet<string>());
+                            _childInheritedSubjectExes[procPath].Add(parentEntry.ImagePath);
+                            break;
                         }
                     }
                 }   // if (ChildInheritance ...
@@ -872,7 +871,7 @@ namespace pylorak.TinyWall
             try
             {
                 // Retrieve database entry for appName
-                var app = GlobalInstances.AppDatabase.GetApplicationByName(name);
+                var app = GlobalInstances.AppDatabase!.GetApplicationByName(name);
                 if (app is null)
                     return exceptions;
 
@@ -1047,7 +1046,8 @@ namespace pylorak.TinyWall
 
             // Allow recommended exceptions
             var db = GlobalInstances.AppDatabase;
-            foreach (var app in db.KnownApplications.Where(app => app.HasFlag("TWUI:Special") && app.HasFlag("TWUI:Recommended")))
+
+            foreach (var app in db!.KnownApplications.Where(app => app.HasFlag("TWUI:Special") && app.HasFlag("TWUI:Recommended")))
             {
                 ret.ActiveProfile.SpecialExceptions.Add(app.Name);
             }
@@ -1755,8 +1755,9 @@ namespace pylorak.TinyWall
             TinyWallDoctor.EnsureHealth(Utils.LOG_ID_SERVICE);
 #endif
 
-            _minuteTimer.Change(60000, 60000);
+            _minuteTimer?.Change(60000, 60000);
             _runService = true;
+
             while (_runService)
             {
                 timer.NewSubTask("Message wait");
@@ -1935,7 +1936,7 @@ namespace pylorak.TinyWall
                     return;
                 }
 
-                var exceptions = GlobalInstances.AppDatabase.GetExceptionsForApp(newSubject, false, out _);
+                var exceptions = GlobalInstances.AppDatabase!.GetExceptionsForApp(newSubject, false, out _);
                 _learningNewExceptions.AddRange(exceptions);
             }
         }
@@ -2025,7 +2026,7 @@ namespace pylorak.TinyWall
 
     internal sealed class TinyWallService : ServiceBase
     {
-        internal static readonly string[] ServiceDependencies = new string[]
+        internal static readonly string[] SERVICE_DEPENDENCIES = new string[]
         {
             "Schedule",
             "Winmgmt",
@@ -2034,7 +2035,7 @@ namespace pylorak.TinyWall
 
         internal const string SERVICE_NAME = "TinyWall";
 
-        internal const string SERVICE_DISPLAY_NAME = "TinyWall Service";
+        internal const string ServiceDisplayName = "TinyWall Service";
 
         private TinyWallServer? _server;
 
@@ -2064,6 +2065,7 @@ namespace pylorak.TinyWall
             }
             finally
             {
+                //do nothing
 #if !DEBUG
                 Thread.MemoryBarrier();
                 if (!IsComputerShuttingDown)    // cannot set service state if a shutdown is already in progress

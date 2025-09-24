@@ -61,7 +61,7 @@ namespace pylorak.TinyWall
             listApplications.DragDrop += ListApplications_DragDrop;
 
             TmpConfig = new ConfigContainer(service, controller);
-            TmpConfig.Service.ActiveProfile.Normalize();
+            TmpConfig.Service.ActiveProfile.Normalise();
         }
 
         private void ListApplications_DragDrop(object sender, DragEventArgs e)

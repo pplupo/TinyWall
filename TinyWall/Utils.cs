@@ -8,6 +8,7 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Principal;
@@ -52,7 +53,7 @@ namespace pylorak.TinyWall
 
             [DllImport("kernel32.dll", SetLastError = true)]
             [return: MarshalAs(UnmanagedType.Bool)]
-            internal static extern bool GetNamedPipeClientProcessId(IntPtr Pipe, out ulong ClientProcessId);
+            internal static extern bool GetNamedPipeClientProcessId(IntPtr pipe, out ulong clientProcessId);
 
             [DllImport("Wer.dll", CharSet = CharSet.Unicode, PreserveSig = false)]
             internal static extern void WerAddExcludedApplication(
@@ -77,34 +78,36 @@ namespace pylorak.TinyWall
             [ComImport, Guid("2246EA2D-CAEA-4444-A3C4-6DE827E44313"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
             internal interface IAppVisibility
             {
-                HRESULT GetAppVisibilityOnMonitor([In] IntPtr hMonitor, [Out] out MONITOR_APP_VISIBILITY pMode);
-                HRESULT IsLauncherVisible([Out] out bool pfVisible);
-                HRESULT Advise([In] IAppVisibilityEvents pCallback, [Out] out int pdwCookie);
-                HRESULT Unadvise([In] int dwCookie);
+                Hresult GetAppVisibilityOnMonitor([In] IntPtr hMonitor, [Out] out MonitorAppVisibility pMode);
+                Hresult IsLauncherVisible([Out] out bool pfVisible);
+                Hresult Advise([In] IAppVisibilityEvents pCallback, [Out] out int pdwCookie);
+                Hresult Unadvise([In] int dwCookie);
             }
-            //...
-            internal enum HRESULT : long
+
+            internal enum Hresult : long
             {
                 S_FALSE = 0x0001,
                 S_OK = 0x0000,
                 E_INVALIDARG = 0x80070057,
                 E_OUTOFMEMORY = 0x8007000E
             }
-            internal enum MONITOR_APP_VISIBILITY
+
+            internal enum MonitorAppVisibility
             {
                 MAV_UNKNOWN = 0,         // The mode for the monitor is unknown
                 MAV_NO_APP_VISIBLE = 1,
                 MAV_APP_VISIBLE = 2
             }
+
             [ComImport, Guid("6584CE6B-7D82-49C2-89C9-C6BC02BA8C38"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
             internal interface IAppVisibilityEvents
             {
-                HRESULT AppVisibilityOnMonitorChanged(
+                Hresult AppVisibilityOnMonitorChanged(
                     [In] IntPtr hMonitor,
-                    [In] MONITOR_APP_VISIBILITY previousMode,
-                    [In] MONITOR_APP_VISIBILITY currentMode);
+                    [In] MonitorAppVisibility previousMode,
+                    [In] MonitorAppVisibility currentMode);
 
-                HRESULT LauncherVisibilityChange([In] bool currentVisibleState);
+                Hresult LauncherVisibilityChange([In] bool currentVisibleState);
             }
             #endregion
 
@@ -118,38 +121,38 @@ namespace pylorak.TinyWall
             internal static void DoMouseRightClick()
             {
                 //Call the imported function with the cursor's current position
-                uint X = (uint)System.Windows.Forms.Cursor.Position.X;
-                uint Y = (uint)System.Windows.Forms.Cursor.Position.Y;
-                mouse_event(MOUSEEVENTF_RIGHTDOWN | MOUSEEVENTF_RIGHTUP, X, Y, 0, IntPtr.Zero);
+                var x = (uint)Cursor.Position.X;
+                var y = (uint)Cursor.Position.Y;
+                mouse_event(MOUSEEVENTF_RIGHTDOWN | MOUSEEVENTF_RIGHTUP, x, y, 0, IntPtr.Zero);
             }
             #endregion
         }
 
-        private static readonly Random _rng = new();
+        private static readonly Random Rng = new();
 
-        public static string ExecutablePath { get; } = System.Reflection.Assembly.GetEntryAssembly().Location;
+        public static string ExecutablePath { get; } = System.Reflection.Assembly.GetEntryAssembly()!.Location;
 
         public static string HexEncode(byte[] binstr)
         {
             var sb = new StringBuilder();
+
             foreach (byte oct in binstr)
                 sb.Append(oct.ToString(@"X2", CultureInfo.InvariantCulture));
 
             return sb.ToString();
         }
 
-#if NET481
-        // Use string.IsNullOrEmpty() on .Net 5 and newer
         public static bool IsNullOrEmpty([NotNullWhen(false)] string? str)
         {
-            return (str is null) || (str == string.Empty);
+            return string.IsNullOrWhiteSpace(str);
         }
-#endif
 
         public static T OnlyFirst<T>(IEnumerable<T> items)
         {
             using IEnumerator<T> iter = items.GetEnumerator();
+
             iter.MoveNext();
+
             return iter.Current;
         }
 
@@ -166,42 +169,44 @@ namespace pylorak.TinyWall
                 if (!(Directory.Exists(path) || File.Exists(path)))
                     return path;
 
-                var dir = new DirectoryInfo(path);
-                var parent = dir.Parent;    // will be null if there is no parent
-                var result = string.Empty;
-
-                while (parent != null)
+                if (path != null)
                 {
-                    result = Path.Combine(OnlyFirst(parent.EnumerateFileSystemInfos(dir.Name)).Name, result);
+                    var dir = new DirectoryInfo(path);
+                    var parent = dir.Parent;    // will be null if there is no parent
+                    var result = string.Empty;
 
-                    dir = parent;
-                    parent = parent.Parent;
-                }
+                    while (parent != null)
+                    {
+                        result = Path.Combine(OnlyFirst(parent.EnumerateFileSystemInfos(dir.Name)).Name, result);
 
-                // Handle the root part (i.e., drive letter)
-                string root = dir.FullName;
-                if (root.Contains(":"))
-                {
+                        dir = parent;
+                        parent = parent.Parent;
+                    }
+
+                    // Handle the root part (i.e., drive letter)
+                    var root = dir.FullName;
+
+                    if (!root.Contains(":")) return path;
+
                     // Drive letter
                     root = root.ToUpperInvariant();
                     result = Path.Combine(root, result);
                     return result;
-                }
-                else
-                {
+
                     // Error
-                    return path;
                 }
             }
             catch
             {
                 return path;
             }
+
+            return path;
         }
 
         internal static void SetRightToLeft(Control ctrl)
         {
-            RightToLeft rtl = System.Windows.Forms.Application.CurrentCulture.TextInfo.IsRightToLeft ? RightToLeft.Yes : RightToLeft.No;
+            var rtl = Application.CurrentCulture.TextInfo.IsRightToLeft ? RightToLeft.Yes : RightToLeft.No;
             ctrl.RightToLeft = rtl;
         }
 
@@ -220,10 +225,10 @@ namespace pylorak.TinyWall
 
         internal static string ProgramFilesx86()
         {
-            if ((8 == IntPtr.Size) || (!String.IsNullOrEmpty(Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432"))))
-                return Environment.GetEnvironmentVariable("ProgramFiles(x86)");
-            else
-                return Environment.GetEnvironmentVariable("ProgramFiles");
+            if ((8 == IntPtr.Size) || (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432"))))
+                return Environment.GetEnvironmentVariable("ProgramFiles(x86)")!;
+
+            return Environment.GetEnvironmentVariable("ProgramFiles")!;
         }
 
         internal static void CompressDeflate(string inputFile, string outputFile)
@@ -232,8 +237,9 @@ namespace pylorak.TinyWall
             using var outFile = new FileStream(outputFile, FileMode.Create, FileAccess.Write);
             using var compressedOutFile = new DeflateStream(outFile, CompressionMode.Compress, true);
 
-            byte[] buffer = new byte[4096];
+            var buffer = new byte[4096];
             int numRead;
+
             while ((numRead = inFile.Read(buffer, 0, buffer.Length)) != 0)
             {
                 compressedOutFile.Write(buffer, 0, numRead);
@@ -246,8 +252,9 @@ namespace pylorak.TinyWall
             using var inFile = new FileStream(inputFile, FileMode.Open, FileAccess.Read);
             using var decompressedInFile = new DeflateStream(inFile, CompressionMode.Decompress, true);
 
-            byte[] buffer = new byte[4096];
+            var buffer = new byte[4096];
             int numRead;
+
             while ((numRead = decompressedInFile.Read(buffer, 0, buffer.Length)) != 0)
             {
                 outFile.Write(buffer, 0, numRead);
@@ -257,10 +264,11 @@ namespace pylorak.TinyWall
         internal static string GetPathOfProcessUseTwService(uint pid, Controller controller)
         {
             // Shortcut for special case
-            if ((pid == 0) || (pid == 4))
+            if (pid is 0 or 4)
                 return "System";
 
-            string ret = GetLongPathName(ProcessManager.GetProcessPath(pid));
+            var ret = GetLongPathName(ProcessManager.GetProcessPath(pid));
+
             if (string.IsNullOrEmpty(ret))
                 ret = controller.TryGetProcessPath(pid);
 
@@ -270,15 +278,12 @@ namespace pylorak.TinyWall
         internal static string GetPathOfProcess(uint pid)
         {
             // Shortcut for special case
-            if ((pid == 0) || (pid == 4))
-                return "System";
-
-            return GetLongPathName(ProcessManager.GetProcessPath(pid));
+            return pid is 0 or 4 ? "System" : GetLongPathName(ProcessManager.GetProcessPath(pid));
         }
 
         internal static uint GetPidUnderCursor(int x, int y)
         {
-            _ = SafeNativeMethods.GetWindowThreadProcessId(SafeNativeMethods.WindowFromPoint(new System.Drawing.Point(x, y)), out uint procId);
+            _ = SafeNativeMethods.GetWindowThreadProcessId(SafeNativeMethods.WindowFromPoint(new Point(x, y)), out uint procId);
             return procId;
         }
 
@@ -289,38 +294,34 @@ namespace pylorak.TinyWall
         /// <returns>The long path. Null or empty if the input is null or empty. Returns the input path in case of error.</returns>
         internal static string GetLongPathName(string? shortPath)
         {
-            if (Utils.IsNullOrEmpty(shortPath))
+            if (IsNullOrEmpty(shortPath))
                 return string.Empty;
 
             var builder = new StringBuilder(255);
-            int result = SafeNativeMethods.GetLongPathName(shortPath, builder, builder.Capacity);
-            if ((result > 0) && (result < builder.Capacity))
+            var result = SafeNativeMethods.GetLongPathName(shortPath, builder, builder.Capacity);
+
+            switch (result)
             {
-                return builder.ToString(0, result);
-            }
-            else
-            {
-                if (result > 0)
-                {
+                case > 0 when (result < builder.Capacity):
+                    return builder.ToString(0, result);
+                case > 0:
                     builder = new StringBuilder(result);
                     result = SafeNativeMethods.GetLongPathName(shortPath, builder, builder.Capacity);
                     return builder.ToString(0, result);
-                }
-                else
-                {
+                default:
                     // Path not found or other error
                     return shortPath;
-                }
             }
         }
 
         internal static string RandomString(int length)
         {
-            const string chars = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            char[] buffer = new char[length];
-            for (int i = 0; i < length; i++)
+            const string CHARS = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            var buffer = new char[length];
+
+            for (var i = 0; i < length; i++)
             {
-                buffer[i] = chars[_rng.Next(chars.Length)];
+                buffer[i] = CHARS[Rng.Next(CHARS.Length)];
             }
             return new string(buffer);
         }
@@ -404,28 +405,26 @@ namespace pylorak.TinyWall
 
         internal static bool StringArrayContains(string[] arr, string val, StringComparison opts = StringComparison.Ordinal)
         {
-            for (int i = 0; i < arr.Length; ++i)
-            {
-                if (string.Equals(arr[i], val, opts))
-                    return true;
-            }
-
-            return false;
+            return arr.Any(t => string.Equals(t, val, opts));
         }
 
         internal static Process StartProcess(string path, string args, bool asAdmin, bool hideWindow = false)
         {
-            var psi = new ProcessStartInfo(path, args);
-            psi.WorkingDirectory = Path.GetDirectoryName(path);
+            var psi = new ProcessStartInfo(path, args)
+            {
+                WorkingDirectory = Path.GetDirectoryName(path)!
+            };
+
             if (asAdmin)
             {
                 psi.Verb = "runas";
                 psi.UseShellExecute = true;
             }
+
             if (hideWindow)
                 psi.WindowStyle = ProcessWindowStyle.Hidden;
 
-            return Process.Start(psi);
+            return Process.Start(psi)!;
         }
 
         internal static bool RunningAsAdmin()
@@ -437,17 +436,16 @@ namespace pylorak.TinyWall
 
         internal static Bitmap ScaleImage(Bitmap originalImage, float scaleX, float scaleY)
         {
-            int newWidth = (int)Math.Round(originalImage.Width * scaleX);
-            int newHeight = (int)Math.Round(originalImage.Height * scaleY);
+            var newWidth = (int)Math.Round(originalImage.Width * scaleX);
+            var newHeight = (int)Math.Round(originalImage.Height * scaleY);
 
             var newImage = new Bitmap(originalImage, newWidth, newHeight);
             try
             {
-                using (Graphics g = Graphics.FromImage(newImage))
-                {
-                    g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                    g.DrawImage(originalImage, 0, 0, newImage.Width, newImage.Height);
-                }
+                using var g = Graphics.FromImage(newImage);
+
+                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                g.DrawImage(originalImage, 0, 0, newImage.Width, newImage.Height);
 
                 return newImage;
             }
@@ -460,29 +458,29 @@ namespace pylorak.TinyWall
 
         internal static Bitmap ResizeImage(Bitmap originalImage, int maxWidth, int maxHeight)
         {
-            int newWidth = originalImage.Width;
-            int newHeight = originalImage.Height;
-            double aspectRatio = (double)originalImage.Width / (double)originalImage.Height;
+            var newWidth = originalImage.Width;
+            var newHeight = originalImage.Height;
+            var aspectRatio = originalImage.Width / originalImage.Height;
 
-            if (aspectRatio <= 1 && originalImage.Width > maxWidth)
+            switch (aspectRatio)
             {
-                newWidth = maxWidth;
-                newHeight = (int)Math.Round(newWidth / aspectRatio);
-            }
-            else if (aspectRatio > 1 && originalImage.Height > maxHeight)
-            {
-                newHeight = maxHeight;
-                newWidth = (int)Math.Round(newHeight * aspectRatio);
+                case <= 1 when originalImage.Width > maxWidth:
+                    newWidth = maxWidth;
+                    newHeight = newWidth / aspectRatio;
+                    break;
+                case > 1 when originalImage.Height > maxHeight:
+                    newHeight = maxHeight;
+                    newWidth = newHeight * aspectRatio;
+                    break;
             }
 
             var newImage = new Bitmap(originalImage, newWidth, newHeight);
             try
             {
-                using (Graphics g = Graphics.FromImage(newImage))
-                {
-                    g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                    g.DrawImage(originalImage, 0, 0, newImage.Width, newImage.Height);
-                }
+                using var g = Graphics.FromImage(newImage);
+
+                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                g.DrawImage(originalImage, 0, 0, newImage.Width, newImage.Height);
 
                 return newImage;
             }
@@ -495,11 +493,13 @@ namespace pylorak.TinyWall
 
         internal static Bitmap GetIconContained(string filePath, int targetWidth, int targetHeight)
         {
-            IconTools.ShellIconSize icnSize = IconTools.ShellIconSize.LargeIcon;
+            var icnSize = IconTools.ShellIconSize.LargeIcon;
+
             if ((targetHeight == 16) && (targetWidth == 16))
                 icnSize = IconTools.ShellIconSize.SmallIcon;
 
             using var icon = IconTools.GetIconForExtension(filePath, icnSize);
+
             if ((icon.Width == targetWidth) && (icon.Height == targetHeight))
             {
                 return icon.ToBitmap();
@@ -507,36 +507,37 @@ namespace pylorak.TinyWall
             if ((icon.Height > targetHeight) || (icon.Width > targetWidth))
             {
                 using var bmp = icon.ToBitmap();
-                return Utils.ResizeImage(bmp, targetWidth, targetHeight);
+                return ResizeImage(bmp, targetWidth, targetHeight);
             }
             else
             {
                 using var bmp = icon.ToBitmap();
-                float scale = Math.Min((float)targetWidth / icon.Width, (float)targetHeight / icon.Height);
-                return Utils.ScaleImage(bmp, (int)Math.Round(scale * icon.Width), (int)Math.Round(scale * icon.Height));
+                var scale = Math.Min((float)targetWidth / icon.Width, (float)targetHeight / icon.Height);
+                return ScaleImage(bmp, (int)Math.Round(scale * icon.Width), (int)Math.Round(scale * icon.Height));
             }
         }
 
-        private static float? _DpiScalingFactor;
+        private static float? _dpiScalingFactor;
         internal static float DpiScalingFactor
         {
             get
             {
-                if (!_DpiScalingFactor.HasValue)
-                {
-                    using System.Drawing.Graphics graphics = System.Drawing.Graphics.FromHwnd(IntPtr.Zero);
-                    float dpiX = graphics.DpiX;
-                    float dpiY = graphics.DpiY;
-                    _DpiScalingFactor = dpiX / 96.0f;
-                }
+                if (_dpiScalingFactor.HasValue) return _dpiScalingFactor.Value;
 
-                return _DpiScalingFactor.Value;
+                using var graphics = Graphics.FromHwnd(IntPtr.Zero);
+
+                var dpiX = graphics.DpiX;
+                //var dpiY = graphics.DpiY;
+
+                _dpiScalingFactor = dpiX / 96.0f;
+
+                return _dpiScalingFactor.Value;
             }
         }
 
         internal static void CentreControlInParent(Control control)
         {
-            Control parent = control.Parent;
+            var parent = control.Parent;
 
             control.Location = new Point(
                 parent.Width / 2 - control.Width / 2,
@@ -547,15 +548,15 @@ namespace pylorak.TinyWall
         internal static void FixupFormPosition(Form form)
         {
             // Place window to top-left corner of working area if window is too much off-screen
-            Rectangle formVisibleArea = Rectangle.Intersect(SystemInformation.VirtualScreen, form.Bounds);
+            var formVisibleArea = Rectangle.Intersect(SystemInformation.VirtualScreen, form.Bounds);
+
             if ((formVisibleArea.Width < 100) || (formVisibleArea.Height < 100))
                 form.Location = Screen.PrimaryScreen.WorkingArea.Location;
         }
 
-        internal static void Invoke(SynchronizationContext syncCtx, SendOrPostCallback method)
+        internal static void Invoke(SynchronizationContext? syncCtx, SendOrPostCallback method)
         {
-            if (syncCtx != null)
-                syncCtx.Send(method, null);
+            syncCtx?.Send(method, null);
         }
 
         internal static void Invoke(Control ctrl, MethodInvoker method)
@@ -568,85 +569,82 @@ namespace pylorak.TinyWall
 
         internal static void SplitFirstLine(string str, out string firstLine, out string restLines)
         {
-            string[] lines = str.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+            var lines = str.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
 
             firstLine = lines[0];
             restLines = string.Empty;
 
-            if (lines.Length > 1)
-            {
-                restLines = lines[1];
-                for (int i = 2; i < lines.Length; ++i)
-                    restLines += Environment.NewLine + lines[i];
-            }
+            if (lines.Length <= 1) return;
+
+            restLines = lines[1];
+            for (var i = 2; i < lines.Length; ++i)
+                restLines += Environment.NewLine + lines[i];
         }
 
         internal static DialogResult ShowMessageBox(string msg, string title, TaskDialogCommonButtons buttons, TaskDialogIcon icon, IWin32Window? parent = null)
         {
-            Utils.SplitFirstLine(msg, out string firstLine, out string contentLines);
+            SplitFirstLine(msg, out var firstLine, out var contentLines);
 
-            var taskDialog = new TaskDialog();
-            taskDialog.WindowTitle = title;
-            taskDialog.MainInstruction = firstLine;
-            taskDialog.CommonButtons = buttons;
-            taskDialog.MainIcon = icon;
-            taskDialog.Content = contentLines;
+            var taskDialogue = new TaskDialog
+            {
+                WindowTitle = title,
+                MainInstruction = firstLine,
+                CommonButtons = buttons,
+                MainIcon = icon,
+                Content = contentLines
+            };
+
             if (parent is null)
-                return (DialogResult)taskDialog.Show();
-            else
-                return (DialogResult)taskDialog.Show(parent);
+                return (DialogResult)taskDialogue.Show();
+
+            return (DialogResult)taskDialogue.Show(parent);
         }
 
         internal static int GetRandomNumber()
         {
-            return _rng.Next(0, int.MaxValue);
+            return Rng.Next(0, int.MaxValue);
         }
 
         internal static Version TinyWallVersion { get; } = typeof(Utils).Assembly.GetName().Version;
 
-        private readonly static object logLocker = new();
+        private static readonly object LogLocker = new();
         internal static readonly string LOG_ID_SERVICE = "service";
         internal static readonly string LOG_ID_GUI = "gui";
         internal static readonly string LOG_ID_INSTALLER = "installer";
         internal static void LogException(Exception e, string logname)
         {
-            Utils.Log(
-                string.Join(
-                    Environment.NewLine, new string[] {
-                    $"TinyWall version: {Utils.TinyWallVersion}",
-                    $"Windows version: {VersionInfo.WindowsVersionString}",
-                    e.ToString()
-                }),
-                logname
-            );
+            Log(string.Join(Environment.NewLine, $"TinyWall version: {Utils.TinyWallVersion}", $"Windows version: {VersionInfo.WindowsVersionString}", e.ToString()), logname);
         }
         internal static void Log(string info, string logname)
         {
             try
             {
-                lock (logLocker)
+                lock (LogLocker)
                 {
                     // First, remove deprecated log files if any is found
                     // TODO: This can probably be removed in the future
-                    string[] old_logs = new string[] {
-                        Path.Combine(Utils.AppDataPath, "errorlog"),
-                        Path.Combine(Utils.AppDataPath, "service.log"),
-                        Path.Combine(Utils.AppDataPath, "client.log"),
+                    string[] oldLogs = {
+                        Path.Combine(AppDataPath, "errorlog"),
+                        Path.Combine(AppDataPath, "service.log"),
+                        Path.Combine(AppDataPath, "client.log"),
                     };
 
-                    foreach (string file in old_logs)
+                    foreach (var file in oldLogs)
                     {
                         try
                         {
                             if (File.Exists(file))
                                 File.Delete(file);
                         }
-                        catch { }
+                        catch
+                        {
+                            // ignored
+                        }
                     }
 
                     // Name of the current log file
-                    string logdir = Path.Combine(Utils.AppDataPath, "logs");
-                    string logfile = Path.Combine(logdir, $"{logname}.log");
+                    var logdir = Path.Combine(Utils.AppDataPath, "logs");
+                    var logfile = Path.Combine(logdir, $"{logname}.log");
 
                     if (!Directory.Exists(logdir))
                         Directory.CreateDirectory(logdir);
@@ -655,6 +653,7 @@ namespace pylorak.TinyWall
                     if (File.Exists(logfile))
                     {
                         var fi = new FileInfo(logfile);
+
                         if (fi.Length > 512 * 1024)
                         {
                             // Truncate file back to zero
@@ -664,8 +663,9 @@ namespace pylorak.TinyWall
 
                     // Do the logging
                     using var sw = new StreamWriter(logfile, true, Encoding.UTF8);
+
                     sw.WriteLine();
-                    sw.WriteLine("------- " + DateTime.Now.ToString(CultureInfo.InvariantCulture) + " -------");
+                    sw.WriteLine($"------- {DateTime.Now.ToString(CultureInfo.InvariantCulture)} -------");
                     sw.WriteLine(info);
                     sw.WriteLine();
                 }
@@ -681,9 +681,12 @@ namespace pylorak.TinyWall
             try
             {
                 var doubleBufferPropertyInfo = control.GetType().GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-                doubleBufferPropertyInfo.SetValue(control, enable, null);
+                doubleBufferPropertyInfo!.SetValue(control, enable, null);
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
         }
 
         internal static void FlushDnsCache()
@@ -696,7 +699,7 @@ namespace pylorak.TinyWall
             get
             {
 #if DEBUG
-                return Path.GetDirectoryName(Utils.ExecutablePath);
+                return Path.GetDirectoryName(Utils.ExecutablePath)!;
 #else
                 string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "TinyWall");
                 if (!Directory.Exists(dir))
@@ -706,7 +709,7 @@ namespace pylorak.TinyWall
             }
         }
 
-        public static bool EqualsCaseInsensitive(string a, string b)
+        public static bool EqualsCaseInsensitive(string? a, string b)
         {
             if (a == b)
                 return true;

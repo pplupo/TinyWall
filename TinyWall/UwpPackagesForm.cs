@@ -31,7 +31,7 @@ namespace pylorak.TinyWall
         internal static List<UwpPackageList.Package> ChoosePackage(IWin32Window parent, bool multiSelect)
         {
             using var pf = new UwpPackagesForm(multiSelect);
-            var pathList = new List<UwpPackageList.Package>();
+            //var pathList = new List<UwpPackageList.Package>();
 
             return (pf.ShowDialog(parent) == DialogResult.Cancel) ? new List<UwpPackageList.Package>() : pf._selectedPackages;
         }
@@ -164,22 +164,36 @@ namespace pylorak.TinyWall
 
         private async void btnSearch_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtBxSearch.Text))
+            try
             {
-                return;
+                if (string.IsNullOrWhiteSpace(txtBxSearch.Text))
+                {
+                    return;
+                }
+
+                _searchItem = txtBxSearch.Text.ToLower();
+
+                await UpdateListAsync();
             }
-
-            _searchItem = txtBxSearch.Text.ToLower();
-
-            await UpdateListAsync();
+            catch
+            {
+                //throw;
+            }
         }
 
         private async void btnClear_Click(object sender, EventArgs e)
         {
-            _searchItem = string.Empty;
-            txtBxSearch.Text = string.Empty;
+            try
+            {
+                _searchItem = string.Empty;
+                txtBxSearch.Text = string.Empty;
 
-            await UpdateListAsync();
+                await UpdateListAsync();
+            }
+            catch
+            {
+                //throw;
+            }
         }
 
         private void txtBxSearch_KeyDown(object sender, KeyEventArgs e)
