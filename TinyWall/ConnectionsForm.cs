@@ -535,9 +535,9 @@ namespace pylorak.TinyWall
                 _searchText = txtSearch.Text.ToLower();
                 await UpdateListAsync();
             }
-            catch (Exception e)
+            catch
             {
-                throw; // TODO handle exception
+                //throw; // TODO handle exception
             }
         }
 
@@ -548,9 +548,9 @@ namespace pylorak.TinyWall
                 _searchText = string.Empty;
                 await UpdateListAsync();
             }
-            catch (Exception e)
+            catch
             {
-                throw; // TODO handle exception
+                //throw; // TODO handle exception
             }
         }
 
