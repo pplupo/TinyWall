@@ -4,7 +4,7 @@
 
 A free, lightweight and non-intrusive firewall.
 
-Original author's website: https://tinywall.pados.hu
+#### Original author's website: https://tinywall.pados.hu
 
 ## About this repository
 
