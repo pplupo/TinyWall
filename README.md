@@ -1,5 +1,11 @@
 ![GitHub Actions: Build TinyWall Workflow](https://github.com/ShirazAdam/TinyWall/actions/workflows/Build-TinyWall-NETFramework.yml/badge.svg)
 
+[![Automatic Dependency Submission](https://github.com/ShirazAdam/TinyWall/actions/workflows/dependency-graph/auto-submission/badge.svg)](https://github.com/ShirazAdam/TinyWall/actions/workflows/dependency-graph/auto-submission)
+
+[![CodeQL](https://github.com/ShirazAdam/TinyWall/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/ShirazAdam/TinyWall/actions/workflows/github-code-scanning/codeql)
+
+[![Dependabot Updates](https://github.com/ShirazAdam/TinyWall/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/ShirazAdam/TinyWall/actions/workflows/dependabot/dependabot-updates)
+
 <br />
 <div align="center">
   <h3 align="center">TinyWall</h3>
