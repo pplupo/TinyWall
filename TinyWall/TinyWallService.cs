@@ -1211,7 +1211,7 @@ namespace pylorak.TinyWall
             {
                 using (var downloader = new WebClient())
                 {
-                    if (module.UpdateURL != null) downloader.DownloadFile(module.UpdateURL, tmpCompressedPath);
+                    if (module.UpdateUrl != null) downloader.DownloadFile(module.UpdateUrl, tmpCompressedPath);
                 }
                 Utils.DecompressDeflate(tmpCompressedPath, tmpFile);
 
