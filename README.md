@@ -11,10 +11,10 @@ A free, lightweight and non-intrusive firewall.
 This is forked from the source code of TinyWall as found at its [original author's website](https://tinywall.pados.hu). Upstream development is now largely inactive at the author's site, but this repository is being maintained by me and updated with my ideas or improvements.
 
 #### Hosted on:
- - CodeBerg (Main/Primary) -> https://codeberg.org/ShirazAdam/Tinywall
- - GitLab (Mirror/Secondary) -> https://gitlab.com/ShirazAdam/TinyWall
- - GitHub (Mirror/Tertiary) -> https://github.com/ShirazAdam/Tinywall
-
+ - GitHub (Main) -> https://github.com/ShirazAdam/Tinywall
+ - CodeBerg (Archived due to lack of Windows runners) -> https://codeberg.org/ShirazAdam/Tinywall
+ - GitLab (Archived due to lack of Windows runners) -> https://gitlab.com/ShirazAdam/TinyWall
+ 
 
 ## How to build
 
