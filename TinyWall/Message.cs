@@ -13,21 +13,21 @@ namespace pylorak.TinyWall
         {
             var ret = (MessageType)discriminator switch
             {
-                MessageType.GET_SETTINGS => (TwMessage?)JsonSerializer.Deserialize<TwMessageGetSettings>(ref reader, SourceGenerationContext.Default.TwMessageGetSettings),
-                MessageType.PUT_SETTINGS => (TwMessage?)JsonSerializer.Deserialize<TwMessagePutSettings>(ref reader, SourceGenerationContext.Default.TwMessagePutSettings),
-                MessageType.COM_ERROR => (TwMessage?)JsonSerializer.Deserialize<TwMessageComError>(ref reader, SourceGenerationContext.Default.TwMessageComError),
-                MessageType.RESPONSE_ERROR => (TwMessage?)JsonSerializer.Deserialize<TwMessageError>(ref reader, SourceGenerationContext.Default.TwMessageError),
-                MessageType.RESPONSE_LOCKED => (TwMessage?)JsonSerializer.Deserialize<TwMessageLocked>(ref reader, SourceGenerationContext.Default.TwMessageLocked),
-                MessageType.GET_PROCESS_PATH => (TwMessage?)JsonSerializer.Deserialize<TwMessageGetProcessPath>(ref reader, SourceGenerationContext.Default.TwMessageGetProcessPath),
-                MessageType.READ_FW_LOG => (TwMessage?)JsonSerializer.Deserialize<TwMessageReadFwLog>(ref reader, SourceGenerationContext.Default.TwMessageReadFwLog),
-                MessageType.IS_LOCKED => (TwMessage?)JsonSerializer.Deserialize<TwMessageIsLocked>(ref reader, SourceGenerationContext.Default.TwMessageIsLocked),
-                MessageType.UNLOCK => (TwMessage?)JsonSerializer.Deserialize<TwMessageUnlock>(ref reader, SourceGenerationContext.Default.TwMessageUnlock),
-                MessageType.MODE_SWITCH => (TwMessage?)JsonSerializer.Deserialize<TwMessageModeSwitch>(ref reader, SourceGenerationContext.Default.TwMessageModeSwitch),
-                MessageType.SET_PASSPHRASE => (TwMessage?)JsonSerializer.Deserialize<TwMessageSetPassword>(ref reader, SourceGenerationContext.Default.TwMessageSetPassword),
-                MessageType.REINIT => (TwMessage?)JsonSerializer.Deserialize<TwMessageSimple>(ref reader, SourceGenerationContext.Default.TwMessageSimple),
-                MessageType.LOCK => (TwMessage?)JsonSerializer.Deserialize<TwMessageSimple>(ref reader, SourceGenerationContext.Default.TwMessageSimple),
-                MessageType.STOP_SERVICE => (TwMessage?)JsonSerializer.Deserialize<TwMessageSimple>(ref reader, SourceGenerationContext.Default.TwMessageSimple),
-                MessageType.MINUTE_TIMER => (TwMessage?)JsonSerializer.Deserialize<TwMessageSimple>(ref reader, SourceGenerationContext.Default.TwMessageSimple),
+                MessageType.GET_SETTINGS => JsonSerializer.Deserialize<TwMessageGetSettings>(ref reader, SourceGenerationContext.Default.TwMessageGetSettings),
+                MessageType.PUT_SETTINGS => JsonSerializer.Deserialize<TwMessagePutSettings>(ref reader, SourceGenerationContext.Default.TwMessagePutSettings),
+                MessageType.COM_ERROR => JsonSerializer.Deserialize<TwMessageComError>(ref reader, SourceGenerationContext.Default.TwMessageComError),
+                MessageType.RESPONSE_ERROR => JsonSerializer.Deserialize<TwMessageError>(ref reader, SourceGenerationContext.Default.TwMessageError),
+                MessageType.RESPONSE_LOCKED => JsonSerializer.Deserialize<TwMessageLocked>(ref reader, SourceGenerationContext.Default.TwMessageLocked),
+                MessageType.GET_PROCESS_PATH => JsonSerializer.Deserialize<TwMessageGetProcessPath>(ref reader, SourceGenerationContext.Default.TwMessageGetProcessPath),
+                MessageType.READ_FW_LOG => JsonSerializer.Deserialize<TwMessageReadFwLog>(ref reader, SourceGenerationContext.Default.TwMessageReadFwLog),
+                MessageType.IS_LOCKED => JsonSerializer.Deserialize<TwMessageIsLocked>(ref reader, SourceGenerationContext.Default.TwMessageIsLocked),
+                MessageType.UNLOCK => JsonSerializer.Deserialize<TwMessageUnlock>(ref reader, SourceGenerationContext.Default.TwMessageUnlock),
+                MessageType.MODE_SWITCH => JsonSerializer.Deserialize<TwMessageModeSwitch>(ref reader, SourceGenerationContext.Default.TwMessageModeSwitch),
+                MessageType.SET_PASSPHRASE => JsonSerializer.Deserialize<TwMessageSetPassword>(ref reader, SourceGenerationContext.Default.TwMessageSetPassword),
+                MessageType.REINIT => JsonSerializer.Deserialize<TwMessageSimple>(ref reader, SourceGenerationContext.Default.TwMessageSimple),
+                MessageType.LOCK => JsonSerializer.Deserialize<TwMessageSimple>(ref reader, SourceGenerationContext.Default.TwMessageSimple),
+                MessageType.STOP_SERVICE => JsonSerializer.Deserialize<TwMessageSimple>(ref reader, SourceGenerationContext.Default.TwMessageSimple),
+                MessageType.MINUTE_TIMER => JsonSerializer.Deserialize<TwMessageSimple>(ref reader, SourceGenerationContext.Default.TwMessageSimple),
                 MessageType.ADD_TEMPORARY_EXCEPTION => (TwMessage?)JsonSerializer.Deserialize<TwMessageAddTempException>(ref reader, SourceGenerationContext.Default.TwMessageAddTempException),
                 _ => throw new JsonException($"Tried to deserialize unsupported type with discriminator {(MessageType)discriminator}."),
             };
@@ -66,7 +66,7 @@ namespace pylorak.TinyWall
                     JsonSerializer.Serialize<TwMessageAddTempException>(writer, typedVal, SourceGenerationContext.Default.TwMessageAddTempException); break;
                 default:
                     throw new JsonException($"Tried to serialize unsupported type {value.GetType()}.");
-            };
+            }
         }
     }
 
@@ -77,7 +77,7 @@ namespace pylorak.TinyWall
         public MessageType Type { get; }
 
         [JsonConstructor]
-        public TwMessage(MessageType type)
+        protected TwMessage(MessageType type)
         {
             Type = type;
         }
@@ -110,7 +110,7 @@ namespace pylorak.TinyWall
 
     public record TwMessageLocked : TwMessage
     {
-        public static TwMessageLocked Instance { get; } = new TwMessageLocked();
+        public static TwMessageLocked Instance { get; } = new();
 
         [JsonConstructor]
         public TwMessageLocked() :

@@ -1,11 +1,11 @@
-﻿using System;
+﻿using pylorak.Windows;
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
 using Windows.Management.Deployment;
-using pylorak.Windows;
-using System.Collections;
-using System.Collections.ObjectModel;
 
 namespace pylorak.TinyWall
 {
@@ -67,7 +67,7 @@ namespace pylorak.TinyWall
             {
                 return obj is Package other && Equals(other);
             }
-            
+
             public bool Equals(Package other)
             {
                 return
@@ -89,25 +89,24 @@ namespace pylorak.TinyWall
             }
         }
 
-        private List<Package>? _Packages;
+        private List<Package>? _packages;
         private List<Package> Packages
         {
             get
             {
-                if (_Packages is null)
+                if (_packages is not null) return _packages;
+
+                try
                 {
-                    try
-                    {
-                        _Packages = CreatePackageList();
-                    }
-                    catch
-                    {
-                        // Return an empty list if we cannot enumerate the packages on the system.
-                        // This happens for exmaple when the AppXSVC service is disabled.
-                        _Packages = new List<Package>();
-                    }
+                    _packages = CreatePackageList();
                 }
-                return _Packages;
+                catch
+                {
+                    // Return an empty list if we cannot enumerate the packages on the system.
+                    // This happens for exmaple when the AppXSVC service is disabled.
+                    _packages = new List<Package>();
+                }
+                return _packages;
             }
         }
 
@@ -126,7 +125,10 @@ namespace pylorak.TinyWall
                 {
                     resultList.Add(new Package(p));
                 }
-                catch { }
+                catch
+                {
+                    // ignored
+                }
             }
 
             return resultList;
@@ -137,10 +139,9 @@ namespace pylorak.TinyWall
             if (string.IsNullOrEmpty(sid))
                 return null;
 
-            foreach (var package in Packages)
+            foreach (var package in Packages.Where(package => package.Sid.Equals(sid)))
             {
-                if (package.Sid.Equals(sid))
-                    return package;
+                return package;
             }
 
             return null;

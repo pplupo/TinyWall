@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using pylorak.Windows;
+﻿using pylorak.Windows;
+using System.Collections.Generic;
 
 namespace pylorak.TinyWall
 {
@@ -22,11 +22,12 @@ namespace pylorak.TinyWall
         {
             return new ProcessInfo(
                 pid,
-                Utils.GetPathOfProcessUseTwService(pid, GlobalInstances.Controller),
+                Utils.GetPathOfProcessUseTwService(pid, GlobalInstances.Controller!),
                 uwp.FindPackageForProcess(pid),
                 servicePids.GetServicesInPid(pid)
             );
         }
+
         public static ProcessInfo Create(uint pid, string path, UwpPackageList uwp, ServicePidMap servicePids)
         {
             return new ProcessInfo(

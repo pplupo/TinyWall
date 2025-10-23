@@ -1,67 +1,38 @@
-<br />
-<div align="center">
-  <h3 align="center">TinyWall</h3>
+![GitHub Actions: Build TinyWall Workflow](https://github.com/ShirazAdam/TinyWall/actions/workflows/Build-TinyWall-NETFramework.yml/badge.svg) [![Automatic Dependency Submission](https://github.com/ShirazAdam/TinyWall/actions/workflows/dependency-graph/auto-submission/badge.svg)](https://github.com/ShirazAdam/TinyWall/actions/workflows/dependency-graph/auto-submission) [![CodeQL](https://github.com/ShirazAdam/TinyWall/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/ShirazAdam/TinyWall/actions/workflows/github-code-scanning/codeql) [![Dependabot Updates](https://github.com/ShirazAdam/TinyWall/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/ShirazAdam/TinyWall/actions/workflows/dependabot/dependabot-updates)
 
-  <p align="center">
-    A free, lightweight and non-intrusive firewall
-    <br />
-    <a href="https://tinywall.pados.hu"><strong>Website »</strong></a>
-  </p>
-</div>
+# TinyWall
+
+A free, lightweight and non-intrusive firewall.
+
+#### Original author's website: https://tinywall.pados.hu
 
 ## About this repository
 
-This is the source code of TinyWall as found at its [website](https://tinywall.pados.hu). Upstream development is now largely inactive, but this repository is provided for anyone who would like to submit their own improvements or fork the project.
+This is forked from the source code of TinyWall as found at its [original author's website](https://tinywall.pados.hu). Upstream development is now largely inactive at the author's site, but this repository is being maintained by me and updated with my ideas or improvements.
+
+#### Hosted on:
+ - GitHub -> https://github.com/ShirazAdam/Tinywall
+ - CodeBerg (**Archived due to lack of Windows runners**) -> https://codeberg.org/ShirazAdam/Tinywall
+ - GitLab (**Archived due to lack of Windows runners**) -> https://gitlab.com/ShirazAdam/TinyWall
+ 
 
 ## How to build
 
 ### Necessary tools
-
-- Microsoft Visual Studio 2019 or 2022
-- [Wix v3.14 Toolset](https://github.com/wixtoolset/wix3/releases/tag/wix3141rtm)
-- [Visual Studio extension for Wix v3 Toolset](https://marketplace.visualstudio.com/items?itemName=WixToolset.WiXToolset)
+- [Microsoft Visual Studio 2022](https://visualstudio.microsoft.com/vs/)
+- [.NET Framework 4.8.1](https://dotnet.microsoft.com/en-us/download/dotnet-framework)
+- [Microsoft Visual Studio 2022 Installer Project Extension](https://marketplace.visualstudio.com/items?itemName=VisualStudioClient.MicrosoftVisualStudio2022InstallerProjects)
 
 ### To build the application
-
 1. Open the solution file in Visual Studio and compile the `TinyWall` project. The other projects referenced inside the solution need not be compiled separately as they will be statically compiled into the application.
 1. Done.
 
 ### To update/build build the database of known applications
-
 1. Adjust the individual JSON files in the `TinyWall\Database` folder.
 1. Start the application with the `/develtool` flag.
 1. Use the `Database creator` tab to create one combined database file in JSON format. The output file will be called `profiles.json`.
 1. To use the new database in debug builds, copy the output file to the `TinyWall\bin\Debug` folder.
 1. Done.
-
-### To build the installer
-
-1. Copy the compiled application files and all dependencies into the `MsiSetup\Sources\ProgramFiles\TinyWall` folder.
-1. Update the files as necessary inside the `MsiSetup\Sources\CommonAppData\TinyWall` folder. See instructions above about creating the database.
-1. Open the solution file in Visual Studio and compile the `MsiSetup` project.
-1. Done.
-
-## Automated Builds
-
-This repository includes GitHub Actions workflows for automated building and releasing:
-
-### Build Workflow
-
-The workflow automatically builds the TinyWall application and MSI installer when:
-- Code is pushed to the `master` branch
-- Pull requests are created targeting the `master` branch  
-- GitHub releases are created
-
-### Release Workflow
-
-When a new release is created in GitHub:
-1. The workflow builds the application and MSI installer
-2. The MSI installer is automatically attached to the release
-3. The release becomes available for download
-
-### Manual Build Process
-
-If you prefer to build manually, follow the instructions above in the "How to build" section.
 
 ## Contributing
 
@@ -77,15 +48,18 @@ For complex features or large changes, please contact me first if your changes a
 
 If you prefer that, you can also build and distribute your own version of the binaries. In this case though you need to choose a different name other than TinyWall for your application.
 
-## License
 
-- TaskDialog wrapper (code in directory `pylorak.Windows\TaskDialog`) written by KevinGre ([link](https://www.codeproject.com/Articles/17026/TaskDialog-for-WinForms)) and placed under Public Domain.
-- All other code in the repository is under the GNU GPLv3 License. See `LICENSE.txt` for more information.
+## Licence
 
-## Contact
+- Task Dialogue wrapper (code in directory `pylorak.Windows\TaskDialog`) written by KevinGre ([link](https://www.codeproject.com/Articles/17026/TaskDialog-for-WinForms)) and placed under Public Domain.
+
+- All other code in the repository is under the GNU GPLv3 Licence. See `LICENCE.txt` for more information.
+
+
+## Original Author Contact Details
 
 Károly Pados - find e-mail at the bottom of the project website
 
-Website: <https://tinywall.pados.hu>
+Website: [https://tinywall.pados.hu](https://tinywall.pados.hu)
 
-GitHub: <https://github.com/pylorak/tinywall>
+GitHub: [https://github.com/pylorak/tinywall](https://github.com/pylorak/tinywall)

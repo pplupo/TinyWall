@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace pylorak.Windows.WFP
@@ -41,7 +40,7 @@ namespace pylorak.Windows.WFP
         private Filter(FilterConditionList conditions)
         {
             _conditions = conditions;
-            _weightAndProviderKeyHandle = SafeHGlobalHandle.Alloc(sizeof(ulong) + Marshal.SizeOf<Guid>());
+            _weightAndProviderKeyHandle = SafeHGlobalHandle.Alloc(sizeof(ulong) + Marshal.SizeOf(typeof(Guid)));
             _nativeStruct.weight.type = Interop.FWP_DATA_TYPE.FWP_UINT64;
             _nativeStruct.weight.value.uint64 = _weightAndProviderKeyHandle.DangerousGetHandle();
             _nativeStruct.providerKey = _weightAndProviderKeyHandle.DangerousGetHandle() + sizeof(ulong);
@@ -76,7 +75,7 @@ namespace pylorak.Windows.WFP
 
             if (getConditions)
             {
-                int condSize = Marshal.SizeOf<Interop.FWPM_FILTER_CONDITION0>();
+                int condSize = Marshal.SizeOf(typeof(Interop.FWPM_FILTER_CONDITION0));
                 _conditions.Capacity = (int)_nativeStruct.numFilterConditions;
                 for (int i = 0; i < (int)_nativeStruct.numFilterConditions; ++i)
                 {
@@ -89,11 +88,11 @@ namespace pylorak.Windows.WFP
 
         public Interop.FWPM_FILTER0_NoStrings Prepare()
         {
-            SynchronizeDisplayData();
+            SynchroniseDisplayData();
 
             if (_conditionsHandle == null)
             {
-                int condSize = Marshal.SizeOf<Interop.FWPM_FILTER_CONDITION0>();
+                int condSize = Marshal.SizeOf(typeof(Interop.FWPM_FILTER_CONDITION0));
                 _conditionsHandle?.Dispose();
                 _conditionsHandle = SafeHGlobalHandle.Alloc(_conditions.Count * condSize);
                 _nativeStruct.filterConditions = _conditionsHandle.DangerousGetHandle();
@@ -123,10 +122,10 @@ namespace pylorak.Windows.WFP
             set { _nativeStruct.filterKey = value; }
         }
 
-        private void SynchronizeDisplayData()
+        private void SynchroniseDisplayData()
         {
             if (_displayDataHandle != null)
-                // Already synchronized
+                // Already synchronised
                 return;
 
             int nameLength = _displayName?.Length ?? 0;
@@ -233,13 +232,13 @@ namespace pylorak.Windows.WFP
         }
         public FilterConditionList Conditions
         {
-            get 
+            get
             {
                 // Invalidate cache
                 _conditionsHandle?.Dispose();
                 _conditionsHandle = null;
 
-                return _conditions; 
+                return _conditions;
             }
         }
         public FilterActions Action

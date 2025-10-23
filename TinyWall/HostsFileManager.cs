@@ -1,17 +1,17 @@
-﻿using System;
+﻿using pylorak.Utilities;
+using System;
 using System.IO;
-using pylorak.Utilities;
 
 namespace pylorak.TinyWall
 {
     internal class HostsFileManager : Disposable
     {
         // Active system hosts file
-        private readonly static string HOSTS_PATH = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), @"drivers\etc\hosts");
+        private static readonly string HostsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), @"drivers\etc\hosts");
         // Local copy of active hosts file
-        private readonly static string HOSTS_BACKUP = Path.Combine(Utils.AppDataPath, "hosts.bck");
+        private static readonly string HostsBackup = Path.Combine(Utils.AppDataPath, "hosts.bck");
         // User's original hosts file
-        private readonly static string HOSTS_ORIGINAL = Path.Combine(Utils.AppDataPath, "hosts.orig");
+        private static readonly string HostsOriginal = Path.Combine(Utils.AppDataPath, "hosts.orig");
 
         public readonly FileLocker FileLocker = new();
 
@@ -29,68 +29,65 @@ namespace pylorak.TinyWall
         }
 
 
-        private bool _EnableProtection;
+        private bool _enableProtection;
         public bool EnableProtection
         {
-            get => _EnableProtection;
+            get => _enableProtection;
             set
             {
-                _EnableProtection = value;
-                if (File.Exists(HOSTS_PATH))
+                _enableProtection = value;
+                if (File.Exists(HostsPath))
                 {
-                    if (_EnableProtection)
-                        FileLocker.Lock(HOSTS_PATH, FileAccess.Read, FileShare.Read);
+                    if (_enableProtection)
+                        FileLocker.Lock(HostsPath, FileAccess.Read, FileShare.Read);
                     else
-                        FileLocker.Unlock(HOSTS_PATH);
+                        FileLocker.Unlock(HostsPath);
                 }
 
-                if (File.Exists(HOSTS_BACKUP))
-                    FileLocker.Lock(HOSTS_BACKUP, FileAccess.Read, FileShare.Read);
+                if (File.Exists(HostsBackup))
+                    FileLocker.Lock(HostsBackup, FileAccess.Read, FileShare.Read);
 
-                if (File.Exists(HOSTS_ORIGINAL))
-                    FileLocker.Lock(HOSTS_ORIGINAL, FileAccess.Read, FileShare.Read);
+                if (File.Exists(HostsOriginal))
+                    FileLocker.Lock(HostsOriginal, FileAccess.Read, FileShare.Read);
             }
         }
 
         private void CreateOriginalBackup()
         {
-            FileLocker.Unlock(HOSTS_ORIGINAL);
-            File.Copy(HOSTS_PATH, HOSTS_ORIGINAL, true);
-            FileLocker.Lock(HOSTS_ORIGINAL, FileAccess.Read, FileShare.Read);
+            FileLocker.Unlock(HostsOriginal);
+            File.Copy(HostsPath, HostsOriginal, true);
+            FileLocker.Lock(HostsOriginal, FileAccess.Read, FileShare.Read);
         }
 
         public void UpdateHostsFile(string path)
         {
             // We keep a copy of the hosts file for ourself, so that
             // we can re-install it any time without a net connection.
-            FileLocker.Unlock(HOSTS_BACKUP);
-            using (var afu = new AtomicFileUpdater(HOSTS_BACKUP))
+            FileLocker.Unlock(HostsBackup);
+            using (var afu = new AtomicFileUpdater(HostsBackup))
             {
                 File.Copy(path, afu.TemporaryFilePath, true);
                 afu.Commit();
             }
-            FileLocker.Lock(HOSTS_BACKUP, FileAccess.Read, FileShare.Read);
+            FileLocker.Lock(HostsBackup, FileAccess.Read, FileShare.Read);
         }
 
         public static string GetHostsHash()
         {
-            if (File.Exists(HOSTS_BACKUP))
-                return Hasher.HashFile(HOSTS_BACKUP);
-            else
-                return string.Empty;
+            return File.Exists(HostsBackup) ? Hasher.HashFile(HostsBackup) : string.Empty;
         }
 
         public bool EnableHostsFile()
         {
             // If we have no backup of the user's original hosts file,
             // we make a copy of it.
-            if (!File.Exists(HOSTS_ORIGINAL))
+            if (!File.Exists(HostsOriginal))
                 CreateOriginalBackup();
 
             try
             {
-                InstallHostsFile(HOSTS_BACKUP);
-                FlushDNSCache();
+                InstallHostsFile(HostsBackup);
+                FlushDnsCache();
                 return false;
             }
             catch
@@ -103,17 +100,17 @@ namespace pylorak.TinyWall
         {
             try
             {
-                InstallHostsFile(HOSTS_ORIGINAL);
+                InstallHostsFile(HostsOriginal);
 
                 // Delete backup of original so that it can be
                 // recreated next time we install a custom hosts.
-                if (File.Exists(HOSTS_ORIGINAL))
+                if (File.Exists(HostsOriginal))
                 {
-                    FileLocker.Unlock(HOSTS_ORIGINAL);
-                    File.Delete(HOSTS_ORIGINAL);
+                    FileLocker.Unlock(HostsOriginal);
+                    File.Delete(HostsOriginal);
                 }
 
-                FlushDNSCache();
+                FlushDnsCache();
                 return true;
             }
             catch
@@ -122,7 +119,7 @@ namespace pylorak.TinyWall
             }
         }
 
-        private static void FlushDNSCache()
+        private static void FlushDnsCache()
         {
             try
             {
@@ -139,18 +136,16 @@ namespace pylorak.TinyWall
         {
             try
             {
-                if (File.Exists(sourcePath))
-                {
-                    FileLocker.Unlock(HOSTS_PATH);
-                    File.Copy(sourcePath, HOSTS_PATH, true);
-                }
+                if (!File.Exists(sourcePath)) return;
+                FileLocker.Unlock(HostsPath);
+                File.Copy(sourcePath, HostsPath, true);
             }
             finally
             {
-                if (_EnableProtection)
-                    FileLocker.Lock(HOSTS_PATH, FileAccess.Read, FileShare.Read);
+                if (_enableProtection)
+                    FileLocker.Lock(HostsPath, FileAccess.Read, FileShare.Read);
                 else
-                    FileLocker.Unlock(HOSTS_PATH);
+                    FileLocker.Unlock(HostsPath);
             }
         }
 

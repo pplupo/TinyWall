@@ -171,4 +171,7 @@
   <data name="$this.Text" xml:space="preserve">
     <value>Přidat/Upravit vyjímku firewallu - TinyWall</value>
   </data>
+  <data name="btnRemoveSoftware.Text" xml:space="preserve">
+    <value>Odebrání softwaru</value>
+  </data>
 </root>

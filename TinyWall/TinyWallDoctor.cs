@@ -1,13 +1,13 @@
-﻿using System;
+﻿using pylorak.Windows;
+using pylorak.Windows.Services;
+using pylorak.Windows.WFP;
+using pylorak.Windows.WFP.Interop;
+using System;
 using System.Collections.Generic;
 using System.Configuration.Install;
 using System.Diagnostics;
 using System.ServiceProcess;
 using TaskScheduler;
-using pylorak.Windows;
-using pylorak.Windows.Services;
-using pylorak.Windows.WFP;
-using pylorak.Windows.WFP.Interop;
 
 namespace pylorak.TinyWall
 {
@@ -62,7 +62,7 @@ namespace pylorak.TinyWall
                 {
                     ManagedInstallerClass.InstallHelper(new string[] { "/i", Utils.ExecutablePath });
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Utils.LogException(e, logContext);
                 }
@@ -118,7 +118,7 @@ namespace pylorak.TinyWall
                 frm.Location = new System.Drawing.Point(rect.Bottom + 10, rect.Right + 10);
                 frm.Show();
                 frm.Focus();
-                frm.BringToFront(); 
+                frm.BringToFront();
                 frm.TopMost = true;
 
                 if (System.Windows.Forms.MessageBox.Show(frm,
@@ -271,7 +271,7 @@ namespace pylorak.TinyWall
                 var taskService = new TaskScheduler.TaskScheduler();
                 taskService.Connect();
                 var td = taskService.NewTask(0);
-                td.RegistrationInfo.Author = "TinyWall, Károly Pados";
+                td.RegistrationInfo.Author = "TinyWall, Károly Pados (modified by Shiraz Adam)";
                 td.RegistrationInfo.Description = "This task starts the TinyWall tray icon when a user is logged in.";
                 td.Settings.Enabled = true;
                 td.Principal.GroupId = INTERACTIVE_GROUP_SID;
@@ -304,7 +304,7 @@ namespace pylorak.TinyWall
         {
             // First, do a recursive scan of all service dependencies
             var deps = new HashSet<string>();
-            foreach (var srv in TinyWallService.ServiceDependencies)
+            foreach (var srv in TinyWallService.SERVICE_DEPENDENCIES)
             {
                 using var sc = new ServiceController(srv);
                 ScanServiceDependencies(sc, deps);

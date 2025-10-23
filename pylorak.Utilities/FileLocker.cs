@@ -5,7 +5,7 @@ namespace pylorak.Utilities
 {
     public sealed class FileLocker : Disposable
     {
-        private readonly Dictionary<string, FileStream> LockedFiles = new();
+        private readonly Dictionary<string, FileStream> _lockedFiles = new();
 
         public bool Lock(string filePath, FileAccess localAccess, FileShare shareMode)
         {
@@ -14,7 +14,7 @@ namespace pylorak.Utilities
 
             try
             {
-                LockedFiles.Add(filePath, new FileStream(filePath, FileMode.OpenOrCreate, localAccess, shareMode));
+                _lockedFiles.Add(filePath, new FileStream(filePath, FileMode.OpenOrCreate, localAccess, shareMode));
                 return true;
             }
             catch
@@ -25,12 +25,12 @@ namespace pylorak.Utilities
 
         public FileStream GetStream(string filePath)
         {
-            return LockedFiles[filePath];
+            return _lockedFiles[filePath];
         }
 
         public bool IsLocked(string filePath)
         {
-            return LockedFiles.ContainsKey(filePath);
+            return _lockedFiles.ContainsKey(filePath);
         }
 
         public bool Unlock(string filePath)
@@ -40,8 +40,8 @@ namespace pylorak.Utilities
 
             try
             {
-                LockedFiles[filePath].Close();
-                LockedFiles.Remove(filePath);
+                _lockedFiles[filePath].Close();
+                _lockedFiles.Remove(filePath);
                 return true;
             }
             catch
@@ -52,12 +52,16 @@ namespace pylorak.Utilities
 
         public void UnlockAll()
         {
-            foreach (var stream in LockedFiles.Values)
+            foreach (var stream in _lockedFiles.Values)
             {
-                try { stream.Close(); } catch { }
+                try { stream.Close(); }
+                catch
+                {
+                    // ignored
+                }
             }
 
-            LockedFiles.Clear();
+            _lockedFiles.Clear();
         }
 
         protected override void Dispose(bool disposing)

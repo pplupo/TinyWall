@@ -15,7 +15,7 @@ namespace pylorak.TinyWall.DatabaseClasses
         public string Name { get; set; } = string.Empty;
 
         [JsonIgnore]
-        public string LocalizedName
+        public string LocalisedName
         {
             get
             {
@@ -54,8 +54,10 @@ namespace pylorak.TinyWall.DatabaseClasses
         [OnDeserialized()]
         internal void OnDeserializedMethod(StreamingContext context)
         {
-            Components ??= new List<SubjectIdentity>();
-            Flags ??= new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
+            if (Components == null)
+                Components = new List<SubjectIdentity>();
+            if (Flags == null)
+                Flags = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
         }
 
         public JsonTypeInfo<Application> GetJsonTypeInfo()
