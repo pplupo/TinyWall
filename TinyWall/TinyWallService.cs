@@ -8,6 +8,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Linq;
 using System.Management;
 using System.Net;
@@ -182,15 +183,21 @@ namespace pylorak.TinyWall
                         var exePath = exe.ExecutablePath;
                         _userSubjectExes.Add(exePath);
                         if (ex.ChildProcessesInherit)
+                            ChildInheritance.Add(exePath, ex);
+                    }
+
+                    foreach (var resolved in ExpandExceptionSubjects(ex))
+                    {
+                        if (resolved.Subject is ExecutableSubject resolvedExe)
                         {
                             // We might have multiple rules with the same exePath, so we maintain a list of exceptions
                             if (!_childInheritance.ContainsKey(exePath))
                                 _childInheritance.Add(exePath, new List<FirewallExceptionV3>());
                             _childInheritance[exePath].Add(ex);
                         }
-                    }
 
-                    GetRulesForException(ex, rules, rawSocketExceptions, (ulong)FilterWeights.UserPermit, (ulong)FilterWeights.UserBlock);
+                        GetRulesForException(resolved, rules, rawSocketExceptions, (ulong)FilterWeights.UserPermit, (ulong)FilterWeights.UserBlock);
+                    }
                 }
 
                 if (_childInheritance.Count != 0)
@@ -936,14 +943,39 @@ namespace pylorak.TinyWall
                     {
                         var pol = (TcpUdpPolicy)ex.Policy;
 
+                        string? remoteAddresses = null;
+                        if (!string.IsNullOrEmpty(pol.AllowedRemoteHosts))
+                        {
+                            remoteAddresses = pol.AllowedRemoteHosts;
+                            if (pol.LocalNetworkOnly)
+                            {
+                                bool hasLocalSubnet = false;
+                                foreach (var address in remoteAddresses.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                                {
+                                    if (address.Equals(RuleDef.LOCALSUBNET_ID, StringComparison.Ordinal))
+                                    {
+                                        hasLocalSubnet = true;
+                                        break;
+                                    }
+                                }
+
+                                if (!hasLocalSubnet)
+                                    remoteAddresses = string.Concat(remoteAddresses, ",", RuleDef.LOCALSUBNET_ID);
+                            }
+                        }
+                        else if (pol.LocalNetworkOnly)
+                        {
+                            remoteAddresses = RuleDef.LOCALSUBNET_ID;
+                        }
+
                         // Incoming
                         if (!string.IsNullOrEmpty(pol.AllowedLocalTcpListenerPorts) && (pol.AllowedLocalTcpListenerPorts == pol.AllowedLocalUdpListenerPorts))
                         {
                             var def = new RuleDef(ex.Id, "TCP/UDP Listen Ports", ex.Subject, RuleAction.Allow, RuleDirection.In, Protocol.TcpUdp, permitWeight);
                             if (!string.Equals(pol.AllowedLocalTcpListenerPorts, "*"))
                                 def.LocalPorts = pol.AllowedLocalTcpListenerPorts;
-                            if (pol.LocalNetworkOnly)
-                                def.RemoteAddresses = RuleDef.LOCALSUBNET_ID;
+                            if (!string.IsNullOrEmpty(remoteAddresses))
+                                def.RemoteAddresses = remoteAddresses;
                             results.Add(def);
                         }
                         else
@@ -953,8 +985,8 @@ namespace pylorak.TinyWall
                                 var def = new RuleDef(ex.Id, "TCP Listen Ports", ex.Subject, RuleAction.Allow, RuleDirection.In, Protocol.TCP, permitWeight);
                                 if (!string.Equals(pol.AllowedLocalTcpListenerPorts, "*"))
                                     def.LocalPorts = pol.AllowedLocalTcpListenerPorts;
-                                if (pol.LocalNetworkOnly)
-                                    def.RemoteAddresses = RuleDef.LOCALSUBNET_ID;
+                                if (!string.IsNullOrEmpty(remoteAddresses))
+                                    def.RemoteAddresses = remoteAddresses;
                                 results.Add(def);
                             }
                             if (!string.IsNullOrEmpty(pol.AllowedLocalUdpListenerPorts))
@@ -962,8 +994,8 @@ namespace pylorak.TinyWall
                                 var def = new RuleDef(ex.Id, "UDP Listen Ports", ex.Subject, RuleAction.Allow, RuleDirection.In, Protocol.UDP, permitWeight);
                                 if (!string.Equals(pol.AllowedLocalUdpListenerPorts, "*"))
                                     def.LocalPorts = pol.AllowedLocalUdpListenerPorts;
-                                if (pol.LocalNetworkOnly)
-                                    def.RemoteAddresses = RuleDef.LOCALSUBNET_ID;
+                                if (!string.IsNullOrEmpty(remoteAddresses))
+                                    def.RemoteAddresses = remoteAddresses;
                                 results.Add(def);
                             }
                         }
@@ -974,8 +1006,8 @@ namespace pylorak.TinyWall
                             var def = new RuleDef(ex.Id, "TCP/UDP Outbound Ports", ex.Subject, RuleAction.Allow, RuleDirection.Out, Protocol.TcpUdp, permitWeight);
                             if (!string.Equals(pol.AllowedRemoteTcpConnectPorts, "*"))
                                 def.RemotePorts = pol.AllowedRemoteTcpConnectPorts;
-                            if (pol.LocalNetworkOnly)
-                                def.RemoteAddresses = RuleDef.LOCALSUBNET_ID;
+                            if (!string.IsNullOrEmpty(remoteAddresses))
+                                def.RemoteAddresses = remoteAddresses;
                             results.Add(def);
                         }
                         else
@@ -985,8 +1017,8 @@ namespace pylorak.TinyWall
                                 var def = new RuleDef(ex.Id, "TCP Outbound Ports", ex.Subject, RuleAction.Allow, RuleDirection.Out, Protocol.TCP, permitWeight);
                                 if (!string.Equals(pol.AllowedRemoteTcpConnectPorts, "*"))
                                     def.RemotePorts = pol.AllowedRemoteTcpConnectPorts;
-                                if (pol.LocalNetworkOnly)
-                                    def.RemoteAddresses = RuleDef.LOCALSUBNET_ID;
+                                if (!string.IsNullOrEmpty(remoteAddresses))
+                                    def.RemoteAddresses = remoteAddresses;
                                 results.Add(def);
                             }
                             if (!string.IsNullOrEmpty(pol.AllowedRemoteUdpConnectPorts))
@@ -994,8 +1026,8 @@ namespace pylorak.TinyWall
                                 var def = new RuleDef(ex.Id, "UDP Outbound Ports", ex.Subject, RuleAction.Allow, RuleDirection.Out, Protocol.UDP, permitWeight);
                                 if (!string.Equals(pol.AllowedRemoteUdpConnectPorts, "*"))
                                     def.RemotePorts = pol.AllowedRemoteUdpConnectPorts;
-                                if (pol.LocalNetworkOnly)
-                                    def.RemoteAddresses = RuleDef.LOCALSUBNET_ID;
+                                if (!string.IsNullOrEmpty(remoteAddresses))
+                                    def.RemoteAddresses = remoteAddresses;
                                 results.Add(def);
                             }
                         }

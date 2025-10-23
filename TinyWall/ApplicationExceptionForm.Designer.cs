@@ -64,9 +64,20 @@
             this.radOnlySpecifiedPorts = new System.Windows.Forms.RadioButton();
             this.panel3 = new System.Windows.Forms.Panel();
             this.chkInheritToChildren = new System.Windows.Forms.CheckBox();
+            this.radOnlySpecifiedHosts = new System.Windows.Forms.RadioButton();
+            this.grpAllowedHosts = new System.Windows.Forms.GroupBox();
+            this.panelHostButtons = new System.Windows.Forms.FlowLayoutPanel();
+            this.btnAddHost = new System.Windows.Forms.Button();
+            this.btnModifyHost = new System.Windows.Forms.Button();
+            this.btnRemoveHost = new System.Windows.Forms.Button();
+            this.btnRemoveAllHosts = new System.Windows.Forms.Button();
+            this.listAllowedHosts = new System.Windows.Forms.ListView();
+            this.columnHeaderHost = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
+            this.grpAllowedHosts.SuspendLayout();
+            this.panelHostButtons.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnCancel
@@ -111,8 +122,12 @@
             this.btnChooseService.Click += new System.EventHandler(this.btnChooseService_Click);
             // 
             // ofd
-            // 
+            //
             resources.ApplyResources(this.ofd, "ofd");
+            this.ofd.CheckFileExists = false;
+            this.ofd.CheckPathExists = false;
+            this.ofd.ValidateNames = false;
+            this.ofd.FileOk += new System.ComponentModel.CancelEventHandler(this.ofd_FileOk);
             // 
             // label6
             // 
@@ -215,6 +230,7 @@
             this.radTcpUdpOut.TabStop = true;
             this.radTcpUdpOut.UseVisualStyleBackColor = true;
             this.radTcpUdpOut.CheckedChanged += new System.EventHandler(this.radRestriction_CheckedChanged);
+            this.radTcpUdpOut.Location = new System.Drawing.Point(22, 337);
             // 
             // radTcpUdpUnrestricted
             // 
@@ -224,6 +240,7 @@
             this.radTcpUdpUnrestricted.TabStop = true;
             this.radTcpUdpUnrestricted.UseVisualStyleBackColor = true;
             this.radTcpUdpUnrestricted.CheckedChanged += new System.EventHandler(this.radRestriction_CheckedChanged);
+            this.radTcpUdpUnrestricted.Location = new System.Drawing.Point(22, 360);
             // 
             // radUnrestricted
             // 
@@ -232,6 +249,7 @@
             this.radUnrestricted.TabStop = true;
             this.radUnrestricted.UseVisualStyleBackColor = true;
             this.radUnrestricted.CheckedChanged += new System.EventHandler(this.radRestriction_CheckedChanged);
+            this.radUnrestricted.Location = new System.Drawing.Point(22, 383);
             // 
             // label5
             // 
@@ -291,13 +309,25 @@
             this.label10.Name = "label10";
             // 
             // radOnlySpecifiedPorts
-            // 
+            //
             resources.ApplyResources(this.radOnlySpecifiedPorts, "radOnlySpecifiedPorts");
             this.radOnlySpecifiedPorts.Name = "radOnlySpecifiedPorts";
             this.radOnlySpecifiedPorts.TabStop = true;
             this.radOnlySpecifiedPorts.UseVisualStyleBackColor = true;
             this.radOnlySpecifiedPorts.CheckedChanged += new System.EventHandler(this.radRestriction_CheckedChanged);
-            // 
+            //
+            // radOnlySpecifiedHosts
+            //
+            this.radOnlySpecifiedHosts.AutoSize = true;
+            this.radOnlySpecifiedHosts.Location = new System.Drawing.Point(22, 314);
+            this.radOnlySpecifiedHosts.Name = "radOnlySpecifiedHosts";
+            this.radOnlySpecifiedHosts.Size = new System.Drawing.Size(199, 17);
+            this.radOnlySpecifiedHosts.TabIndex = 85;
+            this.radOnlySpecifiedHosts.TabStop = true;
+            this.radOnlySpecifiedHosts.Text = "Allow only specified IPs/Hosts";
+            this.radOnlySpecifiedHosts.UseVisualStyleBackColor = true;
+            this.radOnlySpecifiedHosts.CheckedChanged += new System.EventHandler(this.radRestriction_CheckedChanged);
+            //
             // panel3
             // 
             resources.ApplyResources(this.panel3, "panel3");
@@ -324,10 +354,13 @@
             // 
             this.AcceptButton = this.btnOK;
             resources.ApplyResources(this, "$this");
+            this.ClientSize = new System.Drawing.Size(820, 598);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
             this.ControlBox = false;
             this.Controls.Add(this.chkInheritToChildren);
+            this.Controls.Add(this.grpAllowedHosts);
+            this.Controls.Add(this.radOnlySpecifiedHosts);
             this.Controls.Add(this.radOnlySpecifiedPorts);
             this.Controls.Add(this.radUnrestricted);
             this.Controls.Add(this.radTcpUdpUnrestricted);
@@ -351,6 +384,10 @@
             this.panel2.PerformLayout();
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
+            this.grpAllowedHosts.ResumeLayout(false);
+            this.grpAllowedHosts.PerformLayout();
+            this.panelHostButtons.ResumeLayout(false);
+            this.panelHostButtons.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 

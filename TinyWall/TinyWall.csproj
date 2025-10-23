@@ -180,6 +180,9 @@
     <Compile Update="UwpPackagesForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="HostEntryForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
 
     <Compile Update="AppFinderForm.Designer.cs">
       <DependentUpon>AppFinderForm.cs</DependentUpon>
@@ -207,6 +210,9 @@
     </Compile>
     <Compile Update="UwpPackagesForm.Designer.cs">
       <DependentUpon>UwpPackagesForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="HostEntryForm.Designer.cs">
+      <DependentUpon>HostEntryForm.cs</DependentUpon>
     </Compile>
 
     <EmbeddedResource Update="AppFinderForm.resx">
