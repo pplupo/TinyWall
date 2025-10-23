@@ -502,6 +502,105 @@ namespace pylorak.TinyWall.Resources {
                 return ResourceManager.GetString("SubjectTypeUwpApp", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Add IP/Host.
+        /// </summary>
+        internal static string AddHostTitle {
+            get {
+                return ResourceManager.GetString("AddHostTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        internal static string ButtonCancel {
+            get {
+                return ResourceManager.GetString("ButtonCancel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to OK.
+        /// </summary>
+        internal static string ButtonOK {
+            get {
+                return ResourceManager.GetString("ButtonOK", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Edit IP/Host.
+        /// </summary>
+        internal static string EditHostTitle {
+            get {
+                return ResourceManager.GetString("EditHostTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This IP/host is already in the list.. 
+        /// </summary>
+        internal static string HostEntryDuplicate {
+            get {
+                return ResourceManager.GetString("HostEntryDuplicate", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The IP/host entry is invalid. Enter an IPv4 address such as 192.168.1.10 or use CIDR notation like 10.0.0.0/24..
+        /// </summary>
+        internal static string HostEntryInvalid {
+            get {
+                return ResourceManager.GetString("HostEntryInvalid", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The CIDR prefix must be a number between 0 and 32..
+        /// </summary>
+        internal static string HostEntryInvalidPrefix {
+            get {
+                return ResourceManager.GetString("HostEntryInvalidPrefix", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The subnet mask is invalid. Provide a contiguous IPv4 subnet mask..
+        /// </summary>
+        internal static string HostEntryInvalidSubnetMask {
+            get {
+                return ResourceManager.GetString("HostEntryInvalidSubnetMask", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enter an IPv4 address or CIDR block (for example 192.168.1.10 or 10.0.0.0/24). To use a subnet mask, enter it as 10.0.0.0/255.255.255.0..
+        /// </summary>
+        internal static string HostEntryPrompt {
+            get {
+                return ResourceManager.GetString("HostEntryPrompt", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Specify an IPv4 address or CIDR block..
+        /// </summary>
+        internal static string HostEntryRequired {
+            get {
+                return ResourceManager.GetString("HostEntryRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Add at least one IP address or host before saving..
+        /// </summary>
+        internal static string HostListRequired {
+            get {
+                return ResourceManager.GetString("HostListRequired", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to Success..

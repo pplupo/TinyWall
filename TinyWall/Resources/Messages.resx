@@ -394,4 +394,37 @@ The selected executable could be part of {0}. To ensure that this application ca
   <data name="SubjectTypeUwpApp" xml:space="preserve">
     <value>UWP Package</value>
   </data>
+  <data name="AddHostTitle" xml:space="preserve">
+    <value>Add IP/Host</value>
+  </data>
+  <data name="ButtonCancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="ButtonOK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="EditHostTitle" xml:space="preserve">
+    <value>Edit IP/Host</value>
+  </data>
+  <data name="HostEntryDuplicate" xml:space="preserve">
+    <value>This IP/host is already in the list.</value>
+  </data>
+  <data name="HostEntryInvalid" xml:space="preserve">
+    <value>The IP/host entry is invalid. Enter an IPv4 address such as 192.168.1.10 or use CIDR notation like 10.0.0.0/24.</value>
+  </data>
+  <data name="HostEntryInvalidPrefix" xml:space="preserve">
+    <value>The CIDR prefix must be a number between 0 and 32.</value>
+  </data>
+  <data name="HostEntryInvalidSubnetMask" xml:space="preserve">
+    <value>The subnet mask is invalid. Provide a contiguous IPv4 subnet mask.</value>
+  </data>
+  <data name="HostEntryPrompt" xml:space="preserve">
+    <value>Enter an IPv4 address or CIDR block (for example 192.168.1.10 or 10.0.0.0/24). To use a subnet mask, enter it as 10.0.0.0/255.255.255.0.</value>
+  </data>
+  <data name="HostEntryRequired" xml:space="preserve">
+    <value>Specify an IPv4 address or CIDR block.</value>
+  </data>
+  <data name="HostListRequired" xml:space="preserve">
+    <value>Add at least one IP address or host before saving.</value>
+  </data>
 </root>

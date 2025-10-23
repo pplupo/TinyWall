@@ -247,6 +247,7 @@
             this.btnAddHost.Text = "Add IP/Host";
             this.btnAddHost.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btnAddHost.UseVisualStyleBackColor = false;
+            this.btnAddHost.Click += new System.EventHandler(this.btnAddHost_Click);
             //
             // btnModifyHost
             //
@@ -263,6 +264,8 @@
             this.btnModifyHost.Text = "Modify";
             this.btnModifyHost.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btnModifyHost.UseVisualStyleBackColor = false;
+            this.btnModifyHost.Enabled = false;
+            this.btnModifyHost.Click += new System.EventHandler(this.btnModifyHost_Click);
             //
             // btnRemoveHost
             //
@@ -279,6 +282,8 @@
             this.btnRemoveHost.Text = "Remove";
             this.btnRemoveHost.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btnRemoveHost.UseVisualStyleBackColor = false;
+            this.btnRemoveHost.Enabled = false;
+            this.btnRemoveHost.Click += new System.EventHandler(this.btnRemoveHost_Click);
             //
             // btnRemoveAllHosts
             //
@@ -295,6 +300,8 @@
             this.btnRemoveAllHosts.Text = "Remove all";
             this.btnRemoveAllHosts.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btnRemoveAllHosts.UseVisualStyleBackColor = false;
+            this.btnRemoveAllHosts.Enabled = false;
+            this.btnRemoveAllHosts.Click += new System.EventHandler(this.btnRemoveAllHosts_Click);
             //
             // listAllowedHosts
             //
@@ -312,6 +319,8 @@
             this.listAllowedHosts.TabIndex = 0;
             this.listAllowedHosts.UseCompatibleStateImageBehavior = false;
             this.listAllowedHosts.View = System.Windows.Forms.View.Details;
+            this.listAllowedHosts.SelectedIndexChanged += new System.EventHandler(this.listAllowedHosts_SelectedIndexChanged);
+            this.listAllowedHosts.DoubleClick += new System.EventHandler(this.listAllowedHosts_DoubleClick);
             //
             // columnHeaderHost
             //
