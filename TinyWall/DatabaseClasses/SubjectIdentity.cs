@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Text.Json.Serialization.Metadata;
+using System.Text.RegularExpressions;
 using pylorak.Windows;
 using pylorak.TinyWall.Parser;
 
@@ -130,6 +132,46 @@ namespace pylorak.TinyWall.DatabaseClasses
                 || NetworkPath.IsNetworkPath(path));    // Network resource
         }
 
+        private static Regex BuildRegexFromRule(string rule)
+        {
+            // 1. Define the pattern to find the regex parts (e.g., "${...}")
+            // This Regex splits the string into literals and the regex parts.
+            var parserRegex = new Regex(@"(\${.*?})");
+
+            var finalPattern = new StringBuilder();
+            finalPattern.Append('^'); // Anchor to the start
+
+            // 2. Normalize path separators for consistency
+            string normalizedRule = rule.Replace('/', Path.DirectorySeparatorChar);
+
+            // 3. Split the rule into parts
+            var parts = parserRegex.Split(normalizedRule);
+
+            foreach (string part in parts)
+            {
+                if (string.IsNullOrEmpty(part)) continue;
+
+                if (part.StartsWith("${") && part.EndsWith("}"))
+                {
+                    // This is a REGEX part
+                    // Remove the ${...} wrapper and append the raw regex
+                    finalPattern.Append(part.Substring(2, part.Length - 3));
+                }
+                else
+                {
+                    // This is a LITERAL part
+                    // Escape it so \ and . are treated as literals
+                    finalPattern.Append(Regex.Escape(part));
+                }
+            }
+
+            finalPattern.Append('$'); // Anchor to the end
+
+            // 4. Compile the final regex pattern
+            // Case-insensitive is good practice for Windows paths
+            return new Regex(finalPattern.ToString(), RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        }
+
         public bool DoesExecutableSatisfy(ExceptionSubject subject)
         {
             if (null == subject)
@@ -139,7 +181,16 @@ namespace pylorak.TinyWall.DatabaseClasses
             {
                 reference = reference.ToResolved();
 
-                if (reference.ExecutablePath == reference.ExecutableName)   // This condition checks whether the reference is just a file name or a full path
+                string referencePath = reference.ExecutablePath;
+                bool containsRegex = referencePath.Contains("${") && referencePath.Contains("}");
+
+                if (containsRegex)
+                {
+                    var pathRegex = BuildRegexFromRule(referencePath);
+                    if (!pathRegex.IsMatch(testee.ExecutablePath))
+                        return false;
+                }
+                else if (referencePath == reference.ExecutableName)   // This condition checks whether the reference is just a file name or a full path
                 {
                     // File name must match
                     if (string.Compare(reference.ExecutableName, testee.ExecutableName, StringComparison.OrdinalIgnoreCase) != 0)
