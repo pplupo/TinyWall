@@ -230,6 +230,7 @@ namespace pylorak.TinyWall
                     radTcpUdpUnrestricted.Enabled = false;
                     radTcpUdpOut.Enabled = false;
                     radOnlySpecifiedPorts.Enabled = false;
+                    radOnlySpecifiedHosts.Enabled = false;
                     chkRestrictToLocalNetwork.Enabled = false;
                     chkRestrictToLocalNetwork.Checked = false;
                     break;
@@ -337,7 +338,7 @@ namespace pylorak.TinyWall
                     ExceptionSettings[i].Policy = HardBlockPolicy.Instance;
                 });
             }
-            else if (radOnlySpecifiedPorts.Checked || radTcpUdpOut.Checked || radTcpUdpUnrestricted.Checked)
+            else if (radOnlySpecifiedPorts.Checked || radOnlySpecifiedHosts.Checked || radTcpUdpOut.Checked || radTcpUdpUnrestricted.Checked)
             {
                 var pol = new TcpUdpPolicy();
 
@@ -460,6 +461,7 @@ namespace pylorak.TinyWall
 
         private void radRestriction_CheckedChanged(object sender, EventArgs e)
         {
+            grpAllowedHosts.Enabled = radOnlySpecifiedHosts.Checked;
             if (radBlock.Checked)
             {
                 panel3.Enabled = false;
@@ -470,7 +472,7 @@ namespace pylorak.TinyWall
                 chkRestrictToLocalNetwork.Enabled = false;
                 chkRestrictToLocalNetwork.Checked = false;
             }
-            else if (radOnlySpecifiedPorts.Checked)
+            else if (radOnlySpecifiedPorts.Checked || radOnlySpecifiedHosts.Checked)
             {
                 panel3.Enabled = true;
                 txtListenPortTCP.Text = string.Empty;
