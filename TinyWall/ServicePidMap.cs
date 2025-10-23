@@ -1,13 +1,12 @@
-﻿using System;
+﻿using pylorak.Windows.Services;
 using System.Collections.Generic;
 using System.ServiceProcess;
-using pylorak.Windows.Services;
 
 namespace pylorak.TinyWall
 {
     public class ServicePidMap
     {
-        private readonly Dictionary<uint, HashSet<string>> Cache = new();
+        private readonly Dictionary<uint, HashSet<string>> _cache = new Dictionary<uint, HashSet<string>>();
 
         public ServicePidMap()
         {
@@ -19,21 +18,17 @@ namespace pylorak.TinyWall
                     continue;
 
                 uint pid = scm.GetServicePid(service.ServiceName) ?? 0;
-                if (pid != 0)
-                {
-                    if (!Cache.ContainsKey(pid))
-                        Cache.Add(pid, new HashSet<string>());
-                    Cache[pid].Add(service.ServiceName);
-                }
+                if (pid == 0) continue;
+
+                if (!_cache.ContainsKey(pid))
+                    _cache.Add(pid, new HashSet<string>());
+                _cache[pid].Add(service.ServiceName);
             }
         }
 
         public HashSet<string> GetServicesInPid(uint pid)
         {
-            if (Cache.TryGetValue(pid, out HashSet<string> set))
-                return new HashSet<string>(set);
-            else
-                return new HashSet<string>();
+            return !_cache.TryGetValue(pid, out var value) ? new HashSet<string>() : new HashSet<string>(value);
         }
     }
 }

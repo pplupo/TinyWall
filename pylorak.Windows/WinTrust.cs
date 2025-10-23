@@ -90,7 +90,7 @@ namespace pylorak.Windows
 
             internal WinTrustFileInfo(string path)
             {
-                StructSize = (uint)Marshal.SizeOf<WinTrustFileInfo>();
+                StructSize = (uint)Marshal.SizeOf(typeof(WinTrustFileInfo));
                 pszFilePath = path;
                 hFile = IntPtr.Zero;
                 pgKnownSubject = IntPtr.Zero;
@@ -100,7 +100,7 @@ namespace pylorak.Windows
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         private class WinTrustData : IDisposable
         {
-            public uint StructSize = (uint)Marshal.SizeOf<WinTrustData>();
+            public uint StructSize = (uint)Marshal.SizeOf(typeof(WinTrustData));
             public IntPtr PolicyCallbackData = IntPtr.Zero;
             public IntPtr SIPClientData = IntPtr.Zero;
             public WinTrustDataUIChoice UIChoice = WinTrustDataUIChoice.None;
@@ -126,7 +126,7 @@ namespace pylorak.Windows
                 RevocationChecks = revocationChecks;
 
                 var wtfiData = new WinTrustFileInfo(fileName);
-                FileInfoPtr = Marshal.AllocCoTaskMem(Marshal.SizeOf<WinTrustFileInfo>());
+                FileInfoPtr = Marshal.AllocCoTaskMem(Marshal.SizeOf(typeof(WinTrustFileInfo)));
                 Marshal.StructureToPtr(wtfiData, FileInfoPtr, false);
             }
 
@@ -139,7 +139,7 @@ namespace pylorak.Windows
                         // Dispose managed state (managed objects)
                     }
 
-                    Marshal.DestroyStructure<WinTrustFileInfo>(FileInfoPtr);
+                    Marshal.DestroyStructure(FileInfoPtr, typeof(WinTrustFileInfo));
                     Marshal.FreeCoTaskMem(FileInfoPtr);
                     FileInfoPtr = IntPtr.Zero;
                 }

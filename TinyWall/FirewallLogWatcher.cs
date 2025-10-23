@@ -1,17 +1,17 @@
-﻿using System;
+﻿using Microsoft.Samples;
+using pylorak.Utilities;
+using pylorak.Windows;
+using System;
 using System.ComponentModel;
 using System.Diagnostics.Eventing.Reader;
 using System.Runtime.InteropServices;
-using Microsoft.Samples;
-using pylorak.Utilities;
-using pylorak.Windows;
 
 namespace pylorak.TinyWall
 {
     internal class FirewallLogWatcher : Disposable
     {
         //private readonly string FIREWALLLOG_PATH = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), @"LogFiles\Firewall\pfirewall.log");
-        private readonly EventLogWatcher LogWatcher;
+        private readonly EventLogWatcher _logWatcher;
 
         public delegate void NewLogEntryDelegate(FirewallLogWatcher sender, FirewallLogEntry entry);
         public event NewLogEntryDelegate? NewLogEntry;
@@ -19,13 +19,13 @@ namespace pylorak.TinyWall
         protected override void Dispose(bool disposing)
         {
             if (IsDisposed)
-                return; 
-            
+                return;
+
             if (disposing)
             {
                 // Release managed resources
 
-                LogWatcher.Dispose();
+                _logWatcher.Dispose();
             }
 
             // Release unmanaged resources.
@@ -42,36 +42,36 @@ namespace pylorak.TinyWall
         internal FirewallLogWatcher()
         {
             // Create event notifier
-            EventLogQuery evquery = new("Security", PathType.LogName, "*[System[(EventID=5154 or EventID=5155 or EventID=5157 or EventID=5159 or EventID=5156 or EventID=5158)]]");
-            LogWatcher = new EventLogWatcher(evquery);
-            LogWatcher.Enabled = false;
-            LogWatcher.EventRecordWritten += new EventHandler<EventRecordWrittenEventArgs>(LogWatcher_EventRecordWritten);
+            EventLogQuery evquery = new EventLogQuery("Security", PathType.LogName, "*[System[(EventID=5154 or EventID=5155 or EventID=5157 or EventID=5159 or EventID=5156 or EventID=5158)]]");
+            _logWatcher = new EventLogWatcher(evquery);
+            _logWatcher.Enabled = false;
+            _logWatcher.EventRecordWritten += LogWatcher_EventRecordWritten;
         }
 
         internal bool Enabled
         {
-            get 
+            get
             {
-                return LogWatcher.Enabled;
+                return _logWatcher.Enabled;
             }
 
             set
             {
-                if (value != LogWatcher.Enabled)
+                if (value != _logWatcher.Enabled)
                 {
                     if (value)
                         EnableLogging();
                     else
                         DisableLogging();
 
-                    LogWatcher.Enabled = value;
+                    _logWatcher.Enabled = value;
                 }
             }
         }
 
-        private static FirewallLogEntry ParseLogEntry(EventRecordWrittenEventArgs e)
+        private FirewallLogEntry ParseLogEntry(EventRecordWrittenEventArgs e)
         {
-            var entry = new FirewallLogEntry();
+            FirewallLogEntry entry = new FirewallLogEntry();
             entry.Timestamp = DateTime.Now;
             entry.Event = (EventLogEvent)e.EventRecord.Id;
 
@@ -89,8 +89,6 @@ namespace pylorak.TinyWall
                     entry.RemoteIp = string.Empty;
                     entry.RemotePort = 0;
                     break;
-                case 5156:
-                case 5157:
                 default:
                     entry.ProcessId = (uint)(ulong)e.EventRecord.Properties[0].Value;
                     entry.AppPath = (string)e.EventRecord.Properties[1].Value;
@@ -139,7 +137,10 @@ namespace pylorak.TinyWall
             {
                 NewLogEntry?.Invoke(this, ParseLogEntry(e));
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
         }
 
         private static class NativeMethods
@@ -154,7 +155,7 @@ namespace pylorak.TinyWall
             }
 
             [StructLayout(LayoutKind.Sequential)]
-            internal struct AUDIT_POLICY_INFORMATION
+            internal struct AuditPolicyInformation
             {
                 internal Guid AuditSubCategoryGuid;
                 internal AuditingInformationEnum AuditingInformation;
@@ -163,17 +164,20 @@ namespace pylorak.TinyWall
 
             [DllImport("advapi32", SetLastError = true)]
             [return: MarshalAs(UnmanagedType.U1)]
-            internal static extern bool AuditSetSystemPolicy([In] ref AUDIT_POLICY_INFORMATION pAuditPolicy, uint policyCount);
+            internal static extern bool AuditSetSystemPolicy([In] ref AuditPolicyInformation pAuditPolicy, uint policyCount);
         }
 
-        private static readonly Guid PACKET_LOGGING_AUDIT_SUBCAT = new("{0CCE9225-69AE-11D9-BED3-505054503030}");
-        private static readonly Guid CONNECTION_LOGGING_AUDIT_SUBCAT = new("{0CCE9226-69AE-11D9-BED3-505054503030}");
+        private static readonly Guid PacketLoggingAuditSubcat = new("{0CCE9225-69AE-11D9-BED3-505054503030}");
+        private static readonly Guid ConnectionLoggingAuditSubcat = new("{0CCE9226-69AE-11D9-BED3-505054503030}");
 
         private static void AuditSetSystemPolicy(Guid guid, bool success, bool failure)
         {
-            var pol = new NativeMethods.AUDIT_POLICY_INFORMATION();
-            pol.AuditCategoryGuid = guid;
-            pol.AuditSubCategoryGuid = guid;
+            var pol = new NativeMethods.AuditPolicyInformation
+            {
+                AuditCategoryGuid = guid,
+                AuditSubCategoryGuid = guid
+            };
+
             if (success || failure)
             {
                 if (success)
@@ -192,26 +196,32 @@ namespace pylorak.TinyWall
         {
             try
             {
-                Privilege.RunWithPrivilege(Privilege.Security, true, delegate (object? state)
+                Privilege.RunWithPrivilege(Privilege.Security, true, delegate
                 {
-                    AuditSetSystemPolicy(PACKET_LOGGING_AUDIT_SUBCAT, true, true);
-                    AuditSetSystemPolicy(CONNECTION_LOGGING_AUDIT_SUBCAT, true, true);
+                    AuditSetSystemPolicy(PacketLoggingAuditSubcat, true, true);
+                    AuditSetSystemPolicy(ConnectionLoggingAuditSubcat, true, true);
                 }, null);
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
         }
 
         private static void DisableLogging()
         {
             try
             {
-                Privilege.RunWithPrivilege(Privilege.Security, true, delegate (object? state)
+                Privilege.RunWithPrivilege(Privilege.Security, true, delegate
                 {
-                    AuditSetSystemPolicy(PACKET_LOGGING_AUDIT_SUBCAT, false, false);
-                    AuditSetSystemPolicy(CONNECTION_LOGGING_AUDIT_SUBCAT, false, false);
+                    AuditSetSystemPolicy(PacketLoggingAuditSubcat, false, false);
+                    AuditSetSystemPolicy(ConnectionLoggingAuditSubcat, false, false);
                 }, null);
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
         }
     }
 }

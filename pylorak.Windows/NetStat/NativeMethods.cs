@@ -34,7 +34,7 @@ namespace pylorak.Windows.NetStat
         public struct Tcp4Table
         {
             public uint length;
-            //public Tcp4Row[ANY_SIZE] row;
+            public Tcp4Row row;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -42,9 +42,11 @@ namespace pylorak.Windows.NetStat
         {
             public TcpState state;
             public uint localAddr;
-            public int localPort;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+            public byte[] localPort;
             public uint remoteAddr;
-            public int remotePort;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+            public byte[] remotePort;
             public uint owningPid;
         }
 
@@ -52,7 +54,7 @@ namespace pylorak.Windows.NetStat
         public struct Tcp6Table
         {
             public uint length;
-            //public Tcp6Row[ANY_SIZE] row;
+            public Tcp6Row row;
         }
 
 
@@ -61,13 +63,17 @@ namespace pylorak.Windows.NetStat
         {
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
             public byte[] localAddr;
-            public uint localScopeId;
-            public int localPort;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+            public byte[] localScopeId;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+            public byte[] localPort;
 
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
             public byte[] remoteAddr;
-            public uint remoteScopeId;
-            public int remotePort;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+            public byte[] remoteScopeId;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+            public byte[] remotePort;
 
             public TcpState state;
             public uint owningPid;
@@ -84,14 +90,15 @@ namespace pylorak.Windows.NetStat
         public struct Udp4Table
         {
             public uint length;
-            //public Udp4Row[ANY_SIZE] row;
+            public Udp4Row row;
         }
 
         [StructLayout(LayoutKind.Sequential)]
         public struct Udp4Row
         {
             public uint localAddr;
-            public int localPort;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+            public byte[] localPort;
             public uint owningPid;
         }
 
@@ -99,7 +106,7 @@ namespace pylorak.Windows.NetStat
         public struct Udp6Table
         {
             public uint length;
-            //public Udp6Row[ANY_SIZE] row;
+            public Udp6Row row;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -107,8 +114,10 @@ namespace pylorak.Windows.NetStat
         {
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
             public byte[] localAddr;
-            public uint localScopeId;
-            public int localPort;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+            public byte[] localScopeId;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+            public byte[] localPort;
 
             public uint owningPid;
         }

@@ -1,15 +1,18 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.ServiceProcess;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using Microsoft.Win32;
 
 namespace pylorak.TinyWall
 {
     internal partial class ServicesForm : Form
     {
-        private string? SelectedServiceName;
-        private string? SelectedServiceExec;
+        private string? _selectedServiceName;
+        private string? _selectedServiceExec;
+        private string _searchItem = string.Empty;
 
         internal static ServiceSubject? ChooseService(IWin32Window? parent = null)
         {
@@ -18,8 +21,8 @@ namespace pylorak.TinyWall
             if (sf.ShowDialog(parent) == DialogResult.Cancel)
                 return null;
 
-            if ((sf.SelectedServiceName is not null) && (sf.SelectedServiceExec is not null))
-                return new ServiceSubject(sf.SelectedServiceExec, sf.SelectedServiceName);
+            if ((sf._selectedServiceName is not null) && (sf._selectedServiceExec is not null))
+                return new ServiceSubject(sf._selectedServiceExec, sf._selectedServiceName);
             else
                 return null;
         }
@@ -35,31 +38,32 @@ namespace pylorak.TinyWall
 
         private static string GetServiceExecutable(string serviceName)
         {
-            string ImagePath = string.Empty;
-            using (RegistryKey KeyHKLM = Microsoft.Win32.Registry.LocalMachine)
+            string imagePath;
+            using (RegistryKey keyHklm = Registry.LocalMachine)
             {
-                using RegistryKey Key = KeyHKLM.OpenSubKey(@"SYSTEM\CurrentControlSet\Services\" + serviceName);
-                ImagePath = (string)Key.GetValue("ImagePath");
+                using RegistryKey key = keyHklm.OpenSubKey(@"SYSTEM\CurrentControlSet\Services\" + serviceName) ??
+                                        throw new InvalidOperationException();
+                imagePath = (string)key.GetValue("ImagePath");
             }
 
             // Remove quotes
-            ImagePath = ImagePath.Replace("\"", string.Empty);
+            imagePath = imagePath.Replace("\"", string.Empty);
 
             // ImagePath often contains command line arguments.
             // Try to get only the executable path.
-            // We use a heuristic approach where we strip off 
-            // parts of the string (each delimited by spaces) 
+            // We use a heuristic approach where we strip off
+            // parts of the string (each delimited by spaces)
             // one-by-one, each time checking if we have a valid file path.
             while (true)
             {
-                if (System.IO.File.Exists(ImagePath))
-                    return ImagePath;
+                if (System.IO.File.Exists(imagePath))
+                    return imagePath;
 
-                int i = ImagePath.LastIndexOf(' ');
+                int i = imagePath.LastIndexOf(' ');
                 if (i == -1)
                     break;
 
-                ImagePath = ImagePath.Substring(0, i);
+                imagePath = imagePath.Substring(0, i);
             }
 
             // Could not find executable path
@@ -68,14 +72,14 @@ namespace pylorak.TinyWall
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            this.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.DialogResult = DialogResult.Cancel;
         }
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            this.SelectedServiceName = listView.SelectedItems[0].SubItems[1].Text;
-            this.SelectedServiceExec = listView.SelectedItems[0].SubItems[2].Text;
-            this.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this._selectedServiceName = listView.SelectedItems[0].SubItems[1].Text;
+            this._selectedServiceExec = listView.SelectedItems[0].SubItems[2].Text;
+            this.DialogResult = DialogResult.OK;
         }
 
         private void listView_SelectedIndexChanged(object sender, EventArgs e)
@@ -91,7 +95,7 @@ namespace pylorak.TinyWall
             }
         }
 
-        private void ServicesForm_Load(object sender, EventArgs e)
+        private async void ServicesForm_Load(object sender, EventArgs e)
         {
             this.Icon = Resources.Icons.firewall;
             if (ActiveConfig.Controller.ServicesFormWindowSize.Width != 0)
@@ -101,8 +105,14 @@ namespace pylorak.TinyWall
                 this.Location = ActiveConfig.Controller.ServicesFormWindowLoc;
                 Utils.FixupFormPosition(this);
             }
+
             this.WindowState = ActiveConfig.Controller.ServicesFormWindowState;
 
+            await UpdateListAsync();
+        }
+
+        private Task UpdateListAsync()
+        {
             foreach (ColumnHeader col in listView.Columns)
             {
                 if (ActiveConfig.Controller.ServicesFormColumnWidths.TryGetValue((string)col.Tag, out int width))
@@ -112,9 +122,15 @@ namespace pylorak.TinyWall
             var itemColl = new List<ListViewItem>();
 
             ServiceController[] services = ServiceController.GetServices();
-            for (int i = 0; i < services.Length; ++i)
+
+            if (!string.IsNullOrWhiteSpace(_searchItem))
+                services = services.Where(s =>
+                    s.ServiceName.ToLower().Contains(_searchItem.ToLower())
+                    || s.DisplayName.ToLower().Contains(_searchItem.ToLower())
+                ).ToArray();
+
+            foreach (var srv in services)
             {
-                ServiceController srv = services[i];
                 try
                 {
                     var li = new ListViewItem(srv.DisplayName);
@@ -124,14 +140,27 @@ namespace pylorak.TinyWall
                 }
                 catch
                 {
+                    // ignored
                 }
             }
 
             Utils.SetDoubleBuffering(listView, true);
             listView.BeginUpdate();
             listView.ListViewItemSorter = new ListViewItemComparer(0);
+
+            //if (!string.IsNullOrWhiteSpace(_searchItem))
+            //    itemColl = itemColl.Where(items =>
+            //    {
+            //        var subItem = items.SubItems;
+
+            //        return subItem[0].Text.ToLower().Contains(_searchItem) || subItem[1].Text.ToLower().Contains(_searchItem) ||
+            //               subItem[2].Text.ToLower().Contains(_searchItem);
+            //    }).ToList();
+
             listView.Items.AddRange(itemColl.ToArray());
             listView.EndUpdate();
+
+            return Task.CompletedTask;
         }
 
         private void listView_ColumnClick(object sender, ColumnClickEventArgs e)
@@ -163,6 +192,33 @@ namespace pylorak.TinyWall
                 ActiveConfig.Controller.ServicesFormColumnWidths.Add((string)col.Tag, col.Width);
 
             ActiveConfig.Controller.Save();
+        }
+
+        private async void btnSearch_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtBxSearch.Text))
+            {
+                return;
+            }
+
+            _searchItem = txtBxSearch.Text.ToLower();
+            await UpdateListAsync();
+        }
+
+        private async void btnClear_Click(object sender, EventArgs e)
+        {
+            _searchItem = string.Empty;
+            txtBxSearch.Text = string.Empty;
+
+            await UpdateListAsync();
+        }
+
+        private void txtBxSearch_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode is Keys.Enter or Keys.Return)
+            {
+                btnSearch.PerformClick();
+            }
         }
     }
 }

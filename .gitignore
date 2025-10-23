@@ -3,9 +3,11 @@
 *.msi
 *.zip
 *.suo
+*.user
 
 /.vs/
 /.tx/
+/.vscode/
 
 /LocalizationPack/**/*.resx
 /LocalizationPack/**/*.pdf
@@ -32,3 +34,5 @@
 /MsiSetup/obj/
 /MsiSetup/bin/
 /MsiSetup/Sources/ProgramFiles/
+/ImmenseWall/obj/Debug
+/ImmenseWall/bin/Debug

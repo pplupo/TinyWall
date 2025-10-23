@@ -1,10 +1,12 @@
-﻿using System;
-using System.IO;
-using System.Text;
-using System.Diagnostics.CodeAnalysis;
+﻿using pylorak.Utilities;
+#if !DEBUG
+using System;
+#endif
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Runtime.Serialization;
-using pylorak.Utilities;
+using System.Text;
 using System.Text.Json.Serialization.Metadata;
 
 namespace pylorak.TinyWall
@@ -28,9 +30,9 @@ namespace pylorak.TinyWall
         [DataMember(EmitDefaultValue = false)]
         public bool ConnFormShowConnections = true;
         [DataMember(EmitDefaultValue = false)]
-        public bool ConnFormShowOpenPorts = false;
+        public bool ConnFormShowOpenPorts;
         [DataMember(EmitDefaultValue = false)]
-        public bool ConnFormShowBlocked = false;
+        public bool ConnFormShowBlocked;
 
         // Processes window
         [DataMember(EmitDefaultValue = false)]
@@ -64,7 +66,7 @@ namespace pylorak.TinyWall
 
         // Manage window
         [DataMember(EmitDefaultValue = false)]
-        public bool AskForExceptionDetails = false;
+        public bool AskForExceptionDetails;
         [DataMember(EmitDefaultValue = false)]
         public int SettingsTabIndex;
         [DataMember(EmitDefaultValue = false)]
@@ -93,7 +95,7 @@ namespace pylorak.TinyWall
             get
             {
 #if DEBUG
-                return Path.GetDirectoryName(Utils.ExecutablePath);
+                return Path.GetDirectoryName(Utils.ExecutablePath) ?? string.Empty;
 #else
                 string dir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
                 dir = System.IO.Path.Combine(dir, "TinyWall");
@@ -110,18 +112,24 @@ namespace pylorak.TinyWall
         {
             try
             {
-                SerializationHelper.SerializeToFile(this, FilePath);
+                SerialisationHelper.SerialiseToFile(this, FilePath);
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
         }
 
         internal static ControllerSettings Load()
         {
             try
             {
-                return SerializationHelper.DeserializeFromFile(FilePath, new ControllerSettings());
+                return SerialisationHelper.DeserialiseFromFile(FilePath, new ControllerSettings());
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
 
             return new ControllerSettings();
         }
@@ -136,31 +144,31 @@ namespace pylorak.TinyWall
     {
         internal static string PasswordFilePath { get; } = Path.Combine(Utils.AppDataPath, "pwd");
 
-        private static bool _Locked;
+        private static bool _locked;
 
         internal static bool Locked
         {
-            get { return _Locked && HasPassword; }
+            get => _locked && HasPassword;
             set
             {
                 if (value && HasPassword)
-                    _Locked = true;
+                    _locked = true;
             }
         }
 
         internal static void SetPass(string password)
         {
             // Construct file path
-            string SettingsFile = PasswordFilePath;
+            var settingsFile = PasswordFilePath;
 
             if (password == string.Empty)
                 // If we have no password, delete password explicitly
-                File.Delete(SettingsFile);
+                File.Delete(settingsFile);
             else
             {
                 using var fileUpdater = new AtomicFileUpdater(PasswordFilePath);
-                string salt = Utils.RandomString(8);
-                string hash = Pbkdf2.GetHashForStorage(password, salt, 150000, 16);
+                var salt = Utils.RandomString(8);
+                var hash = Pbkdf2.GetHashForStorage(password, salt, 150000, 16);
                 File.WriteAllText(fileUpdater.TemporaryFilePath, hash, Encoding.UTF8);
                 fileUpdater.Commit();
             }
@@ -173,12 +181,15 @@ namespace pylorak.TinyWall
 
             try
             {
-                string storedHash = System.IO.File.ReadAllText(PasswordFilePath, System.Text.Encoding.UTF8);
-                _Locked = !Pbkdf2.CompareHash(storedHash, password);
+                var storedHash = File.ReadAllText(PasswordFilePath, Encoding.UTF8);
+                _locked = !Pbkdf2.CompareHash(storedHash, password);
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
 
-            return !_Locked;
+            return !_locked;
         }
 
         internal static bool HasPassword
@@ -195,7 +206,7 @@ namespace pylorak.TinyWall
     }
 
     [DataContract(Namespace = "http://schemas.datacontract.org/2004/07/PKSoft")]
-     public sealed class ConfigContainer : ISerializable<ConfigContainer>
+    public sealed class ConfigContainer : ISerializable<ConfigContainer>
     {
         [DataMember(EmitDefaultValue = false)]
         public ServerConfiguration Service;

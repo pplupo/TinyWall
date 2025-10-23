@@ -1,57 +1,56 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using NeoSmart.AsyncLock;
+using System;
 using System.IO.Pipes;
-using System.Threading;
-using pylorak.Utilities;
+using System.Threading.Tasks;
 
 namespace pylorak.TinyWall
 {
     public class PipeClientEndpoint
     {
-        private readonly object SenderSyncRoot = new();
-        private readonly string m_PipeName;
+        private readonly AsyncLock _asyncLock = new();
+        private readonly string _mPipeName;
 
         public PipeClientEndpoint(string clientPipeName)
         {
-            m_PipeName = clientPipeName;
+            _mPipeName = clientPipeName;
         }
 
         private void SendRequest(TwRequest req)
         {
             TwMessage ret = TwMessageComError.Instance;
-            lock (SenderSyncRoot)
+
+            Task.Run(async () =>
             {
-                // In case of a communication error,
-                // retry a small number of times.
-                for (int i = 0; i < 2; ++i)
+                using (await _asyncLock.LockAsync())
                 {
-                    var resp = SendRequest(req.Request);
-                    if (resp.Type != MessageType.COM_ERROR)
+                    for (var i = 0; i < 2; ++i)
                     {
-                        ret = resp;
-                        break;
+                        var resp = SendRequest(req.Request);
+                        if (resp.Type != MessageType.COM_ERROR)
+                        {
+                            ret = resp;
+                            break;
+                        }
+                        await Task.Delay(TimeSpan.FromMilliseconds(200));
                     }
-
-                    Thread.Sleep(200);
                 }
-            }
-
-            req.Response = ret;
+                req.Response = ret;
+            });
         }
 
         private TwMessage SendRequest(TwMessage msg)
         {
             try
             {
-                using var pipeClient = new NamedPipeClientStream (".", m_PipeName, PipeDirection.InOut, PipeOptions.WriteThrough);
+                using var pipeClient = new NamedPipeClientStream(".", _mPipeName, PipeDirection.InOut, PipeOptions.WriteThrough);
                 pipeClient.Connect(1000);
                 pipeClient.ReadMode = PipeTransmissionMode.Message;
 
                 // Send command
-                SerializationHelper.SerializeToPipe<TwMessage>(pipeClient, msg);
+                SerialisationHelper.SerialiseToPipe(pipeClient, msg);
 
                 // Get response
-                return SerializationHelper.DeserializeFromPipe<TwMessage>(pipeClient, 20000, TwMessageComError.Instance);
+                return SerialisationHelper.DeserialiseFromPipe<TwMessage>(pipeClient, 20000, TwMessageComError.Instance);
             }
             catch
             {

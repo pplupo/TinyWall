@@ -132,7 +132,7 @@
   <data name="ofd.Title" xml:space="preserve">
     <value>Selecteer uitvoerbaar programmabestand</value>
   </data>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="label6.Size" type="System.Drawing.Size, System.Drawing">
     <value>104, 13</value>
   </data>
@@ -204,5 +204,8 @@
   </data>
   <data name="$this.Text" xml:space="preserve">
     <value>toevoegen/wijzig Firewall Uitzondering - TinyWall</value>
+  </data>
+  <data name="btnRemoveSoftware.Text" xml:space="preserve">
+    <value>Software verwijderen</value>
   </data>
 </root>

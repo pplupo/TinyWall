@@ -1,10 +1,10 @@
-﻿using System;
-using System.Security.Cryptography.X509Certificates;
+﻿using pylorak.TinyWall.Parser;
+using pylorak.Windows;
+using System;
 using System.Runtime.Serialization;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using pylorak.Windows;
-using pylorak.TinyWall.Parser;
 
 namespace pylorak.TinyWall
 {
@@ -16,9 +16,9 @@ namespace pylorak.TinyWall
         {
             var ret = (SubjectType)discriminator switch
             {
-                SubjectType.Global => (ExceptionSubject?)JsonSerializer.Deserialize<GlobalSubject>(ref reader, SourceGenerationContext.Default.GlobalSubject),
-                SubjectType.AppContainer => (ExceptionSubject?)JsonSerializer.Deserialize<AppContainerSubject>(ref reader, SourceGenerationContext.Default.AppContainerSubject),
-                SubjectType.Executable => (ExceptionSubject?)JsonSerializer.Deserialize<ExecutableSubject>(ref reader, SourceGenerationContext.Default.ExecutableSubject),
+                SubjectType.Global => JsonSerializer.Deserialize<GlobalSubject>(ref reader, SourceGenerationContext.Default.GlobalSubject),
+                SubjectType.AppContainer => JsonSerializer.Deserialize<AppContainerSubject>(ref reader, SourceGenerationContext.Default.AppContainerSubject),
+                SubjectType.Executable => JsonSerializer.Deserialize<ExecutableSubject>(ref reader, SourceGenerationContext.Default.ExecutableSubject),
                 SubjectType.Service => (ExceptionSubject?)JsonSerializer.Deserialize<ServiceSubject>(ref reader, SourceGenerationContext.Default.ServiceSubject),
                 _ => throw new JsonException($"Tried to deserialize unsupported type with discriminator {(SubjectType)discriminator}."),
             };
@@ -63,15 +63,14 @@ namespace pylorak.TinyWall
 
         public abstract bool Equals(ExceptionSubject other);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
-            if (obj == null)
-                return false;
-
-            if (obj is ExceptionSubject other)
-                return Equals(other);
-            else
-                return false;
+            return obj switch
+            {
+                null => false,
+                ExceptionSubject other => Equals(other),
+                _ => false
+            };
         }
 
         public override int GetHashCode()
@@ -118,17 +117,14 @@ namespace pylorak.TinyWall
             }
         }
 
-        public override bool Equals(ExceptionSubject other)
+        public override bool Equals(ExceptionSubject? other)
         {
-            if (other is null)
-                return false;
-
-            return (other is GlobalSubject);
+            return other is GlobalSubject;
         }
 
         public override int GetHashCode()
         {
-            return this.GetType().GetHashCode();
+            return GetType().GetHashCode();
         }
 
         public override string ToString()
@@ -151,7 +147,7 @@ namespace pylorak.TinyWall
         }
 
         [DataMember(EmitDefaultValue = false)]
-        public string ExecutablePath { get; private set; }
+        public string ExecutablePath { get; }
 
         [JsonIgnore]
         public string ExecutableName
@@ -165,47 +161,49 @@ namespace pylorak.TinyWall
             this.ExecutablePath = executablePath;
         }
 
-        private string? _HashSha1;
+        private string? _hashSha1;
         [JsonIgnore]
         public string HashSha1
         {
             get
             {
-                _HashSha1 ??= Hasher.HashFileSha1(this.ExecutablePath);
-                return _HashSha1;
+                if (_hashSha1 is null)
+                    _hashSha1 = Hasher.HashFileSha1(ExecutablePath);
+
+                return _hashSha1;
             }
         }
 
-        private string? _CertSubject;
+        private string? _certSubject;
         [JsonIgnore]
         public string? CertSubject
         {
             get
             {
-                if (_CertSubject is null)
+                if (_certSubject is null)
                 {
                     try
                     {
-                        X509Certificate cert = X509Certificate.CreateFromSignedFile(this.ExecutablePath);
-                        _CertSubject = cert.Subject;
+                        X509Certificate cert = X509Certificate.CreateFromSignedFile(ExecutablePath);
+                        _certSubject = cert.Subject;
                     }
-                    catch { }
+                    catch
+                    {
+                        // ignored
+                    }
                 }
-                return _CertSubject;
+                return _certSubject;
             }
         }
 
-        private WinTrust.VerifyResult? _CertStatus;
+        private WinTrust.VerifyResult? _certStatus;
         [JsonIgnore]
         public bool CertValid
         {
             get
             {
-                if (!_CertStatus.HasValue)
-                {
-                    _CertStatus = WinTrust.VerifyFileAuthenticode(this.ExecutablePath);
-                }
-                return WinTrust.VerifyResult.SIGNATURE_VALID == _CertStatus;
+                _certStatus ??= WinTrust.VerifyFileAuthenticode(ExecutablePath);
+                return WinTrust.VerifyResult.SIGNATURE_VALID == _certStatus;
             }
         }
 
@@ -214,11 +212,11 @@ namespace pylorak.TinyWall
         {
             get
             {
-                if (!_CertStatus.HasValue)
+                if (!_certStatus.HasValue)
                 {
-                    _CertStatus = WinTrust.VerifyFileAuthenticode(this.ExecutablePath);
+                    _certStatus = WinTrust.VerifyFileAuthenticode(this.ExecutablePath);
                 }
-                return WinTrust.VerifyResult.SIGNATURE_MISSING != _CertStatus;
+                return WinTrust.VerifyResult.SIGNATURE_MISSING != _certStatus;
             }
         }
 
@@ -234,7 +232,10 @@ namespace pylorak.TinyWall
                     {
                         ret = NetworkPath.GetUncPath(ret);
                     }
-                    catch { }
+                    catch
+                    {
+                        // ignored
+                    }
                 }
             }
 
@@ -248,13 +249,13 @@ namespace pylorak.TinyWall
 
         public override bool Equals(ExceptionSubject other)
         {
-            if (other is null)
-                return false;
-
-            if (other is ExecutableSubject o)
-                return string.Equals(ExecutablePath, o.ExecutablePath, StringComparison.OrdinalIgnoreCase);
-            else
-                return false;
+            return other switch
+            {
+                null => false,
+                ExecutableSubject o => string.Equals(ExecutablePath, o.ExecutablePath,
+                    StringComparison.OrdinalIgnoreCase),
+                _ => false
+            };
         }
 
         public override int GetHashCode()
@@ -265,8 +266,7 @@ namespace pylorak.TinyWall
                 const int FNV_PRIME = 16777619;
 
                 int hash = OFFSET_BASIS;
-                if (null != ExecutablePath)
-                    hash = (hash ^ ExecutablePath.GetHashCode()) * FNV_PRIME;
+                hash = (hash ^ ExecutablePath.GetHashCode()) * FNV_PRIME;
 
                 return hash;
             }
@@ -292,7 +292,7 @@ namespace pylorak.TinyWall
         }
 
         [DataMember(EmitDefaultValue = false)]
-        public string ServiceName { get; private set; }
+        public string ServiceName { get; }
 
         [JsonConstructor]
         public ServiceSubject(string executablePath, string serviceName) :
@@ -309,7 +309,7 @@ namespace pylorak.TinyWall
             return new ServiceSubject(ResolvePath(ExecutablePath), ServiceName);
         }
 
-        public override bool Equals(ExceptionSubject other)
+        public override bool Equals(ExceptionSubject? other)
         {
             if (other is null)
                 return false;
@@ -319,8 +319,8 @@ namespace pylorak.TinyWall
 
             if (other is ServiceSubject o)
                 return string.Equals(ServiceName, o.ServiceName, StringComparison.OrdinalIgnoreCase);
-            else
-                return false;
+
+            return false;
         }
 
         public override int GetHashCode()
@@ -360,7 +360,7 @@ namespace pylorak.TinyWall
         }
 
         [DataMember(EmitDefaultValue = false)]
-        public string Sid { get; private set; }
+        public string Sid { get; }
 
         [DataMember(EmitDefaultValue = false)]
         public string DisplayName { get; private set; }
@@ -384,15 +384,14 @@ namespace pylorak.TinyWall
             this(package.Sid, package.Name, package.Publisher, package.PublisherId)
         { }
 
-        public override bool Equals(ExceptionSubject other)
+        public override bool Equals(ExceptionSubject? other)
         {
-            if (other is null)
-                return false;
-
-            if (other is AppContainerSubject o)
-                return string.Equals(Sid, o.Sid, StringComparison.OrdinalIgnoreCase);
-            else
-                return false;
+            return other switch
+            {
+                null => false,
+                AppContainerSubject o => string.Equals(Sid, o.Sid, StringComparison.OrdinalIgnoreCase),
+                _ => false
+            };
         }
 
         public override int GetHashCode()

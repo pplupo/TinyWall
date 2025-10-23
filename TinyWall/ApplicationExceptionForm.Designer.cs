@@ -31,10 +31,6 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ApplicationExceptionForm));
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnOK = new System.Windows.Forms.Button();
-            this.lblApplication = new System.Windows.Forms.Label();
-            this.lblApplicationType = new System.Windows.Forms.Label();
-            this.txtSrvName = new System.Windows.Forms.TextBox();
-            this.txtAppPath = new System.Windows.Forms.TextBox();
             this.btnBrowse = new System.Windows.Forms.Button();
             this.btnProcess = new System.Windows.Forms.Button();
             this.btnChooseService = new System.Windows.Forms.Button();
@@ -44,6 +40,10 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.transparentLabel1 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.btnRemoveSoftware = new System.Windows.Forms.Button();
+            this.listViewAppPath = new System.Windows.Forms.ListView();
+            this.columnHeaderApplication = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeaderType = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.btnSelectUwpApp = new System.Windows.Forms.Button();
             this.chkRestrictToLocalNetwork = new System.Windows.Forms.CheckBox();
             this.radBlock = new System.Windows.Forms.RadioButton();
@@ -53,12 +53,12 @@
             this.label5 = new System.Windows.Forms.Label();
             this.txtListenPortUDP = new System.Windows.Forms.TextBox();
             this.txtListenPortTCP = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
+            this.InTCPLabel = new System.Windows.Forms.Label();
+            this.InUDPLabel = new System.Windows.Forms.Label();
             this.txtOutboundPortUDP = new System.Windows.Forms.TextBox();
             this.txtOutboundPortTCP = new System.Windows.Forms.TextBox();
-            this.label7 = new System.Windows.Forms.Label();
-            this.label8 = new System.Windows.Forms.Label();
+            this.OutTCPLabel = new System.Windows.Forms.Label();
+            this.OutUDPLabel = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.radOnlySpecifiedPorts = new System.Windows.Forms.RadioButton();
@@ -85,34 +85,6 @@
             this.btnOK.Name = "btnOK";
             this.btnOK.UseVisualStyleBackColor = true;
             this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
-            // 
-            // lblApplication
-            // 
-            resources.ApplyResources(this.lblApplication, "lblApplication");
-            this.lblApplication.BackColor = System.Drawing.SystemColors.Window;
-            this.lblApplication.Name = "lblApplication";
-            // 
-            // lblApplicationType
-            // 
-            resources.ApplyResources(this.lblApplicationType, "lblApplicationType");
-            this.lblApplicationType.BackColor = System.Drawing.SystemColors.Window;
-            this.lblApplicationType.Name = "lblApplicationType";
-            // 
-            // txtSrvName
-            // 
-            resources.ApplyResources(this.txtSrvName, "txtSrvName");
-            this.txtSrvName.BackColor = System.Drawing.SystemColors.Window;
-            this.txtSrvName.Name = "txtSrvName";
-            this.txtSrvName.ReadOnly = true;
-            this.txtSrvName.TextChanged += new System.EventHandler(this.txtSrvName_TextChanged);
-            // 
-            // txtAppPath
-            // 
-            resources.ApplyResources(this.txtAppPath, "txtAppPath");
-            this.txtAppPath.BackColor = System.Drawing.SystemColors.Window;
-            this.txtAppPath.Name = "txtAppPath";
-            this.txtAppPath.ReadOnly = true;
-            this.txtAppPath.TextChanged += new System.EventHandler(this.txtAppPath_TextChanged);
             // 
             // btnBrowse
             // 
@@ -175,17 +147,44 @@
             // 
             resources.ApplyResources(this.panel2, "panel2");
             this.panel2.BackColor = System.Drawing.SystemColors.Window;
+            this.panel2.Controls.Add(this.btnRemoveSoftware);
+            this.panel2.Controls.Add(this.listViewAppPath);
             this.panel2.Controls.Add(this.btnSelectUwpApp);
             this.panel2.Controls.Add(this.cmbTimer);
             this.panel2.Controls.Add(this.label6);
-            this.panel2.Controls.Add(this.lblApplication);
-            this.panel2.Controls.Add(this.lblApplicationType);
-            this.panel2.Controls.Add(this.txtSrvName);
-            this.panel2.Controls.Add(this.txtAppPath);
             this.panel2.Controls.Add(this.btnBrowse);
             this.panel2.Controls.Add(this.btnProcess);
             this.panel2.Controls.Add(this.btnChooseService);
             this.panel2.Name = "panel2";
+            // 
+            // btnRemoveSoftware
+            // 
+            resources.ApplyResources(this.btnRemoveSoftware, "btnRemoveSoftware");
+            this.btnRemoveSoftware.BackColor = System.Drawing.Color.AliceBlue;
+            this.btnRemoveSoftware.Name = "btnRemoveSoftware";
+            this.btnRemoveSoftware.UseVisualStyleBackColor = false;
+            this.btnRemoveSoftware.Click += new System.EventHandler(this.btnRemoveSoftware_Click);
+            // 
+            // listViewAppPath
+            // 
+            resources.ApplyResources(this.listViewAppPath, "listViewAppPath");
+            this.listViewAppPath.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeaderApplication,
+            this.columnHeaderType});
+            this.listViewAppPath.FullRowSelect = true;
+            this.listViewAppPath.GridLines = true;
+            this.listViewAppPath.HideSelection = false;
+            this.listViewAppPath.Name = "listViewAppPath";
+            this.listViewAppPath.UseCompatibleStateImageBehavior = false;
+            this.listViewAppPath.View = System.Windows.Forms.View.Details;
+            // 
+            // columnHeaderApplication
+            // 
+            resources.ApplyResources(this.columnHeaderApplication, "columnHeaderApplication");
+            // 
+            // columnHeaderType
+            // 
+            resources.ApplyResources(this.columnHeaderType, "columnHeaderType");
             // 
             // btnSelectUwpApp
             // 
@@ -249,15 +248,15 @@
             resources.ApplyResources(this.txtListenPortTCP, "txtListenPortTCP");
             this.txtListenPortTCP.Name = "txtListenPortTCP";
             // 
-            // label3
+            // InTCPLabel
             // 
-            resources.ApplyResources(this.label3, "label3");
-            this.label3.Name = "label3";
+            resources.ApplyResources(this.InTCPLabel, "InTCPLabel");
+            this.InTCPLabel.Name = "InTCPLabel";
             // 
-            // label4
+            // InUDPLabel
             // 
-            resources.ApplyResources(this.label4, "label4");
-            this.label4.Name = "label4";
+            resources.ApplyResources(this.InUDPLabel, "InUDPLabel");
+            this.InUDPLabel.Name = "InUDPLabel";
             // 
             // txtOutboundPortUDP
             // 
@@ -269,15 +268,15 @@
             resources.ApplyResources(this.txtOutboundPortTCP, "txtOutboundPortTCP");
             this.txtOutboundPortTCP.Name = "txtOutboundPortTCP";
             // 
-            // label7
+            // OutTCPLabel
             // 
-            resources.ApplyResources(this.label7, "label7");
-            this.label7.Name = "label7";
+            resources.ApplyResources(this.OutTCPLabel, "OutTCPLabel");
+            this.OutTCPLabel.Name = "OutTCPLabel";
             // 
-            // label8
+            // OutUDPLabel
             // 
-            resources.ApplyResources(this.label8, "label8");
-            this.label8.Name = "label8";
+            resources.ApplyResources(this.OutUDPLabel, "OutUDPLabel");
+            this.OutUDPLabel.Name = "OutUDPLabel";
             // 
             // label9
             // 
@@ -304,13 +303,13 @@
             resources.ApplyResources(this.panel3, "panel3");
             this.panel3.Controls.Add(this.label5);
             this.panel3.Controls.Add(this.label10);
-            this.panel3.Controls.Add(this.label7);
+            this.panel3.Controls.Add(this.OutTCPLabel);
             this.panel3.Controls.Add(this.txtListenPortUDP);
             this.panel3.Controls.Add(this.txtOutboundPortTCP);
             this.panel3.Controls.Add(this.txtOutboundPortUDP);
-            this.panel3.Controls.Add(this.label8);
-            this.panel3.Controls.Add(this.label4);
-            this.panel3.Controls.Add(this.label3);
+            this.panel3.Controls.Add(this.OutUDPLabel);
+            this.panel3.Controls.Add(this.InUDPLabel);
+            this.panel3.Controls.Add(this.InTCPLabel);
             this.panel3.Controls.Add(this.txtListenPortTCP);
             this.panel3.Controls.Add(this.label9);
             this.panel3.Name = "panel3";
@@ -361,10 +360,6 @@
 
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.Button btnOK;
-        private System.Windows.Forms.Label lblApplication;
-        private System.Windows.Forms.Label lblApplicationType;
-        private System.Windows.Forms.TextBox txtSrvName;
-        private System.Windows.Forms.TextBox txtAppPath;
         private System.Windows.Forms.Button btnBrowse;
         private System.Windows.Forms.Button btnProcess;
         private System.Windows.Forms.Button btnChooseService;
@@ -382,17 +377,21 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox txtListenPortUDP;
         private System.Windows.Forms.TextBox txtListenPortTCP;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label InTCPLabel;
+        private System.Windows.Forms.Label InUDPLabel;
         private System.Windows.Forms.TextBox txtOutboundPortUDP;
         private System.Windows.Forms.TextBox txtOutboundPortTCP;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label OutTCPLabel;
+        private System.Windows.Forms.Label OutUDPLabel;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.RadioButton radOnlySpecifiedPorts;
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.CheckBox chkInheritToChildren;
         private System.Windows.Forms.Button btnSelectUwpApp;
+        private System.Windows.Forms.ListView listViewAppPath;
+        private System.Windows.Forms.Button btnRemoveSoftware;
+        private System.Windows.Forms.ColumnHeader columnHeaderApplication;
+        private System.Windows.Forms.ColumnHeader columnHeaderType;
     }
 }

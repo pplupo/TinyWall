@@ -1,10 +1,10 @@
-﻿using System;
-using System.Security;
+﻿using Microsoft.Win32.SafeHandles;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using Microsoft.Win32.SafeHandles;
+using System.Security;
 
 namespace pylorak.Windows
 {
@@ -47,13 +47,13 @@ namespace pylorak.Windows
         public SafeUnicodeStringHandle(string path)
             : base(true)
         {
-            Initialize(path, (ushort)path.Length);
+            Initialise(path, (ushort)path.Length);
         }
 
         public SafeUnicodeStringHandle(ushort charCapacity)
             : base(true)
         {
-            Initialize(null, charCapacity);
+            Initialise(null, charCapacity);
         }
 
         public SafeUnicodeStringHandle()
@@ -81,7 +81,7 @@ namespace pylorak.Windows
         public UNICODE_STRING ToStruct()
         {
             var ret = new UNICODE_STRING();
-            var size = Marshal.SizeOf<UNICODE_STRING>();
+            var size = Marshal.SizeOf(typeof(UNICODE_STRING));
             unsafe
             {
                 Buffer.MemoryCopy(handle.ToPointer(), &ret, size, size);
@@ -89,11 +89,11 @@ namespace pylorak.Windows
             return ret;
         }
 
-        private void Initialize(string? str, ushort capacityInChars)
+        private void Initialise(string? str, ushort capacityInChars)
         {
             var capacityInBytes = sizeof(char) * capacityInChars;
             var lengthInBytes = (str?.Length ?? 0) * 2;
-            var structLen = Marshal.SizeOf<UNICODE_STRING>();
+            var structLen = Marshal.SizeOf(typeof(UNICODE_STRING));
             Debug.Assert(capacityInBytes >= lengthInBytes);
 
             if (capacityInBytes > ushort.MaxValue)
@@ -151,12 +151,12 @@ namespace pylorak.Windows
         public ushort maximumLength;
         public IntPtr buffer;
 
-        public override readonly string ToString()
+        public override string ToString()
         {
             return Marshal.PtrToStringUni(buffer, length / 2);
         }
 
-        public readonly bool StartsWith(UNICODE_STRING needle, bool caseInSensitive = false)
+        public bool StartsWith(UNICODE_STRING needle, bool caseInSensitive = false)
         {
             if (needle.length > this.length)
                 return false;
@@ -196,13 +196,13 @@ namespace pylorak.Windows
             }
 
             [Flags]
-            [SuppressMessage("Design", "CA1069:Enums values should not be duplicated", Justification = "Mirroring native API.")]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1069:Enums values should not be duplicated", Justification = "Mirroring native API.")]
             public enum AccessMask : uint
             {
                 None = 0,
                 DELETE = 0x00010000,
                 READ_CONTROL = 0x00020000,
-                SYNCHRONIZE = 0x00100000,
+                SYNCHRONISE = 0x00100000,
                 WRITE_DAC = 0x00040000,
                 WRITE_OWNER = 0x00080000,
                 STANDARD_RIGHTS_READ = READ_CONTROL,
@@ -219,9 +219,9 @@ namespace pylorak.Windows
                 FILE_WRITE_EA = 0x0010,
                 FILE_APPEND_DATA = 0x0004,
                 FILE_EXECUTE = 0x0020,
-                FILE_GENERIC_READ = STANDARD_RIGHTS_READ | FILE_READ_DATA | FILE_READ_ATTRIBUTES | FILE_READ_EA | SYNCHRONIZE,
-                FILE_GENERIC_WRITE = STANDARD_RIGHTS_WRITE | FILE_WRITE_DATA | FILE_WRITE_ATTRIBUTES | FILE_WRITE_EA | FILE_APPEND_DATA | SYNCHRONIZE,
-                FILE_GENERIC_EXECUTE = STANDARD_RIGHTS_EXECUTE | FILE_READ_ATTRIBUTES | FILE_EXECUTE | SYNCHRONIZE,
+                FILE_GENERIC_READ = STANDARD_RIGHTS_READ | FILE_READ_DATA | FILE_READ_ATTRIBUTES | FILE_READ_EA | SYNCHRONISE,
+                FILE_GENERIC_WRITE = STANDARD_RIGHTS_WRITE | FILE_WRITE_DATA | FILE_WRITE_ATTRIBUTES | FILE_WRITE_EA | FILE_APPEND_DATA | SYNCHRONISE,
+                FILE_GENERIC_EXECUTE = STANDARD_RIGHTS_EXECUTE | FILE_READ_ATTRIBUTES | FILE_EXECUTE | SYNCHRONISE,
                 FILE_LIST_DIRECTORY = FILE_READ_DATA,
                 FILE_TRAVERSE = FILE_EXECUTE,
                 FILE_ADD_FILE = FILE_WRITE_DATA,
@@ -266,11 +266,11 @@ namespace pylorak.Windows
             public static extern NtStatus NtQuerySymbolicLinkObject(SafeNtObjectHandle Handle, SafeUnicodeStringHandle LinkTarget, out uint ReturnLength);
         }
 
-        private static NativeMethods.OBJECT_ATTRIBUTES InitializeObjectAttributes(IntPtr objectName, SafeNtObjectHandle? parentObject = null)
+        private static NativeMethods.OBJECT_ATTRIBUTES InitialiseObjectAttributes(IntPtr objectName, SafeNtObjectHandle? parentObject = null)
         {
             return new NativeMethods.OBJECT_ATTRIBUTES()
             {
-                length = Marshal.SizeOf<NativeMethods.OBJECT_ATTRIBUTES>(),
+                length = Marshal.SizeOf(typeof(NativeMethods.OBJECT_ATTRIBUTES)),
                 rootDirectory = parentObject?.DangerousGetHandle() ?? IntPtr.Zero,
                 attributes = NativeMethods.OBJECT_ATTRIBUTES.Attributes.OBJ_CASE_INSENSITIVE,
                 securityDescriptor = IntPtr.Zero,
@@ -281,7 +281,7 @@ namespace pylorak.Windows
         public static SafeNtObjectHandle OpenDirectoryObjectForRead(string dirName, SafeNtObjectHandle? parentObject = null)
         {
             using var objectName = new SafeUnicodeStringHandle(dirName);
-            var oa = InitializeObjectAttributes(objectName.DangerousGetHandle(), parentObject);
+            var oa = InitialiseObjectAttributes(objectName.DangerousGetHandle(), parentObject);
             var success = NativeMethods.NtOpenDirectoryObject(out SafeNtObjectHandle handle, NativeMethods.AccessMask.DIRECTORY_QUERY | NativeMethods.AccessMask.DIRECTORY_TRAVERSE, ref oa);
             return handle;
         }
@@ -289,7 +289,7 @@ namespace pylorak.Windows
         private static SafeNtObjectHandle OpenSymbolicLinkObjectForRead(string linkName, SafeNtObjectHandle? parentObject = null)
         {
             using var objectName = new SafeUnicodeStringHandle(linkName);
-            var oa = InitializeObjectAttributes(objectName.DangerousGetHandle(), parentObject);
+            var oa = InitialiseObjectAttributes(objectName.DangerousGetHandle(), parentObject);
             var success = NativeMethods.NtOpenSymbolicLinkObject(out SafeNtObjectHandle handle, NativeMethods.AccessMask.GENERIC_READ, ref oa);
             return handle;
         }
@@ -298,7 +298,7 @@ namespace pylorak.Windows
         {
             unsafe
             {
-                var oa = InitializeObjectAttributes(new IntPtr(&linkName), parentObject);
+                var oa = InitialiseObjectAttributes(new IntPtr(&linkName), parentObject);
                 _ = NativeMethods.NtOpenSymbolicLinkObject(out SafeNtObjectHandle handle, NativeMethods.AccessMask.GENERIC_READ, ref oa);
                 return handle;
             }

@@ -6,15 +6,23 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <StartArguments>/develtool</StartArguments>
   </PropertyGroup>
+  <PropertyGroup>
+    <_LastSelectedProfileId>C:\Users\shira_st8177f\Projects\GH\ShirazAdam\TinyWall\TinyWall\Properties\PublishProfiles\FolderProfile.pubxml</_LastSelectedProfileId>
+  </PropertyGroup>
   <ItemGroup>
-    <Compile Update="..\pylorak.Windows\TaskDialog\TaskDialogCommonDialog.cs">
+    <Compile Update="..\pylorak.Windows\TaskDialogue\TaskDialogueCommonDialogue.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Installer\ServiceInstaller.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Update="Installer\TinyWallInstaller.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Installer\TinyWallServiceInstaller.cs">
-      <SubType>Component</SubType>
-    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="AppFinderForm.cs.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>
