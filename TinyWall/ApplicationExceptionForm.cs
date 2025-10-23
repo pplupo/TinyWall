@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Windows.Forms;
 using System.Reflection;
 using pylorak.Windows;
+using pylorak.TinyWall.DatabaseClasses;
 
 namespace pylorak.TinyWall
 {
@@ -366,6 +368,28 @@ namespace pylorak.TinyWall
                 return;
 
             ReinitFormFromSubject(new ExecutableSubject(PathMapper.Instance.ConvertPathIgnoreErrors(ofd.FileName, PathFormat.Win32)));
+        }
+
+        private void ofd_FileOk(object sender, CancelEventArgs e)
+        {
+            if (sender is not OpenFileDialog dialog)
+                return;
+
+            string selectedPath = dialog.FileName;
+
+            if (PathRuleRegex.ContainsRegex(selectedPath))
+                return;
+
+            if (SubjectIdentity.IsValidExecutablePath(PathMapper.Instance.ConvertPathIgnoreErrors(selectedPath, PathFormat.Win32)))
+                return;
+
+            e.Cancel = true;
+            Utils.ShowMessageBox(
+                Resources.Messages.SelectedFileDoesNotExist,
+                Resources.Messages.TinyWall,
+                Microsoft.Samples.TaskDialogCommonButtons.Ok,
+                Microsoft.Samples.TaskDialogIcon.Warning,
+                this);
         }
 
         private void btnChooseService_Click(object sender, EventArgs e)

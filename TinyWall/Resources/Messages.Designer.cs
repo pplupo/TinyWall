@@ -685,6 +685,15 @@ namespace pylorak.TinyWall.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The specified file does not exist..
+        /// </summary>
+        internal static string SelectedFileDoesNotExist {
+            get {
+                return ResourceManager.GetString("SelectedFileDoesNotExist", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Unknown application.
         /// </summary>
         internal static string UnknownApplication {

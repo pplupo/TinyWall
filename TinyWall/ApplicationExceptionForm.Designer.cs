@@ -155,6 +155,7 @@
             this.ofd.CheckFileExists = false;
             this.ofd.CheckPathExists = false;
             this.ofd.ValidateNames = false;
+            this.ofd.FileOk += new System.ComponentModel.CancelEventHandler(this.ofd_FileOk);
             // 
             // label6
             // 

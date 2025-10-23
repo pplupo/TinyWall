@@ -364,6 +364,9 @@ The selected executable could be part of {0}. To ensure that this application ca
   <data name="UnblockAppUnblockOnlySelected" xml:space="preserve">
     <value>Unblock only selected file</value>
   </data>
+  <data name="SelectedFileDoesNotExist" xml:space="preserve">
+    <value>The specified file does not exist.</value>
+  </data>
   <data name="CompromisedApplication" xml:space="preserve">
     <value>{0}, possibly compromised</value>
     <comment>Exception details window banner text. Param0 is name of application.</comment>
