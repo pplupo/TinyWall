@@ -19,7 +19,7 @@ namespace pylorak.TinyWall.Resources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Messages {
@@ -75,6 +75,15 @@ namespace pylorak.TinyWall.Resources {
         internal static string AllFilesFileFilter {
             get {
                 return ResourceManager.GetString("AllFilesFileFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Application.
+        /// </summary>
+        internal static string Application {
+            get {
+                return ResourceManager.GetString("Application", resourceCulture);
             }
         }
         
@@ -314,7 +323,7 @@ namespace pylorak.TinyWall.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Firewall rules for recognized {0} have been changed. Click this popup to edit the exception..
+        ///   Looks up a localized string similar to Firewall rules for recognised {0} have been changed. Click this popup to edit the exception..
         /// </summary>
         internal static string FirewallRulesForRecognizedChanged {
             get {
@@ -323,7 +332,7 @@ namespace pylorak.TinyWall.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Firewall rules for unrecognized {0} have been changed. Click this popup to edit the exception..
+        ///   Looks up a localized string similar to Firewall rules for unrecognised {0} have been changed. Click this popup to edit the exception..
         /// </summary>
         internal static string FirewallRulesForUnrecognizedChanged {
             get {
@@ -405,11 +414,38 @@ namespace pylorak.TinyWall.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Recognized {0}.
+        ///   Looks up a localized string similar to Recognised {0}.
         /// </summary>
         internal static string RecognizedApplication {
             get {
                 return ResourceManager.GetString("RecognizedApplication", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select an item to remove.
+        /// </summary>
+        internal static string RemoveSoftwareDialogueCaption {
+            get {
+                return ResourceManager.GetString("RemoveSoftwareDialogueCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select a software entry from the list!.
+        /// </summary>
+        internal static string RemoveSoftwareDialogueText {
+            get {
+                return ResourceManager.GetString("RemoveSoftwareDialogueText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to www.bing.co.uk?q={0}.
+        /// </summary>
+        internal static string SearchEngine {
+            get {
+                return ResourceManager.GetString("SearchEngine", resourceCulture);
             }
         }
         
@@ -738,6 +774,15 @@ namespace pylorak.TinyWall.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Type.
+        /// </summary>
+        internal static string Type {
+            get {
+                return ResourceManager.GetString("Type", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Related files found
         ///The selected executable could be part of {0}. To ensure that this application can be used without limitations, it is recommended to also unblock some other files..
         /// </summary>
@@ -775,7 +820,7 @@ namespace pylorak.TinyWall.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unblock only selected file.
+        ///   Looks up a localized string similar to Unblock the selected file only.
         /// </summary>
         internal static string UnblockAppUnblockOnlySelected {
             get {

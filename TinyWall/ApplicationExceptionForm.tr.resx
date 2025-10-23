@@ -189,4 +189,7 @@
   <data name="$this.Text" xml:space="preserve">
     <value>Firewall istisnası Ekle/Düzenle - TinyWall</value>
   </data>
+  <data name="btnRemoveSoftware.Text" xml:space="preserve">
+    <value>Yazılımı kaldırma</value>
+  </data>
 </root>

@@ -1,27 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Threading;
-using System.Windows.Forms;
-using Microsoft.Samples;
+﻿using Microsoft.Samples;
 using pylorak.Utilities;
 using pylorak.Windows;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.Linq;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace pylorak.TinyWall
 {
     internal sealed class TinyWallController : ApplicationContext
     {
-        #region Vom Windows Form-Designer generierter Code
+        #region Form-Designer generated code
 
-        private System.ComponentModel.IContainer components = new System.ComponentModel.Container();
+        private IContainer components = new Container();
 
-        /// <summary>
-        /// Erforderliche Methode für die Designerunterstützung.
-        /// Der Inhalt der Methode darf nicht mit dem Code-Editor geändert werden.
-        /// </summary>
         [MemberNotNull(nameof(Tray),
             nameof(TrayMenu),
             nameof(toolStripMenuItem1),
@@ -49,268 +46,269 @@ namespace pylorak.TinyWall
         )]
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TinyWallController));
-            this.Tray = new System.Windows.Forms.NotifyIcon(this.components);
-            this.TrayMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.mnuTrafficRate = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
-            this.mnuMode = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuModeNormal = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuModeBlockAll = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuModeAllowOutgoing = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuModeDisabled = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuModeLearn = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuManage = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuConnections = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuLock = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuElevate = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
-            this.mnuAllowLocalSubnet = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuEnableHostsBlocklist = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
-            this.mnuWhitelistByExecutable = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuWhitelistByProcess = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuWhitelistByWindow = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator();
-            this.mnuQuit = new System.Windows.Forms.ToolStripMenuItem();
-            this.ofd = new System.Windows.Forms.OpenFileDialog();
-            this.TrayMenu.SuspendLayout();
-            // 
+            components = new Container();
+            ComponentResourceManager resources = new ComponentResourceManager(typeof(TinyWallController));
+            Tray = new NotifyIcon(components);
+            TrayMenu = new ContextMenuStrip(components);
+            mnuTrafficRate = new ToolStripMenuItem();
+            toolStripMenuItem1 = new ToolStripSeparator();
+            mnuMode = new ToolStripMenuItem();
+            mnuModeNormal = new ToolStripMenuItem();
+            mnuModeBlockAll = new ToolStripMenuItem();
+            mnuModeAllowOutgoing = new ToolStripMenuItem();
+            mnuModeDisabled = new ToolStripMenuItem();
+            mnuModeLearn = new ToolStripMenuItem();
+            mnuManage = new ToolStripMenuItem();
+            mnuConnections = new ToolStripMenuItem();
+            mnuLock = new ToolStripMenuItem();
+            mnuElevate = new ToolStripMenuItem();
+            toolStripMenuItem2 = new ToolStripSeparator();
+            mnuAllowLocalSubnet = new ToolStripMenuItem();
+            mnuEnableHostsBlocklist = new ToolStripMenuItem();
+            toolStripMenuItem3 = new ToolStripSeparator();
+            mnuWhitelistByExecutable = new ToolStripMenuItem();
+            mnuWhitelistByProcess = new ToolStripMenuItem();
+            mnuWhitelistByWindow = new ToolStripMenuItem();
+            toolStripMenuItem5 = new ToolStripSeparator();
+            mnuQuit = new ToolStripMenuItem();
+            ofd = new OpenFileDialog();
+            TrayMenu.SuspendLayout();
+            //
             // Tray
-            // 
-            resources.ApplyResources(this.Tray, "Tray");
-            this.Tray.Icon = global::pylorak.TinyWall.Resources.Icons.firewall;
-            this.Tray.Visible = false;
-            this.Tray.BalloonTipClicked += new System.EventHandler(this.Tray_BalloonTipClicked);
-            this.Tray.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Tray_MouseClick);
-            // 
+            //
+            resources.ApplyResources(Tray, "Tray");
+            Tray.Icon = Resources.Icons.firewall;
+            Tray.Visible = false;
+            Tray.BalloonTipClicked += Tray_BalloonTipClicked;
+            Tray.MouseClick += Tray_MouseClick;
+            //
             // TrayMenu
-            // 
-            this.TrayMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuTrafficRate,
-            this.toolStripMenuItem1,
-            this.mnuMode,
-            this.mnuManage,
-            this.mnuConnections,
-            this.mnuLock,
-            this.mnuElevate,
-            this.toolStripMenuItem2,
-            this.mnuAllowLocalSubnet,
-            this.mnuEnableHostsBlocklist,
-            this.toolStripMenuItem3,
-            this.mnuWhitelistByExecutable,
-            this.mnuWhitelistByProcess,
-            this.mnuWhitelistByWindow,
-            this.toolStripMenuItem5,
-            this.mnuQuit});
-            this.TrayMenu.Name = "TrayMenu";
-            resources.ApplyResources(this.TrayMenu, "TrayMenu");
-            this.TrayMenu.Opening += new System.ComponentModel.CancelEventHandler(this.TrayMenu_Opening);
-            // 
+            //
+            TrayMenu.Items.AddRange(new ToolStripItem[] {
+            mnuTrafficRate,
+            toolStripMenuItem1,
+            mnuMode,
+            mnuManage,
+            mnuConnections,
+            mnuLock,
+            mnuElevate,
+            toolStripMenuItem2,
+            mnuAllowLocalSubnet,
+            mnuEnableHostsBlocklist,
+            toolStripMenuItem3,
+            mnuWhitelistByExecutable,
+            mnuWhitelistByProcess,
+            mnuWhitelistByWindow,
+            toolStripMenuItem5,
+            mnuQuit});
+            TrayMenu.Name = "TrayMenu";
+            resources.ApplyResources(TrayMenu, "TrayMenu");
+            TrayMenu.Opening += TrayMenu_Opening;
+            //
             // mnuTrafficRate
-            // 
-            this.mnuTrafficRate.AccessibleRole = System.Windows.Forms.AccessibleRole.StaticText;
-            this.mnuTrafficRate.Image = global::pylorak.TinyWall.Resources.Icons.info;
-            this.mnuTrafficRate.Name = "mnuTrafficRate";
-            resources.ApplyResources(this.mnuTrafficRate, "mnuTrafficRate");
-            // 
+            //
+            mnuTrafficRate.AccessibleRole = AccessibleRole.StaticText;
+            mnuTrafficRate.Image = Resources.Icons.info;
+            mnuTrafficRate.Name = "mnuTrafficRate";
+            resources.ApplyResources(mnuTrafficRate, "mnuTrafficRate");
+            //
             // toolStripMenuItem1
-            // 
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            resources.ApplyResources(this.toolStripMenuItem1, "toolStripMenuItem1");
-            // 
+            //
+            toolStripMenuItem1.Name = "toolStripMenuItem1";
+            resources.ApplyResources(toolStripMenuItem1, "toolStripMenuItem1");
+            //
             // mnuMode
-            // 
-            this.mnuMode.AccessibleRole = System.Windows.Forms.AccessibleRole.ButtonMenu;
-            this.mnuMode.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuModeNormal,
-            this.mnuModeBlockAll,
-            this.mnuModeAllowOutgoing,
-            this.mnuModeDisabled,
-            this.mnuModeLearn});
-            this.mnuMode.Name = "mnuMode";
-            resources.ApplyResources(this.mnuMode, "mnuMode");
-            // 
+            //
+            mnuMode.AccessibleRole = AccessibleRole.ButtonMenu;
+            mnuMode.DropDownItems.AddRange(new ToolStripItem[] {
+            mnuModeNormal,
+            mnuModeBlockAll,
+            mnuModeAllowOutgoing,
+            mnuModeDisabled,
+            mnuModeLearn});
+            mnuMode.Name = "mnuMode";
+            resources.ApplyResources(mnuMode, "mnuMode");
+            //
             // mnuModeNormal
-            // 
-            this.mnuModeNormal.Name = "mnuModeNormal";
-            resources.ApplyResources(this.mnuModeNormal, "mnuModeNormal");
-            this.mnuModeNormal.Click += new System.EventHandler(this.mnuModeNormal_Click);
-            // 
+            //
+            mnuModeNormal.Name = "mnuModeNormal";
+            resources.ApplyResources(mnuModeNormal, "mnuModeNormal");
+            mnuModeNormal.Click += mnuModeNormal_Click;
+            //
             // mnuModeBlockAll
-            // 
-            this.mnuModeBlockAll.Name = "mnuModeBlockAll";
-            resources.ApplyResources(this.mnuModeBlockAll, "mnuModeBlockAll");
-            this.mnuModeBlockAll.Click += new System.EventHandler(this.mnuModeBlockAll_Click);
-            // 
+            //
+            mnuModeBlockAll.Name = "mnuModeBlockAll";
+            resources.ApplyResources(mnuModeBlockAll, "mnuModeBlockAll");
+            mnuModeBlockAll.Click += mnuModeBlockAll_Click;
+            //
             // mnuModeAllowOutgoing
-            // 
-            this.mnuModeAllowOutgoing.Name = "mnuModeAllowOutgoing";
-            resources.ApplyResources(this.mnuModeAllowOutgoing, "mnuModeAllowOutgoing");
-            this.mnuModeAllowOutgoing.Click += new System.EventHandler(this.mnuAllowOutgoing_Click);
-            // 
+            //
+            mnuModeAllowOutgoing.Name = "mnuModeAllowOutgoing";
+            resources.ApplyResources(mnuModeAllowOutgoing, "mnuModeAllowOutgoing");
+            mnuModeAllowOutgoing.Click += mnuAllowOutgoing_Click;
+            //
             // mnuModeDisabled
-            // 
-            this.mnuModeDisabled.Name = "mnuModeDisabled";
-            resources.ApplyResources(this.mnuModeDisabled, "mnuModeDisabled");
-            this.mnuModeDisabled.Click += new System.EventHandler(this.mnuModeDisabled_Click);
-            // 
+            //
+            mnuModeDisabled.Name = "mnuModeDisabled";
+            resources.ApplyResources(mnuModeDisabled, "mnuModeDisabled");
+            mnuModeDisabled.Click += mnuModeDisabled_Click;
+            //
             // mnuModeLearn
-            // 
-            this.mnuModeLearn.Name = "mnuModeLearn";
-            resources.ApplyResources(this.mnuModeLearn, "mnuModeLearn");
-            this.mnuModeLearn.Click += new System.EventHandler(this.mnuModeLearn_Click);
-            // 
+            //
+            mnuModeLearn.Name = "mnuModeLearn";
+            resources.ApplyResources(mnuModeLearn, "mnuModeLearn");
+            mnuModeLearn.Click += mnuModeLearn_Click;
+            //
             // mnuManage
-            // 
-            this.mnuManage.Image = global::pylorak.TinyWall.Resources.Icons.manage;
-            this.mnuManage.Name = "mnuManage";
-            resources.ApplyResources(this.mnuManage, "mnuManage");
-            this.mnuManage.Click += new System.EventHandler(this.mnuManage_Click);
-            // 
+            //
+            mnuManage.Image = Resources.Icons.manage;
+            mnuManage.Name = "mnuManage";
+            resources.ApplyResources(mnuManage, "mnuManage");
+            mnuManage.Click += mnuManage_Click;
+            //
             // mnuConnections
-            // 
-            this.mnuConnections.Image = global::pylorak.TinyWall.Resources.Icons.connections;
-            this.mnuConnections.Name = "mnuConnections";
-            resources.ApplyResources(this.mnuConnections, "mnuConnections");
-            this.mnuConnections.Click += new System.EventHandler(this.mnuConnections_Click);
-            // 
+            //
+            mnuConnections.Image = Resources.Icons.connections;
+            mnuConnections.Name = "mnuConnections";
+            resources.ApplyResources(mnuConnections, "mnuConnections");
+            mnuConnections.Click += mnuConnections_Click;
+            //
             // mnuLock
-            // 
-            this.mnuLock.Image = global::pylorak.TinyWall.Resources.Icons.lock_small;
-            this.mnuLock.Name = "mnuLock";
-            resources.ApplyResources(this.mnuLock, "mnuLock");
-            this.mnuLock.Click += new System.EventHandler(this.mnuLock_Click);
-            // 
+            //
+            mnuLock.Image = Resources.Icons.lock_small;
+            mnuLock.Name = "mnuLock";
+            resources.ApplyResources(mnuLock, "mnuLock");
+            mnuLock.Click += mnuLock_Click;
+            //
             // mnuElevate
-            // 
-            this.mnuElevate.Image = global::pylorak.TinyWall.Resources.Icons.w7uacshield;
-            this.mnuElevate.Name = "mnuElevate";
-            resources.ApplyResources(this.mnuElevate, "mnuElevate");
-            this.mnuElevate.Click += new System.EventHandler(this.mnuElevate_Click);
-            // 
+            //
+            mnuElevate.Image = Resources.Icons.w7uacshield;
+            mnuElevate.Name = "mnuElevate";
+            resources.ApplyResources(mnuElevate, "mnuElevate");
+            mnuElevate.Click += mnuElevate_Click;
+            //
             // toolStripMenuItem2
-            // 
-            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            resources.ApplyResources(this.toolStripMenuItem2, "toolStripMenuItem2");
-            // 
+            //
+            toolStripMenuItem2.Name = "toolStripMenuItem2";
+            resources.ApplyResources(toolStripMenuItem2, "toolStripMenuItem2");
+            //
             // mnuAllowLocalSubnet
-            // 
-            this.mnuAllowLocalSubnet.Name = "mnuAllowLocalSubnet";
-            resources.ApplyResources(this.mnuAllowLocalSubnet, "mnuAllowLocalSubnet");
-            this.mnuAllowLocalSubnet.Click += new System.EventHandler(this.mnuAllowLocalSubnet_Click);
-            // 
+            //
+            mnuAllowLocalSubnet.Name = "mnuAllowLocalSubnet";
+            resources.ApplyResources(mnuAllowLocalSubnet, "mnuAllowLocalSubnet");
+            mnuAllowLocalSubnet.Click += mnuAllowLocalSubnet_Click;
+            //
             // mnuEnableHostsBlocklist
-            // 
-            this.mnuEnableHostsBlocklist.Name = "mnuEnableHostsBlocklist";
-            resources.ApplyResources(this.mnuEnableHostsBlocklist, "mnuEnableHostsBlocklist");
-            this.mnuEnableHostsBlocklist.Click += new System.EventHandler(this.mnuEnableHostsBlocklist_Click);
-            // 
+            //
+            mnuEnableHostsBlocklist.Name = "mnuEnableHostsBlocklist";
+            resources.ApplyResources(mnuEnableHostsBlocklist, "mnuEnableHostsBlocklist");
+            mnuEnableHostsBlocklist.Click += mnuEnableHostsBlocklist_Click;
+            //
             // toolStripMenuItem3
-            // 
-            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            resources.ApplyResources(this.toolStripMenuItem3, "toolStripMenuItem3");
-            // 
+            //
+            toolStripMenuItem3.Name = "toolStripMenuItem3";
+            resources.ApplyResources(toolStripMenuItem3, "toolStripMenuItem3");
+            //
             // mnuWhitelistByExecutable
-            // 
-            this.mnuWhitelistByExecutable.Image = global::pylorak.TinyWall.Resources.Icons.executable;
-            this.mnuWhitelistByExecutable.Name = "mnuWhitelistByExecutable";
-            resources.ApplyResources(this.mnuWhitelistByExecutable, "mnuWhitelistByExecutable");
-            this.mnuWhitelistByExecutable.Click += new System.EventHandler(this.mnuWhitelistByExecutable_Click);
-            // 
+            //
+            mnuWhitelistByExecutable.Image = Resources.Icons.executable;
+            mnuWhitelistByExecutable.Name = "mnuWhitelistByExecutable";
+            resources.ApplyResources(mnuWhitelistByExecutable, "mnuWhitelistByExecutable");
+            mnuWhitelistByExecutable.Click += mnuWhitelistByExecutable_Click;
+            //
             // mnuWhitelistByProcess
-            // 
-            this.mnuWhitelistByProcess.Image = global::pylorak.TinyWall.Resources.Icons.process;
-            this.mnuWhitelistByProcess.Name = "mnuWhitelistByProcess";
-            resources.ApplyResources(this.mnuWhitelistByProcess, "mnuWhitelistByProcess");
-            this.mnuWhitelistByProcess.Click += new System.EventHandler(this.mnuWhitelistByProcess_Click);
-            // 
+            //
+            mnuWhitelistByProcess.Image = Resources.Icons.process;
+            mnuWhitelistByProcess.Name = "mnuWhitelistByProcess";
+            resources.ApplyResources(mnuWhitelistByProcess, "mnuWhitelistByProcess");
+            mnuWhitelistByProcess.Click += mnuWhitelistByProcess_Click;
+            //
             // mnuWhitelistByWindow
-            // 
-            this.mnuWhitelistByWindow.Image = global::pylorak.TinyWall.Resources.Icons.window;
-            this.mnuWhitelistByWindow.Name = "mnuWhitelistByWindow";
-            resources.ApplyResources(this.mnuWhitelistByWindow, "mnuWhitelistByWindow");
-            this.mnuWhitelistByWindow.Click += new System.EventHandler(this.mnuWhitelistByWindow_Click);
-            // 
+            //
+            mnuWhitelistByWindow.Image = Resources.Icons.window;
+            mnuWhitelistByWindow.Name = "mnuWhitelistByWindow";
+            resources.ApplyResources(mnuWhitelistByWindow, "mnuWhitelistByWindow");
+            mnuWhitelistByWindow.Click += mnuWhitelistByWindow_Click;
+            //
             // toolStripMenuItem5
-            // 
-            this.toolStripMenuItem5.Name = "toolStripMenuItem5";
-            resources.ApplyResources(this.toolStripMenuItem5, "toolStripMenuItem5");
-            // 
+            //
+            toolStripMenuItem5.Name = "toolStripMenuItem5";
+            resources.ApplyResources(toolStripMenuItem5, "toolStripMenuItem5");
+            //
             // mnuQuit
-            // 
-            this.mnuQuit.Image = global::pylorak.TinyWall.Resources.Icons.exit;
-            this.mnuQuit.Name = "mnuQuit";
-            resources.ApplyResources(this.mnuQuit, "mnuQuit");
-            this.mnuQuit.Click += new System.EventHandler(this.mnuQuit_Click);
-            // 
+            //
+            mnuQuit.Image = Resources.Icons.exit;
+            mnuQuit.Name = "mnuQuit";
+            resources.ApplyResources(mnuQuit, "mnuQuit");
+            mnuQuit.Click += mnuQuit_Click;
+            //
             // ofd
-            // 
-            resources.ApplyResources(this.ofd, "ofd");
-            this.TrayMenu.ResumeLayout(false);
+            //
+            resources.ApplyResources(ofd, "ofd");
+            TrayMenu.ResumeLayout(false);
         }
 
-        private System.Windows.Forms.NotifyIcon Tray;
-        private System.Windows.Forms.ContextMenuStrip TrayMenu;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
-        private System.Windows.Forms.ToolStripMenuItem mnuQuit;
-        private System.Windows.Forms.ToolStripMenuItem mnuMode;
-        private System.Windows.Forms.ToolStripMenuItem mnuModeNormal;
-        private System.Windows.Forms.ToolStripMenuItem mnuModeBlockAll;
-        private System.Windows.Forms.ToolStripMenuItem mnuModeDisabled;
-        private System.Windows.Forms.ToolStripMenuItem mnuManage;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem5;
-        private System.Windows.Forms.ToolStripMenuItem mnuWhitelistByExecutable;
-        private System.Windows.Forms.ToolStripMenuItem mnuWhitelistByProcess;
-        private System.Windows.Forms.ToolStripMenuItem mnuWhitelistByWindow;
-        private System.Windows.Forms.ToolStripMenuItem mnuLock;
-        private System.Windows.Forms.ToolStripMenuItem mnuElevate;
-        private System.Windows.Forms.ToolStripMenuItem mnuConnections;
-        private System.Windows.Forms.ToolStripMenuItem mnuModeAllowOutgoing;
-        private System.Windows.Forms.OpenFileDialog ofd;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
-        private System.Windows.Forms.ToolStripMenuItem mnuAllowLocalSubnet;
-        private System.Windows.Forms.ToolStripMenuItem mnuEnableHostsBlocklist;
-        private System.Windows.Forms.ToolStripMenuItem mnuTrafficRate;
-        private System.Windows.Forms.ToolStripMenuItem mnuModeLearn;
+        private NotifyIcon Tray;
+        private ContextMenuStrip TrayMenu;
+        private ToolStripSeparator toolStripMenuItem1;
+        private ToolStripSeparator toolStripMenuItem2;
+        private ToolStripMenuItem mnuQuit;
+        private ToolStripMenuItem mnuMode;
+        private ToolStripMenuItem mnuModeNormal;
+        private ToolStripMenuItem mnuModeBlockAll;
+        private ToolStripMenuItem mnuModeDisabled;
+        private ToolStripMenuItem mnuManage;
+        private ToolStripSeparator toolStripMenuItem5;
+        private ToolStripMenuItem mnuWhitelistByExecutable;
+        private ToolStripMenuItem mnuWhitelistByProcess;
+        private ToolStripMenuItem mnuWhitelistByWindow;
+        private ToolStripMenuItem mnuLock;
+        private ToolStripMenuItem mnuElevate;
+        private ToolStripMenuItem mnuConnections;
+        private ToolStripMenuItem mnuModeAllowOutgoing;
+        private OpenFileDialog ofd;
+        private ToolStripSeparator toolStripMenuItem3;
+        private ToolStripMenuItem mnuAllowLocalSubnet;
+        private ToolStripMenuItem mnuEnableHostsBlocklist;
+        private ToolStripMenuItem mnuTrafficRate;
+        private ToolStripMenuItem mnuModeLearn;
 
         #endregion
 
-        private readonly MouseInterceptor MouseInterceptor = new();
-        private readonly System.Threading.Timer UpdateTimer;
-        private readonly System.Windows.Forms.Timer ServiceTimer;
-        private readonly DateTime AppStarted = DateTime.Now;
-        private readonly List<Form> ActiveForms = new();
-        private ServerState FirewallState = new();
+        private readonly MouseInterceptor _mouseInterceptor = new();
+        private readonly System.Threading.Timer _updateTimer;
+        private readonly System.Windows.Forms.Timer _serviceTimer;
+        private readonly DateTime _appStarted = DateTime.Now;
+        private readonly List<Form> _activeForms = new();
+        private ServerState _firewallState = new();
 
         // Traffic rate monitoring
-        private readonly System.Threading.Timer TrafficTimer;
-        private readonly TrafficRateMonitor TrafficMonitor = new();
-        private bool TrafficRateVisible_ = true;
-        private bool TrayMenuShowing_;
+        private readonly System.Threading.Timer _trafficTimer;
+        private readonly TrafficRateMonitor? _trafficMonitor = new();
+        private bool _trafficRateVisible = true;
+        private bool _trayMenuShowing;
 
-        private EventHandler<AnyEventArgs>? BalloonClickedCallback;
-        private object? BalloonClickedCallbackArgument;
+        private EventHandler<AnyEventArgs>? _balloonClickedCallback;
+        private object? _balloonClickedCallbackArgument;
         [AllowNull]
-        private SynchronizationContext SyncCtx;
+        private SynchronizationContext? _syncCtx;
 
-        private Hotkey? HotKeyWhitelistExecutable;
-        private Hotkey? HotKeyWhitelistProcess;
-        private Hotkey? HotKeyWhitelistWindow;
+        private Hotkey? _hotKeyWhitelistExecutable;
+        private Hotkey? _hotKeyWhitelistProcess;
+        private Hotkey? _hotKeyWhitelistWindow;
 
-        private readonly CmdLineArgs StartupOpts;
+        private readonly CmdLineArgs _startupOpts;
 
-        private bool m_Locked;
+        private bool _mLocked;
+
         private bool Locked
         {
-            get { return m_Locked; }
+            get => _mLocked;
             set
             {
-                m_Locked = value;
-                FirewallState.Locked = value;
-                if (m_Locked)
+                _mLocked = value;
+                _firewallState.Locked = value;
+                if (_mLocked)
                 {
                     mnuLock.Text = Resources.Messages.Unlock;
                     mnuLock.Visible = false;
@@ -318,14 +316,14 @@ namespace pylorak.TinyWall
                 else
                 {
                     mnuLock.Text = Resources.Messages.Lock;
-                    mnuLock.Visible = FirewallState.HasPassword;
+                    mnuLock.Visible = _firewallState.HasPassword;
                 }
             }
         }
 
         public TinyWallController(CmdLineArgs opts)
         {
-            this.StartupOpts = opts;
+            _startupOpts = opts;
 
             ActiveConfig.Controller = ControllerSettings.Load();
             try
@@ -333,36 +331,38 @@ namespace pylorak.TinyWall
                 if (!ActiveConfig.Controller.Language.Equals("auto", StringComparison.InvariantCultureIgnoreCase))
                 {
                     Thread.CurrentThread.CurrentUICulture = new CultureInfo(ActiveConfig.Controller.Language);
-                    System.Windows.Forms.Application.CurrentCulture = Thread.CurrentThread.CurrentUICulture;
+                    Application.CurrentCulture = Thread.CurrentThread.CurrentUICulture;
                 }
                 else
                 {
-                    Thread.CurrentThread.CurrentUICulture = Program.DefaultOsCulture;
-                    System.Windows.Forms.Application.CurrentCulture = Program.DefaultOsCulture;
+                    Thread.CurrentThread.CurrentUICulture = Program.DefaultOsCulture!;
+                    Application.CurrentCulture = Program.DefaultOsCulture;
                 }
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
 
             InitializeComponent();
             Utils.SetRightToLeft(TrayMenu);
-            MouseInterceptor.MouseLButtonDown += new MouseInterceptor.MouseHookLButtonDown(MouseInterceptor_MouseLButtonDown);
-            TrafficTimer = new System.Threading.Timer(TrafficTimerTick, null, Timeout.Infinite, Timeout.Infinite);
-            UpdateTimer = new System.Threading.Timer(UpdateTimerTick, null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(240));
-            ServiceTimer = new System.Windows.Forms.Timer(components);
+            _mouseInterceptor.MouseLButtonDown += MouseInterceptor_MouseLButtonDown;
+            _trafficTimer = new System.Threading.Timer(TrafficTimerTick, null, Timeout.Infinite, Timeout.Infinite);
+            _updateTimer = new System.Threading.Timer(UpdateTimerTick, null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(240));
+            _serviceTimer = new System.Windows.Forms.Timer(components);
 
-            System.Windows.Forms.Application.Idle += Application_Idle;
+            Application.Idle += Application_Idle;
             using var p = Process.GetCurrentProcess();
             ProcessManager.WakeMessageQueues(p);
         }
 
         private void Application_Idle(object sender, EventArgs e)
         {
-            if (SyncCtx == null)
-            {
-                SyncCtx = SynchronizationContext.Current;
-                System.Windows.Forms.Application.Idle -= Application_Idle;
-                InitController();
-            }
+            if (_syncCtx != null) return;
+
+            _syncCtx = SynchronizationContext.Current;
+            Application.Idle -= Application_Idle;
+            InitController();
         }
 
         private void TrayMenu_Closed(object sender, ToolStripDropDownClosedEventArgs e)
@@ -375,23 +375,23 @@ namespace pylorak.TinyWall
             if (disposing && (components != null))
             {
                 // Manually added
-                HotKeyWhitelistExecutable?.Dispose();
-                HotKeyWhitelistProcess?.Dispose();
-                HotKeyWhitelistWindow?.Dispose();
-                MouseInterceptor.Dispose();
+                _hotKeyWhitelistExecutable?.Dispose();
+                _hotKeyWhitelistProcess?.Dispose();
+                _hotKeyWhitelistWindow?.Dispose();
+                _mouseInterceptor.Dispose();
 
                 using (WaitHandle wh = new AutoResetEvent(false))
                 {
-                    UpdateTimer.Dispose(wh);
+                    _updateTimer.Dispose(wh);
                     wh.WaitOne();
                 }
 
                 using (WaitHandle wh = new AutoResetEvent(false))
                 {
-                    TrafficTimer.Dispose(wh);
+                    _trafficTimer.Dispose(wh);
                     wh.WaitOne();
                 }
-                TrafficMonitor?.Dispose();
+                _trafficMonitor?.Dispose();
 
                 components.Dispose();
                 PathMapper.Instance.Dispose();
@@ -404,19 +404,22 @@ namespace pylorak.TinyWall
         {
             try
             {
-                UpdateDescriptor? descriptor = FirewallState.Update;
-                if (descriptor is not null)
-                {
-                    UpdateModule MainAppModule = UpdateChecker.GetMainAppModule(descriptor)!;
-                    if (new Version(MainAppModule.ComponentVersion) > new Version(System.Windows.Forms.Application.ProductVersion))
+                var descriptor = _firewallState.Update;
+
+                if (descriptor is null) return;
+
+                var mainAppModule = UpdateChecker.GetMainAppModule(descriptor)!;
+
+                if (mainAppModule.ComponentVersion == null || new Version(mainAppModule.ComponentVersion) <=
+                    new Version(Application.ProductVersion)) return;
+
+                if (_syncCtx != null)
+                    Utils.Invoke(_syncCtx, delegate
                     {
-                        Utils.Invoke(SyncCtx, (SendOrPostCallback)delegate(object o)
-                        {
-                            string prompt = string.Format(CultureInfo.CurrentCulture, pylorak.TinyWall.Resources.Messages.UpdateAvailableBubble, MainAppModule.ComponentVersion);
-                            ShowBalloonTip(prompt, ToolTipIcon.Info, 5000, StartUpdate, MainAppModule.UpdateURL);
-                        });
-                    }
-                }
+                        var prompt = string.Format(CultureInfo.CurrentCulture,
+                            Resources.Messages.UpdateAvailableBubble, mainAppModule.ComponentVersion);
+                        ShowBalloonTip(prompt, ToolTipIcon.Info, 5000, StartUpdate, mainAppModule.UpdateUrl);
+                    });
             }
             catch
             {
@@ -430,7 +433,7 @@ namespace pylorak.TinyWall
         {
             if (ActiveConfig.Service.AutoUpdateCheck)
             {
-                ThreadPool.QueueUserWorkItem((WaitCallback)delegate (object dummy)
+                ThreadPool.QueueUserWorkItem((WaitCallback)delegate
                 {
                     VerifyUpdates();
                 });
@@ -439,13 +442,13 @@ namespace pylorak.TinyWall
 
         private void TrafficTimerTick(object? _)
         {
-            if (!Monitor.TryEnter(TrafficTimer))
+            if (!Monitor.TryEnter(_trafficTimer))
                 return;
 
             try
             {
-                TrafficMonitor.Update();
-                UpdateTrafficRateText(TrafficMonitor.BytesReceivedPerSec, TrafficMonitor.BytesSentPerSec);
+                _trafficMonitor.Update();
+                UpdateTrafficRateText(_trafficMonitor.BytesReceivedPerSec, _trafficMonitor.BytesSentPerSec);
                 TrafficRateVisible = true;
             }
             catch
@@ -454,68 +457,66 @@ namespace pylorak.TinyWall
             }
             finally
             {
-                Monitor.Exit(TrafficTimer);
+                Monitor.Exit(_trafficTimer);
             }
         }
 
         void UpdateTrafficRateText(long rxRate, long txRate)
         {
-            if (TrayMenuShowing && TrafficRateVisible)
+            if (!TrayMenuShowing || !TrafficRateVisible) return;
+
+            var kBytesRxPerSec = (float)rxRate / 1024;
+            var kBytesTxPerSec = (float)txRate / 1024;
+            var mBytesRxPerSec = kBytesRxPerSec / 1024;
+            var mBytesTxPerSec = kBytesTxPerSec / 1024;
+
+            var rxDisplay = (mBytesRxPerSec > 1)
+                ? string.Format(CultureInfo.CurrentCulture, "{0:f} MiB/s", mBytesRxPerSec)
+                : string.Format(CultureInfo.CurrentCulture, "{0:f} KiB/s", kBytesRxPerSec);
+
+            var txDisplay = (mBytesTxPerSec > 1)
+                ? string.Format(CultureInfo.CurrentCulture, "{0:f} MiB/s", mBytesTxPerSec)
+                : string.Format(CultureInfo.CurrentCulture, "{0:f} KiB/s", kBytesTxPerSec);
+
+            var trafficRateText = string.Format(CultureInfo.CurrentCulture, "{0}: {1}    {2}: {3}", Resources.Messages.TrafficIn, rxDisplay, Resources.Messages.TrafficOut, txDisplay);
+
+            Utils.Invoke(TrayMenu, delegate
             {
-                float KBytesRxPerSec = (float)rxRate / 1024;
-                float KBytesTxPerSec = (float)txRate / 1024;
-                float MBytesRxPerSec = KBytesRxPerSec / 1024;
-                float MBytesTxPerSec = KBytesTxPerSec / 1024;
-
-                string rxDisplay = (MBytesRxPerSec > 1)
-                    ? string.Format(CultureInfo.CurrentCulture, "{0:f} MiB/s", MBytesRxPerSec)
-                    : string.Format(CultureInfo.CurrentCulture, "{0:f} KiB/s", KBytesRxPerSec);
-
-                string txDisplay = (MBytesTxPerSec > 1)
-                    ? string.Format(CultureInfo.CurrentCulture, "{0:f} MiB/s", MBytesTxPerSec)
-                    : string.Format(CultureInfo.CurrentCulture, "{0:f} KiB/s", KBytesTxPerSec);
-
-                string trafficRateText = string.Format(CultureInfo.CurrentCulture, "{0}: {1}    {2}: {3}", Resources.Messages.TrafficIn, rxDisplay, Resources.Messages.TrafficOut, txDisplay);
-
-                Utils.Invoke(TrayMenu, (MethodInvoker)delegate
-                {
-                    mnuTrafficRate.Text = trafficRateText;
-                });
-            }
+                mnuTrafficRate.Text = trafficRateText;
+            });
         }
 
         private bool TrayMenuShowing
         {
-            get => TrayMenuShowing_;
+            get => _trayMenuShowing;
             set
             {
-                TrayMenuShowing_ = value;
+                _trayMenuShowing = value;
 
                 // Update more often while visible
-                if ((TrafficMonitor != null) && TrayMenuShowing_)
+                if ((_trafficMonitor != null) && _trayMenuShowing)
                 {
                     TrafficTimerTick(null);
-                    TrafficTimer.Change(2000, 2000);
+                    _trafficTimer.Change(2000, 2000);
                 }
                 else
-                    TrafficTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                    _trafficTimer.Change(Timeout.Infinite, Timeout.Infinite);
             }
         }
 
         private bool TrafficRateVisible
         {
-            get => TrafficRateVisible_;
+            get => _trafficRateVisible;
             set
             {
-                if (value != TrafficRateVisible_)
+                if (value == _trafficRateVisible) return;
+
+                _trafficRateVisible = value;
+                Utils.Invoke(TrayMenu, delegate
                 {
-                    TrafficRateVisible_ = value;
-                    Utils.Invoke(TrayMenu, (MethodInvoker)delegate
-                    {
-                        mnuTrafficRate.Visible = TrafficRateVisible_;
-                        toolStripMenuItem1.Visible = TrafficRateVisible_;
-                    });
-                }
+                    mnuTrafficRate.Visible = _trafficRateVisible;
+                    toolStripMenuItem1.Visible = _trafficRateVisible;
+                });
             }
         }
 
@@ -524,17 +525,17 @@ namespace pylorak.TinyWall
             Updater.StartUpdate();
         }
 
-        void HotKeyWhitelistProcess_Pressed(object sender, HandledEventArgs e)
+        private void HotKeyWhitelistProcess_Pressed(object sender, HandledEventArgs e)
         {
             mnuWhitelistByProcess_Click(this, EventArgs.Empty);
         }
 
-        void HotKeyWhitelistExecutable_Pressed(object sender, HandledEventArgs e)
+        private void HotKeyWhitelistExecutable_Pressed(object sender, HandledEventArgs e)
         {
             mnuWhitelistByExecutable_Click(this, EventArgs.Empty);
         }
 
-        void HotKeyWhitelistWindow_Pressed(object sender, HandledEventArgs e)
+        private void HotKeyWhitelistWindow_Pressed(object sender, HandledEventArgs e)
         {
             mnuWhitelistByWindow_Click(this, EventArgs.Empty);
         }
@@ -548,51 +549,56 @@ namespace pylorak.TinyWall
         private void UpdateDisplay()
         {
             // Update UI based on current firewall mode
-            string FirewallModeName = Resources.Messages.FirewallModeUnknown;
-            switch (FirewallState.Mode)
+            var firewallModeName = Resources.Messages.FirewallModeUnknown;
+
+            switch (_firewallState.Mode)
             {
                 case FirewallMode.Normal:
                     Tray.Icon = Resources.Icons.firewall;
                     mnuMode.Image = mnuModeNormal.Image;
-                    FirewallModeName = Resources.Messages.FirewallModeNormal;
+                    firewallModeName = Resources.Messages.FirewallModeNormal;
                     break;
 
                 case FirewallMode.AllowOutgoing:
                     Tray.Icon = Resources.Icons.shield_red_small;
                     mnuMode.Image = mnuModeAllowOutgoing.Image;
-                    FirewallModeName = Resources.Messages.FirewallModeAllowOut;
+                    firewallModeName = Resources.Messages.FirewallModeAllowOut;
                     break;
 
                 case FirewallMode.BlockAll:
                     Tray.Icon = Resources.Icons.shield_yellow_small;
                     mnuMode.Image = mnuModeBlockAll.Image;
-                    FirewallModeName = Resources.Messages.FirewallModeBlockAll;
+                    firewallModeName = Resources.Messages.FirewallModeBlockAll;
                     break;
 
                 case FirewallMode.Disabled:
                     Tray.Icon = Resources.Icons.shield_grey_small;
                     mnuMode.Image = mnuModeDisabled.Image;
-                    FirewallModeName = Resources.Messages.FirewallModeDisabled;
+                    firewallModeName = Resources.Messages.FirewallModeDisabled;
                     break;
 
                 case FirewallMode.Learning:
                     Tray.Icon = Resources.Icons.shield_blue_small;
                     mnuMode.Image = mnuModeLearn.Image;
-                    FirewallModeName = Resources.Messages.FirewallModeLearn;
+                    firewallModeName = Resources.Messages.FirewallModeLearn;
                     break;
 
                 case FirewallMode.Unknown:
                     Tray.Icon = Resources.Icons.shield_grey_small;
                     mnuMode.Image = Resources.Icons.shield_grey_small.ToBitmap();
-                    FirewallModeName = Resources.Messages.FirewallModeUnknown;
+                    firewallModeName = Resources.Messages.FirewallModeUnknown;
+                    break;
+                default:
+                    //throw new ArgumentOutOfRangeException();
                     break;
             }
 
-            Tray.Text = string.Format(CultureInfo.CurrentCulture, "TinyWall\r\n{0}: {1}",
-                Resources.Messages.Mode, FirewallModeName);
+            Tray.Text = string.Format(CultureInfo.CurrentCulture, @"TinyWall
+{0}: {1}",
+                Resources.Messages.Mode, firewallModeName);
 
             // Find out if we are locked and if we have a password
-            this.Locked = FirewallState.Locked;
+            Locked = _firewallState.Locked;
 
             mnuAllowLocalSubnet.Checked = ActiveConfig.Service.ActiveProfile.AllowLocalSubnet;
             mnuEnableHostsBlocklist.Checked = ActiveConfig.Service.Blocklists.EnableBlocklists;
@@ -600,8 +606,8 @@ namespace pylorak.TinyWall
 
         private void SetMode(FirewallMode mode)
         {
-            MessageType resp = GlobalInstances.Controller.SwitchFirewallMode(mode);
-            string usermsg = mode switch
+            var resp = GlobalInstances.Controller!.SwitchFirewallMode(mode);
+            var userMessage = mode switch
             {
                 FirewallMode.Normal => Resources.Messages.TheFirewallIsNowOperatingAsRecommended,
                 FirewallMode.AllowOutgoing => Resources.Messages.TheFirewallIsNowAllowsOutgoingConnections,
@@ -614,8 +620,29 @@ namespace pylorak.TinyWall
             switch (resp)
             {
                 case MessageType.MODE_SWITCH:
-                    FirewallState.Mode = mode;
-                    ShowBalloonTip(usermsg, ToolTipIcon.Info);
+                    _firewallState.Mode = mode;
+                    ShowBalloonTip(userMessage, ToolTipIcon.Info);
+                    break;
+                case MessageType.INVALID_COMMAND:
+                case MessageType.RESPONSE_ERROR:
+                case MessageType.RESPONSE_LOCKED:
+                case MessageType.COM_ERROR:
+                case MessageType.GET_SETTINGS:
+                case MessageType.GET_PROCESS_PATH:
+                case MessageType.READ_FW_LOG:
+                case MessageType.IS_LOCKED:
+                case MessageType.UNLOCK:
+                case MessageType.REINIT:
+                case MessageType.PUT_SETTINGS:
+                case MessageType.LOCK:
+                case MessageType.SET_PASSPHRASE:
+                case MessageType.STOP_SERVICE:
+                case MessageType.MINUTE_TIMER:
+                case MessageType.REENUMERATE_ADDRESSES:
+                case MessageType.DATABASE_UPDATED:
+                case MessageType.ADD_TEMPORARY_EXCEPTION:
+                case MessageType.RELOAD_WFP_FILTERS:
+                case MessageType.DISPLAY_POWER_EVENT:
                     break;
                 default:
                     DefaultPopups(resp);
@@ -662,7 +689,7 @@ namespace pylorak.TinyWall
         // Returns true if the local copy of the settings have been updated.
         private bool LoadSettingsFromServer()
         {
-            return LoadSettingsFromServer(out bool _, false);
+            return LoadSettingsFromServer(out var comError, false);
         }
 
         // Returns true if the local copy of the settings have been updated.
@@ -670,7 +697,7 @@ namespace pylorak.TinyWall
         {
             Guid inChangeset = force ? Guid.Empty : GlobalInstances.ClientChangeset;
             Guid outChangeset = inChangeset;
-            MessageType ret = GlobalInstances.Controller.GetServerConfig(out ServerConfiguration? config, out ServerState? state, ref outChangeset);
+            MessageType ret = GlobalInstances.Controller!.GetServerConfig(out ServerConfiguration? config, out ServerState? state, ref outChangeset);
 
             comError = (MessageType.COM_ERROR == ret);
             bool updated = (inChangeset != outChangeset);
@@ -682,26 +709,53 @@ namespace pylorak.TinyWall
                 if (config is not null)
                     ActiveConfig.Service = config;
                 if (state is not null)
-                    FirewallState = state;
+                    _firewallState = state;
             }
             else
             {
                 ActiveConfig.Controller = new ControllerSettings();
-                ActiveConfig.Service = new ServerConfiguration();
-                ActiveConfig.Service.ActiveProfileName = Resources.Messages.Default;
+                ActiveConfig.Service = new ServerConfiguration
+                {
+                    ActiveProfileName = Resources.Messages.Default
+                };
             }
 
             // See if there is a new notification for the client
-            for (int i = 0; i < FirewallState.ClientNotifs.Count; ++i)
+            foreach (var t in _firewallState.ClientNotifs)
             {
-                switch (FirewallState.ClientNotifs[i])
+                switch (t)
                 {
                     case MessageType.DATABASE_UPDATED:
                         LoadDatabase();
                         break;
+                    case MessageType.INVALID_COMMAND:
+                    case MessageType.RESPONSE_ERROR:
+                    case MessageType.RESPONSE_LOCKED:
+                    case MessageType.COM_ERROR:
+                    case MessageType.GET_SETTINGS:
+                    case MessageType.GET_PROCESS_PATH:
+                    case MessageType.READ_FW_LOG:
+                    case MessageType.IS_LOCKED:
+                    case MessageType.UNLOCK:
+                    case MessageType.MODE_SWITCH:
+                    case MessageType.REINIT:
+                    case MessageType.PUT_SETTINGS:
+                    case MessageType.LOCK:
+                    case MessageType.SET_PASSPHRASE:
+                    case MessageType.STOP_SERVICE:
+                    case MessageType.MINUTE_TIMER:
+                    case MessageType.REENUMERATE_ADDRESSES:
+                    case MessageType.ADD_TEMPORARY_EXCEPTION:
+                    case MessageType.RELOAD_WFP_FILTERS:
+                    case MessageType.DISPLAY_POWER_EVENT:
+                        break;
+                    default:
+                        //throw new ArgumentOutOfRangeException();
+                        break;
                 }
             }
-            FirewallState.ClientNotifs.Clear();
+
+            _firewallState.ClientNotifs.Clear();
 
             if (updated)
                 UpdateDisplay();
@@ -712,7 +766,8 @@ namespace pylorak.TinyWall
         private void TrayMenu_Opening(object sender, CancelEventArgs e)
         {
             e.Cancel = false;
-            if (FirewallState.Mode == FirewallMode.Unknown)
+
+            if (_firewallState.Mode == FirewallMode.Unknown)
             {
                 if (!TinyWallDoctor.IsServiceRunning(Utils.LOG_ID_GUI, false))
                 {
@@ -723,7 +778,7 @@ namespace pylorak.TinyWall
 
             TrayMenuShowing = true;
 
-            this.Locked = GlobalInstances.Controller.IsServerLocked;
+            Locked = GlobalInstances.Controller!.IsServerLocked;
             UpdateDisplay();
         }
 
@@ -738,22 +793,23 @@ namespace pylorak.TinyWall
             using var dummy = new Form();
             try
             {
-                ActiveForms.Add(dummy);
-                if (ofd.ShowDialog() != System.Windows.Forms.DialogResult.OK)
+                _activeForms.Add(dummy);
+                if (ofd.ShowDialog() != DialogResult.OK)
                     return;
             }
             finally
             {
-                ActiveForms.Remove(dummy);
+                _activeForms.Remove(dummy);
             }
 
             var subj = new ExecutableSubject(PathMapper.Instance.ConvertPathIgnoreErrors(ofd.FileName, PathFormat.Win32));
-            AddExceptions(GlobalInstances.AppDatabase.GetExceptionsForApp(subj, true, out _));
+            AddExceptions(GlobalInstances.AppDatabase!.GetExceptionsForApp(subj, true, out _));
         }
 
         public void WhitelistProcesses(List<ProcessInfo> list)
         {
             var exceptions = new List<FirewallExceptionV3>();
+
             foreach (var sel in list)
             {
                 if (string.IsNullOrEmpty(sel.Path))
@@ -764,29 +820,15 @@ namespace pylorak.TinyWall
                     subjects.Add(new AppContainerSubject(sel.Package.Value));
                 else if (sel.Services.Count > 0)
                 {
-                    foreach (var srv in sel.Services)
-                        subjects.Add(new ServiceSubject(sel.Path, srv));
+                    subjects.AddRange(sel.Services.Select(srv => new ServiceSubject(sel.Path, srv)).Cast<ExceptionSubject>());
                 }
                 else
                     subjects.Add(new ExecutableSubject(sel.Path));
 
-                foreach (var subj in subjects)
+                foreach (var subj in from subj in subjects let found = exceptions.Any(ex => ex.Subject.Equals(subj)) where !found select subj)
                 {
-                    // Check if we already have an exception for this subject
-                    bool found = false;
-                    foreach (var ex in exceptions)
-                    {
-                        if (ex.Subject.Equals(subj))
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (found)
-                        continue;
-
                     // Try to recognize app based on this file
-                    exceptions.AddRange(GlobalInstances.AppDatabase.GetExceptionsForApp(subj, true, out _));
+                    exceptions.AddRange(GlobalInstances.AppDatabase!.GetExceptionsForApp(subj, true, out _));
                 }
             }
 
@@ -802,11 +844,12 @@ namespace pylorak.TinyWall
                 return;
 
             var selection = new List<ProcessInfo>();
+
             using (var pf = new ProcessesForm(true))
             {
                 try
                 {
-                    ActiveForms.Add(pf);
+                    _activeForms.Add(pf);
 
                     if (pf.ShowDialog(null) == DialogResult.Cancel)
                         return;
@@ -815,27 +858,28 @@ namespace pylorak.TinyWall
                 }
                 finally
                 {
-                    ActiveForms.Remove(pf);
+                    _activeForms.Remove(pf);
                 }
             }
             WhitelistProcesses(selection);
         }
 
-        internal TwMessage ApplyFirewallSettings(ServerConfiguration srvConfig, bool showUI = true)
+        internal TwMessage ApplyFirewallSettings(ServerConfiguration srvConfig, bool showUi = true)
         {
-            if (!EnsureUnlockedServer(showUI))
+            if (!EnsureUnlockedServer(showUi))
                 return TwMessageLocked.Instance;
 
-            var resp = GlobalInstances.Controller.SetServerConfig(srvConfig, GlobalInstances.ClientChangeset);
+            var resp = GlobalInstances.Controller!.SetServerConfig(srvConfig, GlobalInstances.ClientChangeset);
+
             switch (resp.Type)
             {
                 case MessageType.PUT_SETTINGS:
                     var respArgs = (TwMessagePutSettings)resp;
                     if (respArgs.State is not null)
-                        FirewallState = respArgs.State;
+                        _firewallState = respArgs.State;
                     ActiveConfig.Service = respArgs.Config;
                     GlobalInstances.ClientChangeset = respArgs.Changeset;
-                    if (showUI)
+                    if (showUi)
                     {
                         if (respArgs.Warning)
                             ShowBalloonTip(Resources.Messages.SettingHaveChangedRetry, ToolTipIcon.Warning);
@@ -844,11 +888,31 @@ namespace pylorak.TinyWall
                     }
                     break;
                 case MessageType.RESPONSE_ERROR:
-                    if (showUI)
+                    if (showUi)
                         ShowBalloonTip(Resources.Messages.CouldNotApplySettingsInternalError, ToolTipIcon.Warning);
                     break;
+                case MessageType.INVALID_COMMAND:
+                case MessageType.RESPONSE_LOCKED:
+                case MessageType.COM_ERROR:
+                case MessageType.GET_SETTINGS:
+                case MessageType.GET_PROCESS_PATH:
+                case MessageType.READ_FW_LOG:
+                case MessageType.IS_LOCKED:
+                case MessageType.UNLOCK:
+                case MessageType.MODE_SWITCH:
+                case MessageType.REINIT:
+                case MessageType.LOCK:
+                case MessageType.SET_PASSPHRASE:
+                case MessageType.STOP_SERVICE:
+                case MessageType.MINUTE_TIMER:
+                case MessageType.REENUMERATE_ADDRESSES:
+                case MessageType.DATABASE_UPDATED:
+                case MessageType.ADD_TEMPORARY_EXCEPTION:
+                case MessageType.RELOAD_WFP_FILTERS:
+                case MessageType.DISPLAY_POWER_EVENT:
+                    break;
                 default:
-                    if (showUI)
+                    if (showUi)
                         DefaultPopups(resp.Type);
                     LoadSettingsFromServer();
                     break;
@@ -861,6 +925,25 @@ namespace pylorak.TinyWall
         {
             switch (op)
             {
+                case MessageType.INVALID_COMMAND:
+                case MessageType.GET_SETTINGS:
+                case MessageType.GET_PROCESS_PATH:
+                case MessageType.READ_FW_LOG:
+                case MessageType.IS_LOCKED:
+                case MessageType.UNLOCK:
+                case MessageType.MODE_SWITCH:
+                case MessageType.REINIT:
+                case MessageType.PUT_SETTINGS:
+                case MessageType.LOCK:
+                case MessageType.SET_PASSPHRASE:
+                case MessageType.STOP_SERVICE:
+                case MessageType.MINUTE_TIMER:
+                case MessageType.REENUMERATE_ADDRESSES:
+                case MessageType.DATABASE_UPDATED:
+                case MessageType.ADD_TEMPORARY_EXCEPTION:
+                case MessageType.RELOAD_WFP_FILTERS:
+                case MessageType.DISPLAY_POWER_EVENT:
+                    break;
                 default:
                     ShowBalloonTip(Resources.Messages.Success, ToolTipIcon.Info);
                     break;
@@ -878,15 +961,12 @@ namespace pylorak.TinyWall
 
         public bool FlashIfOpen(Type formType)
         {
-            foreach(var openForm in ActiveForms)
+            foreach (var openForm in _activeForms.Where(openForm => openForm.GetType() == formType))
             {
-                if (openForm.GetType() == formType)
-                {
-                    openForm.Activate();
-                    openForm.BringToFront();
-                    WindowFlasher.Flash(openForm.Handle, 2);
-                    return true;
-                }
+                openForm.Activate();
+                openForm.BringToFront();
+                WindowFlasher.Flash(openForm.Handle, 2);
+                return true;
             }
 
             return false;
@@ -902,58 +982,56 @@ namespace pylorak.TinyWall
                 return;
 
             // The settings form should not be used with other windows at the same time
-            if (ActiveForms.Count != 0)
+            if (_activeForms.Count != 0)
             {
-                FlashIfOpen(ActiveForms[0]);
+                FlashIfOpen(_activeForms[0]);
                 return;
             }
 
             LoadSettingsFromServer();
 
             using var sf = new SettingsForm(Utils.DeepClone(ActiveConfig.Service), Utils.DeepClone(ActiveConfig.Controller));
-            ActiveForms.Add(sf);
+            _activeForms.Add(sf);
             try
             {
-                if (sf.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                if (sf.ShowDialog() != DialogResult.OK) return;
+
+                var oldLang = ActiveConfig.Controller.Language;
+
+                // Save settings
+                ActiveConfig.Controller = sf.TmpConfig.Controller;
+                ActiveConfig.Controller.Save();
+                ApplyFirewallSettings(sf.TmpConfig.Service);
+
+                // Handle password change request
+                string? newPassword = sf.NewPassword;
+                if (newPassword is not null)
                 {
-                    var oldLang = ActiveConfig.Controller.Language;
-
-                    // Save settings
-                    ActiveConfig.Controller = sf.TmpConfig.Controller;
-                    ActiveConfig.Controller.Save();
-                    ApplyFirewallSettings(sf.TmpConfig.Service);
-
-                    // Handle password change request
-                    string? newPassword = sf.NewPassword;
-                    if (newPassword is not null)
+                    // If the new password is empty, we do not hash it because an empty password
+                    // is a special value signalizing the non-existence of a password.
+                    MessageType resp = GlobalInstances.Controller!.SetPassphrase(string.IsNullOrEmpty(newPassword) ? string.Empty : Hasher.HashString(newPassword));
+                    if (resp != MessageType.SET_PASSPHRASE)
                     {
-                        // If the new password is empty, we do not hash it because an empty password
-                        // is a special value signalizing the non-existence of a password.
-                        MessageType resp = GlobalInstances.Controller.SetPassphrase(string.IsNullOrEmpty(newPassword) ? string.Empty : Hasher.HashString(newPassword));
-                        if (resp != MessageType.SET_PASSPHRASE)
-                        {
-                            // Only display a popup for setting the password if it did not succeed
-                            DefaultPopups(resp);
-                            return;
-                        }
-                        else
-                        {
-                            // If the operation is successfull, do not report anything as we will be setting
-                            // the other settings too and we want to avoid multiple popups.
-                            FirewallState.HasPassword = !string.IsNullOrEmpty(newPassword);
-                        }
+                        // Only display a popup for setting the password if it did not succeed
+                        DefaultPopups(resp);
+                        return;
                     }
-
-                    if (oldLang != ActiveConfig.Controller.Language)
+                    else
                     {
-                        Program.RestartOnQuit = true;
-                        ExitThread();
+                        // If the operation is successful, do not report anything as we will be setting
+                        // the other settings too and we want to avoid multiple popups.
+                        _firewallState.HasPassword = !string.IsNullOrEmpty(newPassword);
                     }
                 }
+
+                if (oldLang == ActiveConfig.Controller.Language) return;
+
+                Program.RestartOnQuit = true;
+                ExitThread();
             }
             finally
             {
-                ActiveForms.Remove(sf);
+                _activeForms.Remove(sf);
                 ApplyControllerSettings();
                 UpdateDisplay();
             }
@@ -964,14 +1042,14 @@ namespace pylorak.TinyWall
             if (!EnsureUnlockedServer())
                 return;
 
-            if (!MouseInterceptor.IsStarted)
+            if (!_mouseInterceptor.IsStarted)
             {
-                MouseInterceptor.Start();
+                _mouseInterceptor.Start();
                 ShowBalloonTip(Resources.Messages.ClickOnAWindowWhitelisting, ToolTipIcon.Info);
             }
             else
             {
-                MouseInterceptor.Stop();
+                _mouseInterceptor.Stop();
                 ShowBalloonTip(Resources.Messages.WhitelistingCancelled, ToolTipIcon.Info);
             }
         }
@@ -984,41 +1062,42 @@ namespace pylorak.TinyWall
             //
             // The point is, the body will execute on this same thread *after* this procedure
             // has terminated. We want this procedure to terminate before
-            // calling MouseInterceptor.Dispose() or else it will lock up our UI thread for a 
+            // calling MouseInterceptor.Dispose() or else it will lock up our UI thread for a
             // couple of seconds. It will lock up because we are currently running in a hook procedure,
             // and MouseInterceptor.Dispose() unhooks us while we are running.
             // This apparently brings Windows temporarily to its knees. Anyway, starting
             // another thread that will invoke the body on our own thread again makes sure that the hook
             // has terminated by the time we unhook it, resolving all our problems.
 
-            ThreadPool.QueueUserWorkItem((WaitCallback)delegate(object state)
+            ThreadPool.QueueUserWorkItem((WaitCallback)delegate
             {
-                Utils.Invoke(SyncCtx, (SendOrPostCallback)delegate(object o)
-                {
-                    MouseInterceptor.Stop();
-
-                    var pid = Utils.GetPidUnderCursor(x, y);
-                    var exePath = Utils.GetPathOfProcessUseTwService(pid, GlobalInstances.Controller);
-                    var packageList = new UwpPackageList();
-                    var appContainer = packageList.FindPackageForProcess(pid);
-
-                    ExceptionSubject subj;
-                    if (appContainer.HasValue)
+                if (_syncCtx != null)
+                    Utils.Invoke(_syncCtx, delegate
                     {
-                        subj = new AppContainerSubject(appContainer.Value);
-                    }
-                    else if (string.IsNullOrEmpty(exePath))
-                    {
-                        ShowBalloonTip(Resources.Messages.CannotGetExecutablePathWhitelisting, ToolTipIcon.Error);
-                        return;
-                    }
-                    else
-                    {
-                        subj = new ExecutableSubject(exePath);
-                    }
+                        _mouseInterceptor.Stop();
 
-                    AddExceptions(GlobalInstances.AppDatabase.GetExceptionsForApp(subj, true, out _));
-                });
+                        uint pid = Utils.GetPidUnderCursor(x, y);
+                        string exePath = Utils.GetPathOfProcessUseTwService(pid, GlobalInstances.Controller!);
+                        var packageList = new UwpPackageList();
+                        var appContainer = packageList.FindPackageForProcess(pid);
+
+                        ExceptionSubject subj;
+                        if (appContainer.HasValue)
+                        {
+                            subj = new AppContainerSubject(appContainer.Value);
+                        }
+                        else if (string.IsNullOrEmpty(exePath))
+                        {
+                            ShowBalloonTip(Resources.Messages.CannotGetExecutablePathWhitelisting, ToolTipIcon.Error);
+                            return;
+                        }
+                        else
+                        {
+                            subj = new ExecutableSubject(exePath);
+                        }
+
+                        AddExceptions(GlobalInstances.AppDatabase!.GetExceptionsForApp(subj, true, out _));
+                    });
             });
         }
 
@@ -1054,7 +1133,7 @@ namespace pylorak.TinyWall
                 single = (list.Count == 1);
             }
 
-            ServerConfiguration confCopy = Utils.DeepClone(ActiveConfig.Service);
+            var confCopy = Utils.DeepClone(ActiveConfig.Service);
             confCopy.ActiveProfile.AddExceptions(list);
 
             if (!single)
@@ -1062,7 +1141,7 @@ namespace pylorak.TinyWall
                 ApplyFirewallSettings(confCopy, true);
                 return;
             }
-            
+
             var resp = ApplyFirewallSettings(confCopy, false);
             switch (resp.Type)
             {
@@ -1075,18 +1154,41 @@ namespace pylorak.TinyWall
                     }
                     else
                     {
-                        bool signedAndValid = false;
+                        var signedAndValid = false;
                         if (list[0].Subject is ExecutableSubject exesub)
-                            signedAndValid = exesub.IsSigned && exesub.CertValid;
+                            signedAndValid = exesub is { IsSigned: true, CertValid: true };
 
-                        if (signedAndValid)
-                            ShowBalloonTip(string.Format(CultureInfo.CurrentCulture, Resources.Messages.FirewallRulesForRecognizedChanged, list[0].Subject.ToString()), ToolTipIcon.Info, 5000, EditRecentException, Utils.DeepClone(list[0]));
-                        else
-                            ShowBalloonTip(string.Format(CultureInfo.CurrentCulture, Resources.Messages.FirewallRulesForUnrecognizedChanged, list[0].Subject.ToString()), ToolTipIcon.Info, 5000, EditRecentException, Utils.DeepClone(list[0]));
+                        ShowBalloonTip(
+                            signedAndValid
+                                ? string.Format(CultureInfo.CurrentCulture,
+                                    Resources.Messages.FirewallRulesForRecognizedChanged, list[0].Subject.ToString())
+                                : string.Format(CultureInfo.CurrentCulture,
+                                    Resources.Messages.FirewallRulesForUnrecognizedChanged, list[0].Subject.ToString()),
+                            ToolTipIcon.Info, 5000, EditRecentException, Utils.DeepClone(list[0]));
                     }
                     break;
                 case MessageType.RESPONSE_ERROR:
                     ShowBalloonTip(string.Format(CultureInfo.CurrentCulture, Resources.Messages.CouldNotWhitelistProcess, list[0].Subject.ToString()), ToolTipIcon.Warning);
+                    break;
+                case MessageType.INVALID_COMMAND:
+                case MessageType.RESPONSE_LOCKED:
+                case MessageType.COM_ERROR:
+                case MessageType.GET_SETTINGS:
+                case MessageType.GET_PROCESS_PATH:
+                case MessageType.READ_FW_LOG:
+                case MessageType.IS_LOCKED:
+                case MessageType.UNLOCK:
+                case MessageType.MODE_SWITCH:
+                case MessageType.REINIT:
+                case MessageType.LOCK:
+                case MessageType.SET_PASSPHRASE:
+                case MessageType.STOP_SERVICE:
+                case MessageType.MINUTE_TIMER:
+                case MessageType.REENUMERATE_ADDRESSES:
+                case MessageType.DATABASE_UPDATED:
+                case MessageType.ADD_TEMPORARY_EXCEPTION:
+                case MessageType.RELOAD_WFP_FILTERS:
+                case MessageType.DISPLAY_POWER_EVENT:
                     break;
                 default:
                     DefaultPopups(resp.Type);
@@ -1097,30 +1199,49 @@ namespace pylorak.TinyWall
 
         internal bool EnsureUnlockedServer(bool showUi = true)
         {
-            Locked = GlobalInstances.Controller.IsServerLocked;
+            Locked = GlobalInstances.Controller!.IsServerLocked;
             if (!Locked)
                 return true;
 
             using var pf = new PasswordForm();
             pf.BringToFront();
             pf.Activate();
-            if (pf.ShowDialog() == DialogResult.OK)
+            if (pf.ShowDialog() != DialogResult.OK) return false;
+
+            MessageType resp = GlobalInstances.Controller.TryUnlockServer(pf.PassHash);
+            switch (resp)
             {
-                MessageType resp = GlobalInstances.Controller.TryUnlockServer(pf.PassHash);
-                switch (resp)
-                {
-                    case MessageType.UNLOCK:
-                        this.Locked = false;
-                        return true;
-                    case MessageType.RESPONSE_ERROR:
-                        if (showUi)
-                            ShowBalloonTip(Resources.Messages.UnlockFailed, ToolTipIcon.Error);
-                        break;
-                    default:
-                        if (showUi)
-                            DefaultPopups(resp);
-                        break;
-                }
+                case MessageType.UNLOCK:
+                    Locked = false;
+                    return true;
+                case MessageType.RESPONSE_ERROR:
+                    if (showUi)
+                        ShowBalloonTip(Resources.Messages.UnlockFailed, ToolTipIcon.Error);
+                    break;
+                case MessageType.INVALID_COMMAND:
+                case MessageType.RESPONSE_LOCKED:
+                case MessageType.COM_ERROR:
+                case MessageType.GET_SETTINGS:
+                case MessageType.GET_PROCESS_PATH:
+                case MessageType.READ_FW_LOG:
+                case MessageType.IS_LOCKED:
+                case MessageType.MODE_SWITCH:
+                case MessageType.REINIT:
+                case MessageType.PUT_SETTINGS:
+                case MessageType.LOCK:
+                case MessageType.SET_PASSPHRASE:
+                case MessageType.STOP_SERVICE:
+                case MessageType.MINUTE_TIMER:
+                case MessageType.REENUMERATE_ADDRESSES:
+                case MessageType.DATABASE_UPDATED:
+                case MessageType.ADD_TEMPORARY_EXCEPTION:
+                case MessageType.RELOAD_WFP_FILTERS:
+                case MessageType.DISPLAY_POWER_EVENT:
+                    break;
+                default:
+                    if (showUi)
+                        DefaultPopups(resp);
+                    break;
             }
 
             return false;
@@ -1128,10 +1249,11 @@ namespace pylorak.TinyWall
 
         private void mnuLock_Click(object sender, EventArgs e)
         {
-            MessageType lockResp = GlobalInstances.Controller.LockServer();
-            if ((lockResp == MessageType.LOCK) || (lockResp== MessageType.RESPONSE_LOCKED))
+            MessageType lockResp = GlobalInstances.Controller!.LockServer();
+
+            if ((lockResp == MessageType.LOCK) || (lockResp == MessageType.RESPONSE_LOCKED))
             {
-                this.Locked = true;
+                Locked = true;
             }
 
             UpdateDisplay();
@@ -1167,25 +1289,25 @@ namespace pylorak.TinyWall
             mnuEnableHostsBlocklist.Checked = ActiveConfig.Service.Blocklists.EnableBlocklists;
         }
 
-        private void ShowBalloonTip(string msg, ToolTipIcon icon, int period_ms = 5000, EventHandler<AnyEventArgs>? balloonClicked = null, object? handlerArg = null)
+        private void ShowBalloonTip(string msg, ToolTipIcon icon, int periodMs = 5000, EventHandler<AnyEventArgs>? balloonClicked = null, object? handlerArg = null)
         {
-            BalloonClickedCallback = balloonClicked;
-            BalloonClickedCallbackArgument = handlerArg;
-            Tray.ShowBalloonTip(period_ms, "TinyWall", msg, icon);
+            _balloonClickedCallback = balloonClicked;
+            _balloonClickedCallbackArgument = handlerArg;
+            Tray.ShowBalloonTip(periodMs, "TinyWall", msg, icon);
             Thread.Sleep(500);
         }
 
-        private static void SetHotkey(System.ComponentModel.ComponentResourceManager resman, ref Hotkey? hk, HandledEventHandler hkCallback, Keys keyCode, ToolStripMenuItem menu, string mnuName)
+        private static void SetHotkey(ComponentResourceManager resourceManager, ref Hotkey? hk, HandledEventHandler hkCallback, Keys keyCode, ToolStripMenuItem menu, string mnuName)
         {
             if (ActiveConfig.Controller.EnableGlobalHotkeys)
-            {   // enable hotkey
-                if (hk == null)
-                {
-                    hk = new Hotkey(keyCode, true, true, false, false);
-                    hk.Pressed += hkCallback;
-                    hk.Register();
-                    resman.ApplyResources(menu, mnuName);
-                }
+            {
+                // enable hotkey
+                if (hk != null) return;
+
+                hk = new Hotkey(keyCode, true, true, false, false);
+                hk.Pressed += hkCallback;
+                hk.Register();
+                resourceManager.ApplyResources(menu, mnuName);
             }
             else
             {   // disable hotkey
@@ -1197,10 +1319,10 @@ namespace pylorak.TinyWall
 
         private void ApplyControllerSettings()
         {
-            var resources = new System.ComponentModel.ComponentResourceManager(typeof(TinyWallController));
-            SetHotkey(resources, ref HotKeyWhitelistWindow, new HandledEventHandler(HotKeyWhitelistWindow_Pressed), Keys.W, mnuWhitelistByWindow, "mnuWhitelistByWindow");
-            SetHotkey(resources, ref HotKeyWhitelistExecutable, new HandledEventHandler(HotKeyWhitelistExecutable_Pressed), Keys.E, mnuWhitelistByExecutable, "mnuWhitelistByExecutable");
-            SetHotkey(resources, ref HotKeyWhitelistProcess, new HandledEventHandler(HotKeyWhitelistProcess_Pressed), Keys.P, mnuWhitelistByProcess, "mnuWhitelistByProcess");
+            var resources = new ComponentResourceManager(typeof(TinyWallController));
+            SetHotkey(resources, ref _hotKeyWhitelistWindow, HotKeyWhitelistWindow_Pressed, Keys.W, mnuWhitelistByWindow, "mnuWhitelistByWindow");
+            SetHotkey(resources, ref _hotKeyWhitelistExecutable, HotKeyWhitelistExecutable_Pressed, Keys.E, mnuWhitelistByExecutable, "mnuWhitelistByExecutable");
+            SetHotkey(resources, ref _hotKeyWhitelistProcess, HotKeyWhitelistProcess_Pressed, Keys.P, mnuWhitelistByProcess, "mnuWhitelistByProcess");
         }
 
         private void mnuElevate_Click(object sender, EventArgs e)
@@ -1208,7 +1330,7 @@ namespace pylorak.TinyWall
             try
             {
                 Utils.StartProcess(Utils.ExecutablePath, string.Empty, true);
-                System.Windows.Forms.Application.Exit();
+                Application.Exit();
             }
             catch
             {
@@ -1220,37 +1342,45 @@ namespace pylorak.TinyWall
         {
             if (FlashIfOpen(typeof(SettingsForm)))
                 return;
+
             if (FlashIfOpen(typeof(ConnectionsForm)))
                 return;
 
             using var cf = new ConnectionsForm(this);
             try
             {
-                ActiveForms.Add(cf);
+                _activeForms.Add(cf);
                 cf.ShowDialog();
             }
             finally
             {
-                ActiveForms.Remove(cf);
+                _activeForms.Remove(cf);
             }
         }
 
         private void Tray_MouseClick(object sender, MouseEventArgs e)
         {
-            if (e.Button == System.Windows.Forms.MouseButtons.Left)
+            switch (e.Button)
             {
-                Utils.SafeNativeMethods.DoMouseRightClick();
-            }
-            
-            if (e.Button == System.Windows.Forms.MouseButtons.Middle)
-            {
-                mnuConnections_Click(sender, e);
+                case MouseButtons.Left:
+                    Utils.SafeNativeMethods.DoMouseRightClick();
+                    break;
+                case MouseButtons.Middle:
+                    mnuConnections_Click(sender, e);
+                    break;
+                case MouseButtons.None:
+                case MouseButtons.Right:
+                case MouseButtons.XButton1:
+                case MouseButtons.XButton2:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
         private void Tray_BalloonTipClicked(object sender, EventArgs e)
         {
-            BalloonClickedCallback?.Invoke(Tray, new AnyEventArgs(BalloonClickedCallbackArgument));
+            _balloonClickedCallback?.Invoke(Tray, new AnyEventArgs(_balloonClickedCallbackArgument));
         }
 
         private void LoadDatabase()
@@ -1262,12 +1392,13 @@ namespace pylorak.TinyWall
             catch
             {
                 GlobalInstances.AppDatabase = new DatabaseClasses.AppDatabase();
-                ThreadPool.QueueUserWorkItem((WaitCallback)delegate(object state)
+                ThreadPool.QueueUserWorkItem((WaitCallback)delegate
                 {
-                    Utils.Invoke(SyncCtx, (SendOrPostCallback)delegate(object o)
-                    {
-                        ShowBalloonTip(Resources.Messages.DatabaseIsMissingOrCorrupt, ToolTipIcon.Warning);
-                    });
+                    if (_syncCtx != null)
+                        Utils.Invoke(_syncCtx, delegate
+                            {
+                                ShowBalloonTip(Resources.Messages.DatabaseIsMissingOrCorrupt, ToolTipIcon.Warning);
+                            });
                 });
 
                 throw;
@@ -1278,7 +1409,7 @@ namespace pylorak.TinyWall
         {
             // Copy, so that settings are not changed if they cannot be saved
             ServerConfiguration confCopy = Utils.DeepClone(ActiveConfig.Service);
-            confCopy.ActiveProfile.AddExceptions(GlobalInstances.AppDatabase.FastSearchMachineForKnownApps());
+            confCopy.ActiveProfile.AddExceptions(GlobalInstances.AppDatabase!.FastSearchMachineForKnownApps());
             ApplyFirewallSettings(confCopy);
         }
 
@@ -1287,15 +1418,17 @@ namespace pylorak.TinyWall
             if (!EnsureUnlockedServer())
                 return;
 
-            Utils.SplitFirstLine(Resources.Messages.YouAreAboutToEnterLearningMode, out string firstLine, out string contentLines);
+            Utils.SplitFirstLine(Resources.Messages.YouAreAboutToEnterLearningMode, out var firstLine, out var contentLines);
 
-            var dialog = new TaskDialog();
-            dialog.CustomMainIcon = Resources.Icons.firewall;
-            dialog.WindowTitle = Resources.Messages.TinyWall;
-            dialog.MainInstruction = firstLine;
-            dialog.Content = contentLines;
-            dialog.AllowDialogCancellation = false;
-            dialog.CommonButtons = TaskDialogCommonButtons.Yes | TaskDialogCommonButtons.No;
+            var dialog = new TaskDialog
+            {
+                CustomMainIcon = Resources.Icons.firewall,
+                WindowTitle = Resources.Messages.TinyWall,
+                MainInstruction = firstLine,
+                Content = contentLines,
+                AllowDialogCancellation = false,
+                CommonButtons = TaskDialogCommonButtons.Yes | TaskDialogCommonButtons.No
+            };
 
             if (dialog.Show() != (int)DialogResult.Yes)
                 return;
@@ -1306,18 +1439,21 @@ namespace pylorak.TinyWall
 
         private void InitController()
         {
-            mnuTrafficRate.Text = string.Format(CultureInfo.CurrentCulture, "{0}: {1}   {2}: {3}", Resources.Messages.TrafficIn, "...", Resources.Messages.TrafficOut, "...");
+            mnuTrafficRate.Text = string.Format(CultureInfo.CurrentCulture, @"{0}: {1}   {2}: {3}", Resources.Messages.TrafficIn, "...", Resources.Messages.TrafficOut, "...");
 
             // We will load our database parallel to other things to improve startup performance
             using (var barrier = new ThreadBarrier(2))
             {
-                ThreadPool.QueueUserWorkItem((WaitCallback)delegate(object state)
+                ThreadPool.QueueUserWorkItem((WaitCallback)delegate
                 {
                     try
                     {
                         LoadDatabase();
                     }
-                    catch { }
+                    catch
+                    {
+                        // ignored
+                    }
                     finally
                     {
                         barrier.Wait();
@@ -1356,16 +1492,16 @@ namespace pylorak.TinyWall
             }
 #endif
 
-           if ((FirewallState.Mode != FirewallMode.Unknown) || (!StartupOpts.startup))
+            if ((_firewallState.Mode != FirewallMode.Unknown) || (!_startupOpts.startup))
             {
                 Tray.Visible = true;
 
-                if (StartupOpts.autowhitelist)
+                if (_startupOpts.autowhitelist)
                 {
                     AutoWhitelist();
                 }
 
-                if (StartupOpts.updatenow)
+                if (_startupOpts.updatenow)
                 {
                     StartUpdate(this, AnyEventArgs.Empty);
                 }
@@ -1373,37 +1509,34 @@ namespace pylorak.TinyWall
             else
             {
                 // Keep on trying to reach the service
-                ServiceTimer.Tick += ServiceTimer_Tick;
-                ServiceTimer.Interval = 2000;
-                ServiceTimer.Enabled = true;
+                _serviceTimer.Tick += ServiceTimer_Tick;
+                _serviceTimer.Interval = 2000;
+                _serviceTimer.Enabled = true;
             }
         }
 
         private void ServiceTimer_Tick(object sender, EventArgs e)
         {
-            LoadSettingsFromServer(out bool comError, true);
-            bool maxTimeElapsed = (DateTime.Now - AppStarted) > TimeSpan.FromSeconds(90);
-            if (!comError || maxTimeElapsed)
-            {
-                ServiceTimer.Enabled = false;
-                Tray.Visible = true;
-            }
+            LoadSettingsFromServer(out var comError, true);
+
+            var maxTimeElapsed = (DateTime.Now - _appStarted) > TimeSpan.FromSeconds(90);
+
+            if (comError && !maxTimeElapsed) return;
+
+            _serviceTimer.Enabled = false;
+            Tray.Visible = true;
         }
     }
 
     internal class AnyEventArgs : EventArgs
     {
-        public static new AnyEventArgs Empty { get; } = new AnyEventArgs();
-
-        private readonly object? _arg;
+        public new static AnyEventArgs Empty { get; } = new();
 
         public AnyEventArgs(object? arg = null)
         {
-            _arg = arg;
+            Arg = arg;
         }
-        public object? Arg
-        {
-            get { return _arg; }
-        }
+
+        public object? Arg { get; }
     }
 }

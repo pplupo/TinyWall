@@ -1,38 +1,36 @@
-﻿using System;
+﻿using pylorak.Windows;
+using pylorak.Windows.NetStat;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Drawing;
-using System.Linq;
-using pylorak.Windows;
-using pylorak.Windows.NetStat;
 
 namespace pylorak.TinyWall
 {
     internal partial class ConnectionsForm : Form
     {
-        private readonly TinyWallController Controller;
-        private readonly AsyncIconScanner IconScanner;
-        private readonly Size IconSize = new((int)Math.Round(16 * Utils.DpiScalingFactor), (int)Math.Round(16 * Utils.DpiScalingFactor));
-        private bool EnableListUpdate = false;
+        private readonly TinyWallController _controller;
+        private readonly Size _iconSize = new((int)Math.Round(16 * Utils.DpiScalingFactor), (int)Math.Round(16 * Utils.DpiScalingFactor));
+        private string _searchText = string.Empty;
+        private List<ListViewItem> _itemColl = new();
 
         internal ConnectionsForm(TinyWallController ctrl)
         {
             InitializeComponent();
             Utils.SetRightToLeft(this);
-            this.IconList.ImageSize = IconSize;
+            this.IconList.ImageSize = _iconSize;
             this.Icon = Resources.Icons.firewall;
-            this.Controller = ctrl;
+            this._controller = ctrl;
 
-            const string TEMP_ICON_KEY = "generic-executable";
-            this.IconList.Images.Add(TEMP_ICON_KEY, Utils.GetIconContained(".exe", IconSize.Width, IconSize.Height));
             this.IconList.Images.Add("store", Resources.Icons.store);
             this.IconList.Images.Add("system", Resources.Icons.windows_small);
             this.IconList.Images.Add("network-drive", Resources.Icons.network_drive_small);
-            this.IconScanner = new AsyncIconScanner((ListViewItem li) => { return (li.Tag as ProcessInfo)!.Path; }, IconList.Images.IndexOfKey(TEMP_ICON_KEY));
         }
 
         private void btnClose_Click(object sender, EventArgs e)
@@ -40,10 +38,10 @@ namespace pylorak.TinyWall
             this.Close();
         }
 
-        private static string GetPathFromPidCached(Dictionary<uint, string> cache, uint pid)
+        private string GetPathFromPidCached(Dictionary<uint, string> cache, uint pid)
         {
-            if (cache.TryGetValue(pid, out string path))
-                return path;
+            if (cache.TryGetValue(pid, out var cached))
+                return cached;
             else
             {
                 string ret = Utils.GetPathOfProcessUseTwService(pid, GlobalInstances.Controller);
@@ -52,83 +50,88 @@ namespace pylorak.TinyWall
             }
         }
 
-        private void UpdateList()
+        private Task UpdateListAsync()
         {
-            if (!EnableListUpdate)
-            {
-                return;
-            }
+            lblPleaseWait.Visible = true;
+            Enabled = false;
 
-            IconScanner.CancelScan();
             var fwLogRequest = GlobalInstances.Controller.BeginReadFwLog();
 
+            _itemColl = new();
             var packageList = new UwpPackageList();
-            var itemColl = new List<ListViewItem>();
             var procCache = new Dictionary<uint, string>();
             var servicePids = new ServicePidMap();
 
             // Retrieve IP tables while waiting for log entries
 
-            DateTime now = DateTime.Now;
+            var now = DateTime.Now;
             TcpTable tcpTable = NetStat.GetExtendedTcp4Table(false);
+
             foreach (TcpRow tcpRow in tcpTable)
             {
-                if ((chkShowListen.Checked && (tcpRow.State == TcpState.Listen))
-                  || (chkShowActive.Checked && (tcpRow.State != TcpState.Listen)))
-                {
-                    var path = GetPathFromPidCached(procCache, tcpRow.ProcessId);
-                    var pi = ProcessInfo.Create(tcpRow.ProcessId, path, packageList, servicePids);
-                    ConstructListItem(itemColl, pi, "TCP", tcpRow.LocalEndPoint, tcpRow.RemoteEndPoint, tcpRow.State.ToString(), now, RuleDirection.Invalid);
-                }
+                if ((!chkShowListen.Checked || (tcpRow.State != TcpState.Listen))
+                    && (!chkShowActive.Checked || (tcpRow.State == TcpState.Listen))) continue;
+
+                var path = GetPathFromPidCached(procCache, tcpRow.ProcessId);
+
+                var pi = ProcessInfo.Create(tcpRow.ProcessId, path, packageList, servicePids);
+                ConstructListItem(_itemColl, pi, "TCP", tcpRow.LocalEndPoint, tcpRow.RemoteEndPoint, tcpRow.State.ToString(), now, RuleDirection.Invalid);
             }
+
             tcpTable = NetStat.GetExtendedTcp6Table(false);
+
             foreach (TcpRow tcpRow in tcpTable)
             {
-                if ((chkShowListen.Checked && (tcpRow.State == TcpState.Listen))
-                 || (chkShowActive.Checked && (tcpRow.State != TcpState.Listen)))
-                {
-                    var path = GetPathFromPidCached(procCache, tcpRow.ProcessId);
-                    var pi = ProcessInfo.Create(tcpRow.ProcessId, path, packageList, servicePids);
-                    ConstructListItem(itemColl, pi, "TCP", tcpRow.LocalEndPoint, tcpRow.RemoteEndPoint, tcpRow.State.ToString(), now, RuleDirection.Invalid);
-                }
+                if ((!chkShowListen.Checked || (tcpRow.State != TcpState.Listen))
+                    && (!chkShowActive.Checked || (tcpRow.State == TcpState.Listen))) continue;
+
+                var path = GetPathFromPidCached(procCache, tcpRow.ProcessId);
+
+                var pi = ProcessInfo.Create(tcpRow.ProcessId, path, packageList, servicePids);
+                ConstructListItem(_itemColl, pi, "TCP", tcpRow.LocalEndPoint, tcpRow.RemoteEndPoint, tcpRow.State.ToString(), now, RuleDirection.Invalid);
             }
 
             if (chkShowListen.Checked)
             {
-                var dummyEP = new IPEndPoint(0, 0);
+                var dummyEp = new IPEndPoint(0, 0);
                 var udpTable = NetStat.GetExtendedUdp4Table(false);
+
                 foreach (UdpRow udpRow in udpTable)
                 {
                     var path = GetPathFromPidCached(procCache, udpRow.ProcessId);
+
                     var pi = ProcessInfo.Create(udpRow.ProcessId, path, packageList, servicePids);
-                    ConstructListItem(itemColl, pi, "UDP", udpRow.LocalEndPoint, dummyEP, "Listen", now, RuleDirection.Invalid);
+                    ConstructListItem(_itemColl, pi, "UDP", udpRow.LocalEndPoint, dummyEp, "Listen", now, RuleDirection.Invalid);
                 }
+
                 udpTable = NetStat.GetExtendedUdp6Table(false);
+
                 foreach (UdpRow udpRow in udpTable)
                 {
                     var path = GetPathFromPidCached(procCache, udpRow.ProcessId);
+
                     var pi = ProcessInfo.Create(udpRow.ProcessId, path, packageList, servicePids);
-                    ConstructListItem(itemColl, pi, "UDP", udpRow.LocalEndPoint, dummyEP, "Listen", now, RuleDirection.Invalid);
+                    ConstructListItem(_itemColl, pi, "UDP", udpRow.LocalEndPoint, dummyEp, "Listen", now, RuleDirection.Invalid);
                 }
             }
 
             // Finished reading tables, continues with log processing
-            var fwLog = pylorak.TinyWall.Controller.EndReadFwLog(fwLogRequest.Response);
+            var fwLog = Controller.EndReadFwLog(fwLogRequest.Response);
 
             // Show log entries if requested by user
             if (chkShowBlocked.Checked)
             {
                 // Try to resolve PIDs heuristically
-                var ProcessPathInfoMap = new Dictionary<string, List<ProcessSnapshotEntry>>();
+                var processPathInfoMap = new Dictionary<string, List<ProcessSnapshotEntry>>();
                 foreach (var p in ProcessManager.CreateToolhelp32SnapshotExtended())
                 {
-                    if (string.IsNullOrEmpty(p.ImagePath))
+                    if (string.IsNullOrWhiteSpace(p.ImagePath))
                         continue;
 
                     var key = p.ImagePath.ToLowerInvariant();
-                    if (!ProcessPathInfoMap.ContainsKey(key))
-                        ProcessPathInfoMap.Add(key, new List<ProcessSnapshotEntry>());
-                    ProcessPathInfoMap[key].Add(p);
+                    if (!processPathInfoMap.ContainsKey(key))
+                        processPathInfoMap.Add(key, new List<ProcessSnapshotEntry>());
+                    processPathInfoMap[key].Add(p);
                 }
 
                 foreach (var e in fwLog)
@@ -136,20 +139,18 @@ namespace pylorak.TinyWall
                     if (e.AppPath is null) continue;
 
                     var key = e.AppPath.ToLowerInvariant();
-                    if (!ProcessPathInfoMap.ContainsKey(key))
+                    if (!processPathInfoMap.ContainsKey(key))
                         continue;
 
-                    var p = ProcessPathInfoMap[key];
+                    var p = processPathInfoMap[key];
                     if ((p.Count == 1) && (p[0].CreationTime < e.Timestamp.ToFileTime()))
                         e.ProcessId = p[0].ProcessId;
                 }
 
                 var filteredLog = new List<FirewallLogEntry>();
-                TimeSpan refSpan = TimeSpan.FromMinutes(5);
-                for (int i = 0; i < fwLog.Length; ++i)
+                var refSpan = TimeSpan.FromMinutes(5);
+                foreach (var newEntry in fwLog)
                 {
-                    FirewallLogEntry newEntry = fwLog[i];
-
                     // Ignore log entries older than refSpan
                     TimeSpan span = now - newEntry.Timestamp;
                     if (span > refSpan)
@@ -171,92 +172,104 @@ namespace pylorak.TinyWall
                         case EventLogEvent.BLOCKED_PACKET:
                         case EventLogEvent.BLOCKED:
                             {
-                                bool matchFound = false;
+                                var matchFound = false;
                                 newEntry.Event = EventLogEvent.BLOCKED;
 
-                                for (int j = 0; j < filteredLog.Count; ++j)
+                                foreach (var oldEntry in filteredLog.Where(oldEntry => oldEntry.Equals(newEntry, false)))
                                 {
-                                    FirewallLogEntry oldEntry = filteredLog[j];
-                                    if (oldEntry.Equals(newEntry, false))
-                                    {
-                                        matchFound = true;
-                                        oldEntry.Timestamp = newEntry.Timestamp;
-                                        break;
-                                    }
+                                    matchFound = true;
+                                    oldEntry.Timestamp = newEntry.Timestamp;
+                                    break;
                                 }
 
                                 if (!matchFound)
                                     filteredLog.Add(newEntry);
                                 break;
                             }
+                        default:
+                            throw new ArgumentOutOfRangeException();
                     }
                 }
 
-                for (int i = 0; i < filteredLog.Count; ++i)
+                foreach (var entry in filteredLog)
                 {
-                    FirewallLogEntry entry = filteredLog[i];
-
-                    // Correct path capitalization
+                    // Correct path capitalisation
                     // TODO: Do this in the service, and minimize overhead. Right now if GetExactPath() fails,
-                    // for example due to missing file system privileges, capitalization will not be corrected.
+                    // for example due to missing file system privileges, capitalisation will not be corrected.
                     // The service has much more privileges, so doing this in the service would allow more paths
                     // to be corrected.
                     entry.AppPath = Utils.GetExactPath(entry.AppPath);
 
                     var pi = ProcessInfo.Create(entry.ProcessId, entry.AppPath ?? string.Empty, entry.PackageId, packageList, servicePids);
-                    ConstructListItem(itemColl, pi, entry.Protocol.ToString(), new IPEndPoint(IPAddress.Parse(entry.LocalIp), entry.LocalPort), new IPEndPoint(IPAddress.Parse(entry.RemoteIp), entry.RemotePort), "Blocked", entry.Timestamp, entry.Direction);
+
+                    if (entry is { LocalIp: not null, RemoteIp: not null })
+                        ConstructListItem(_itemColl, pi, entry.Protocol.ToString(),
+                            new IPEndPoint(IPAddress.Parse(entry.LocalIp), entry.LocalPort),
+                            new IPEndPoint(IPAddress.Parse(entry.RemoteIp), entry.RemotePort), "Blocked",
+                            entry.Timestamp, entry.Direction);
                 }
             }
 
             // Add items to list
             list.BeginUpdate();
             list.Items.Clear();
-            list.Items.AddRange(itemColl.ToArray());
+
+            if (!string.IsNullOrWhiteSpace(_searchText))
+                _itemColl = _itemColl.Where(item => item.SubItems[0].Text.ToLower().Contains(_searchText)).ToList();
+
+            list.Items.AddRange(_itemColl.ToArray());
             list.EndUpdate();
 
-            // Load process icons asynchronously
-            IconScanner.Rescan(itemColl, list, IconList);
+            lblPleaseWait.Visible = false;
+            Enabled = true;
+
+            return Task.CompletedTask;
         }
 
-        private void ConstructListItem(List<ListViewItem> itemColl, ProcessInfo e, string protocol, IPEndPoint localEP, IPEndPoint remoteEP, string state, DateTime ts, RuleDirection dir)
+        private void ConstructListItem(List<ListViewItem> itemColl, ProcessInfo e, string protocol, IPEndPoint localEp, IPEndPoint remoteEp, string state, DateTime ts, RuleDirection dir)
         {
             try
             {
                 // Construct list item
                 string name = e.Package.HasValue ? e.Package.Value.Name : System.IO.Path.GetFileName(e.Path);
                 string title = (e.Pid != 0) ? $"{name} ({e.Pid})" : $"{name}";
-                ListViewItem li = new(title);
-                li.Tag = e;
-                li.ToolTipText = e.Path;
+                ListViewItem li = new(title)
+                {
+                    Tag = e,
+                    ToolTipText = e.Path
+                };
 
                 // Add icon
                 if (e.Package.HasValue)
                 {
-                    li.ImageIndex = IconList.Images.IndexOfKey("store");
+                    li.ImageKey = @"store";
                 }
                 else if (e.Path == "System")
                 {
-                    li.ImageIndex = IconList.Images.IndexOfKey("system");
+                    li.ImageKey = @"system";
                 }
                 else if (NetworkPath.IsNetworkPath(e.Path))
                 {
-                    li.ImageIndex = IconList.Images.IndexOfKey("network-drive");
+                    li.ImageKey = @"network-drive";
                 }
-                else
+                else if (System.IO.Path.IsPathRooted(e.Path) && System.IO.File.Exists(e.Path))
                 {
-                    li.ImageIndex = IconList.Images.ContainsKey(e.Path) ? IconList.Images.IndexOfKey(e.Path) : IconScanner.TemporaryIconIdx;
+                    if (!IconList.Images.ContainsKey(e.Path))
+                    {
+                        // Get icon
+                        IconList.Images.Add(e.Path, Utils.GetIconContained(e.Path, _iconSize.Width, _iconSize.Height));
+                    }
+                    li.ImageKey = e.Path;
                 }
 
-                if (e.Pid == 0)
-                    li.SubItems.Add(string.Empty);
-                else
-                    li.SubItems.Add(string.Join(", ", e.Services.ToArray()));
+                li.SubItems.Add(e.Pid == 0 ? string.Empty : string.Join(", ", e.Services.ToArray()));
                 li.SubItems.Add(protocol);
-                li.SubItems.Add(localEP.Port.ToString(CultureInfo.InvariantCulture).PadLeft(5));
-                li.SubItems.Add(localEP.Address.ToString());
-                li.SubItems.Add(remoteEP.Port.ToString(CultureInfo.InvariantCulture).PadLeft(5));
-                li.SubItems.Add(remoteEP.Address.ToString());
+                li.SubItems.Add(localEp.Port.ToString(CultureInfo.InvariantCulture).PadLeft(5));
+                li.SubItems.Add(localEp.Address.ToString());
+                li.SubItems.Add(remoteEp.Port.ToString(CultureInfo.InvariantCulture).PadLeft(5));
+                li.SubItems.Add(remoteEp.Address.ToString());
                 li.SubItems.Add(state);
+
                 switch (dir)
                 {
                     case RuleDirection.In:
@@ -265,11 +278,13 @@ namespace pylorak.TinyWall
                     case RuleDirection.Out:
                         li.SubItems.Add(Resources.Messages.TrafficOut);
                         break;
+                    case RuleDirection.InOut:
+                    case RuleDirection.Invalid:
                     default:
                         li.SubItems.Add(string.Empty);
                         break;
                 }
-                li.SubItems.Add(ts.ToString("yyyy/MM/dd HH:mm:ss"));
+                li.SubItems.Add(ts.ToString("dd/MM/yyyy HH:mm:ss"));
                 itemColl.Add(li);
             }
             catch
@@ -277,7 +292,6 @@ namespace pylorak.TinyWall
                 // Most probably process ID has become invalid,
                 // but we also catch other errors too.
                 // Simply do not add item to the list.
-                return;
             }
         }
 
@@ -285,30 +299,31 @@ namespace pylorak.TinyWall
         {
             var oldSorter = (ListViewItemComparer)list.ListViewItemSorter;
             var newSorter = new ListViewItemComparer(e.Column);
+
             if ((oldSorter != null) && (oldSorter.Column == newSorter.Column))
                 newSorter.Ascending = !oldSorter.Ascending;
 
             list.ListViewItemSorter = newSorter;
         }
 
-        private void btnRefresh_Click(object sender, EventArgs e)
+        private async void btnRefresh_Click(object sender, EventArgs e)
         {
-            UpdateList();
+            await UpdateListAsync();
         }
 
-        private void chkShowListen_CheckedChanged(object sender, EventArgs e)
+        private async void chkShowListen_CheckedChanged(object sender, EventArgs e)
         {
-            UpdateList();
+            await UpdateListAsync();
         }
 
-        private void chkShowBlocked_CheckedChanged(object sender, EventArgs e)
+        private async void chkShowBlocked_CheckedChanged(object sender, EventArgs e)
         {
-            UpdateList();
+            await UpdateListAsync();
         }
 
-        private void chkShowActive_CheckedChanged(object sender, EventArgs e)
+        private async void chkShowActive_CheckedChanged(object sender, EventArgs e)
         {
-            UpdateList();
+            await UpdateListAsync();
         }
 
         private void ConnectionsForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -330,14 +345,14 @@ namespace pylorak.TinyWall
             ActiveConfig.Controller.ConnFormShowBlocked = this.chkShowBlocked.Checked;
 
             ActiveConfig.Controller.ConnFormColumnWidths.Clear();
+
             foreach (ColumnHeader col in list.Columns)
                 ActiveConfig.Controller.ConnFormColumnWidths.Add((string)col.Tag, col.Width);
 
             ActiveConfig.Controller.Save();
-            IconScanner.Dispose();
         }
 
-        private void ConnectionsForm_Load(object sender, EventArgs e)
+        private async void ConnectionsForm_Load(object sender, EventArgs e)
         {
             Utils.SetDoubleBuffering(list, true);
             list.ListViewItemSorter = new ListViewItemComparer(9, null, false);
@@ -359,8 +374,7 @@ namespace pylorak.TinyWall
                     col.Width = width;
             }
 
-            EnableListUpdate = true;
-            UpdateList();
+            await UpdateListAsync();
         }
 
         private void contextMenuStrip1_Opening(object sender, System.ComponentModel.CancelEventArgs e)
@@ -369,15 +383,12 @@ namespace pylorak.TinyWall
                 e.Cancel = true;
 
             // Don't allow Kill if we don't have a PID
-            bool hasPid = true;
-            foreach (ListViewItem li in list.SelectedItems)
-            {
-                hasPid &= ((ProcessInfo)li.Tag).Pid != 0;
-            }
+            bool hasPid = list.SelectedItems.Cast<ListViewItem>().Aggregate(true, (current, li) => current & ((ProcessInfo)li.Tag).Pid != 0);
+
             mnuCloseProcess.Enabled = hasPid;
         }
 
-        private void mnuCloseProcess_Click(object sender, EventArgs e)
+        private async void mnuCloseProcess_Click(object sender, EventArgs e)
         {
             foreach (ListViewItem li in list.SelectedItems)
             {
@@ -394,7 +405,7 @@ namespace pylorak.TinyWall
                         if (!proc.WaitForExit(5000))
                             throw new ApplicationException();
                         else
-                            UpdateList();
+                            await UpdateListAsync();
                     }
                     catch (InvalidOperationException)
                     {
@@ -414,24 +425,22 @@ namespace pylorak.TinyWall
 
         private void mnuUnblock_Click(object sender, EventArgs e)
         {
-            if (!Controller.EnsureUnlockedServer())
+            if (!_controller.EnsureUnlockedServer())
                 return;
 
-            var selection = new List<ProcessInfo>();
-            foreach (ListViewItem li in list.SelectedItems)
-            {
-                selection.Add((ProcessInfo)li.Tag);
-            }
-            Controller.WhitelistProcesses(selection);
+            var selection = (from ListViewItem li in list.SelectedItems select (ProcessInfo)li.Tag).ToList();
+
+            _controller.WhitelistProcesses(selection);
         }
 
         private void mnuCopyRemoteAddress_Click(object sender, EventArgs e)
         {
             ListViewItem li = list.SelectedItems[0];
-            string clipboardData = li.SubItems[6].Text;
+            var clipboardData = li.SubItems[6].Text;
 
-            var dataObject = new DataObject();
+            IDataObject dataObject = new DataObject();
             dataObject.SetData(DataFormats.UnicodeText, false, clipboardData);
+
             try
             {
                 Clipboard.SetDataObject(dataObject, true, 20, 100);
@@ -448,9 +457,9 @@ namespace pylorak.TinyWall
             {
                 ListViewItem li = list.SelectedItems[0];
 
-                const string urlTemplate = @"https://www.virustotal.com/latest-scan/{0}";
-                string hash = Hasher.HashFile(((ProcessInfo)li.Tag).Path);
-                string url = string.Format(CultureInfo.InvariantCulture, urlTemplate, hash);
+                const string URL_TEMPLATE = @"https://www.virustotal.com/latest-scan/{0}";
+                var hash = Hasher.HashFile(((ProcessInfo)li.Tag).Path);
+                var url = string.Format(CultureInfo.InvariantCulture, URL_TEMPLATE, hash);
                 Utils.StartProcess(url, string.Empty, false);
             }
             catch
@@ -466,9 +475,9 @@ namespace pylorak.TinyWall
             {
                 ListViewItem li = list.SelectedItems[0];
 
-                const string urlTemplate = @"http://www.processlibrary.com/search/?q={0}";
-                string filename = System.IO.Path.GetFileName(((ProcessInfo)li.Tag).Path);
-                string url = string.Format(CultureInfo.InvariantCulture, urlTemplate, filename);
+                const string URL_TEMPLATE = @"http://www.processlibrary.com/search/?q={0}";
+                var filename = System.IO.Path.GetFileName(((ProcessInfo)li.Tag).Path);
+                var url = string.Format(CultureInfo.InvariantCulture, URL_TEMPLATE, filename);
                 Utils.StartProcess(url, string.Empty, false);
             }
             catch
@@ -476,15 +485,16 @@ namespace pylorak.TinyWall
                 MessageBox.Show(this, Resources.Messages.CannotGetPathOfProcess, Resources.Messages.TinyWall, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
+
         private void mnuFileNameOnTheWeb_Click(object sender, EventArgs e)
         {
             try
             {
                 ListViewItem li = list.SelectedItems[0];
 
-                const string urlTemplate = @"www.google.com/search?q={0}";
-                string filename = System.IO.Path.GetFileName(((ProcessInfo)li.Tag).Path);
-                string url = string.Format(CultureInfo.InvariantCulture, urlTemplate, filename);
+                var urlTemplate = Resources.Messages.SearchEngine;
+                var filename = System.IO.Path.GetFileName(((ProcessInfo)li.Tag).Path);
+                var url = string.Format(CultureInfo.InvariantCulture, urlTemplate, filename);
                 Utils.StartProcess(url, string.Empty, false);
             }
             catch
@@ -499,9 +509,9 @@ namespace pylorak.TinyWall
             {
                 ListViewItem li = list.SelectedItems[0];
 
-                const string urlTemplate = @"www.google.com/search?q={0}";
-                string address = li.SubItems[6].Text;
-                string url = string.Format(CultureInfo.InvariantCulture, urlTemplate, address);
+                var urlTemplate = Resources.Messages.SearchEngine;
+                var address = li.SubItems[6].Text;
+                var url = string.Format(CultureInfo.InvariantCulture, urlTemplate, address);
                 Utils.StartProcess(url, string.Empty, false);
             }
             catch
@@ -512,10 +522,43 @@ namespace pylorak.TinyWall
 
         private void ConnectionsForm_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyData == Keys.F5)
+            if (e.KeyData != Keys.F5) return;
+
+            btnRefresh_Click(btnRefresh, EventArgs.Empty);
+            e.Handled = true;
+        }
+
+        private async void btnSearch_Click(object sender, EventArgs e)
+        {
+            try
             {
-                btnRefresh_Click(btnRefresh, EventArgs.Empty);
-                e.Handled = true;
+                _searchText = txtSearch.Text.ToLower();
+                await UpdateListAsync();
+            }
+            catch
+            {
+                //throw; // TODO handle exception
+            }
+        }
+
+        private async void BtnClear_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                _searchText = string.Empty;
+                await UpdateListAsync();
+            }
+            catch
+            {
+                //throw; // TODO handle exception
+            }
+        }
+
+        private void txtSearch_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyData is Keys.Enter or Keys.Return)
+            {
+                btnSearch.PerformClick();
             }
         }
     }

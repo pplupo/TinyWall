@@ -37,6 +37,10 @@
             this.IconList = new System.Windows.Forms.ImageList(this.components);
             this.btnOK = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
+            this.btnSearch = new System.Windows.Forms.Button();
+            this.txtBxSearch = new System.Windows.Forms.TextBox();
+            this.btnClear = new System.Windows.Forms.Button();
+            this.lblPleaseWait = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // listView
@@ -96,6 +100,34 @@
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
+            // btnSearch
+            // 
+            resources.ApplyResources(this.btnSearch, "btnSearch");
+            this.btnSearch.Name = "btnSearch";
+            this.btnSearch.UseVisualStyleBackColor = true;
+            this.btnSearch.Click += new System.EventHandler(this.btnSearch_Click);
+            // 
+            // txtBxSearch
+            // 
+            resources.ApplyResources(this.txtBxSearch, "txtBxSearch");
+            this.txtBxSearch.Name = "txtBxSearch";
+            this.txtBxSearch.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtBxSearch_KeyDown);
+            // 
+            // btnClear
+            // 
+            resources.ApplyResources(this.btnClear, "btnClear");
+            this.btnClear.Name = "btnClear";
+            this.btnClear.UseVisualStyleBackColor = true;
+            this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
+            // 
+            // lblPleaseWait
+            // 
+            resources.ApplyResources(this.lblPleaseWait, "lblPleaseWait");
+            this.lblPleaseWait.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lblPleaseWait.Name = "lblPleaseWait";
+            this.lblPleaseWait.UseCompatibleTextRendering = true;
+            this.lblPleaseWait.UseWaitCursor = true;
+            // 
             // ProcessesForm
             // 
             this.AcceptButton = this.btnOK;
@@ -103,6 +135,10 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
             this.ControlBox = false;
+            this.Controls.Add(this.lblPleaseWait);
+            this.Controls.Add(this.btnClear);
+            this.Controls.Add(this.btnSearch);
+            this.Controls.Add(this.txtBxSearch);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOK);
             this.Controls.Add(this.listView);
@@ -112,6 +148,7 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ProcessesForm_FormClosing);
             this.Load += new System.EventHandler(this.ProcessesForm_Load);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -124,5 +161,9 @@
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.ImageList IconList;
         private System.Windows.Forms.ColumnHeader columnHeader3;
+        private System.Windows.Forms.Button btnSearch;
+        private System.Windows.Forms.TextBox txtBxSearch;
+        private System.Windows.Forms.Button btnClear;
+        private System.Windows.Forms.Label lblPleaseWait;
     }
 }

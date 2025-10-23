@@ -1,20 +1,20 @@
-﻿using System;
-using System.IO;
-using System.Diagnostics.Eventing.Reader;
-using NetFwTypeLib;
+﻿using NetFwTypeLib;
 using pylorak.Utilities;
+using System;
+using System.Diagnostics.Eventing.Reader;
+using System.IO;
+using System.Linq;
 
 namespace pylorak.TinyWall
 {
     class WindowsFirewall : Disposable
     {
-        private readonly EventLogWatcher? WFEventWatcher;
+        private readonly EventLogWatcher? _wfEventWatcher;
 
         // This is a list of apps that are allowed to change firewall rules
-        private static readonly string[] WhitelistedApps = new string[]
-        {
+        private static readonly string[] WhitelistedApps = {
 #if DEBUG
-            Path.Combine(Path.GetDirectoryName(Utils.ExecutablePath), "TinyWall.vshost.exe"),
+            Path.Combine(Path.GetDirectoryName(Utils.ExecutablePath)!, "TinyWall.vshost.exe"),
 #endif
             Utils.ExecutablePath,
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "dllhost.exe")
@@ -26,11 +26,11 @@ namespace pylorak.TinyWall
 
             try
             {
-                WFEventWatcher = new EventLogWatcher("Microsoft-Windows-Windows Firewall With Advanced Security/Firewall");
-                WFEventWatcher.EventRecordWritten += new EventHandler<EventRecordWrittenEventArgs>(WFEventWatcher_EventRecordWritten);
-                WFEventWatcher.Enabled = true;
+                _wfEventWatcher = new EventLogWatcher("Microsoft-Windows-Windows Firewall With Advanced Security/Firewall");
+                _wfEventWatcher.EventRecordWritten += WFEventWatcher_EventRecordWritten;
+                _wfEventWatcher.Enabled = true;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Utils.Log("Cannot monitor Windows Firewall. Is the 'eventlog' service running? For details see next log entry.", Utils.LOG_ID_SERVICE);
                 Utils.LogException(e, Utils.LOG_ID_SERVICE);
@@ -41,7 +41,7 @@ namespace pylorak.TinyWall
         {
             try
             {
-                int propidx = -1;
+                int propidx;
                 switch (e.EventRecord.Id)
                 {
                     case 2003:     // firewall setting changed
@@ -69,17 +69,18 @@ namespace pylorak.TinyWall
                         return;
                 }
 
-                System.Diagnostics.Debug.Assert(propidx != -1);
-
                 // If the rules were changed by us, do nothing
-                string EVpath = (string)e.EventRecord.Properties[propidx].Value;
-                for (int i = 0; i < WhitelistedApps.Length; ++i)
+                var eVpath = (string)e.EventRecord.Properties[propidx].Value;
+
+                if (WhitelistedApps.Any(t => string.Compare(t, eVpath, StringComparison.OrdinalIgnoreCase) == 0))
                 {
-                    if (string.Compare(WhitelistedApps[i], EVpath, StringComparison.OrdinalIgnoreCase) == 0)
-                        return;
+                    return;
                 }
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
 
             DisableMpsSvc();
         }
@@ -91,7 +92,7 @@ namespace pylorak.TinyWall
 
             if (disposing)
             {
-                WFEventWatcher?.Dispose();
+                _wfEventWatcher?.Dispose();
             }
 
             RestoreMpsSvc();
@@ -135,46 +136,52 @@ namespace pylorak.TinyWall
         {
             try
             {
-                INetFwPolicy2 fwPolicy2 = GetFwPolicy2();
+                var fwPolicy2 = GetFwPolicy2();
 
                 // Disable Windows Firewall notifications
                 MpsNotificationsDisable(fwPolicy2, true);
 
                 // Add new rules
-                string newRuleId = $"TinyWall Compat [{Utils.RandomString(6)}]";
+                var newRuleId = $"TinyWall Compat [{Utils.RandomString(6)}]";
                 fwPolicy2.Rules.Add(CreateFwRule(newRuleId, NET_FW_ACTION_.NET_FW_ACTION_ALLOW, NET_FW_RULE_DIRECTION_.NET_FW_RULE_DIR_IN));
                 fwPolicy2.Rules.Add(CreateFwRule(newRuleId, NET_FW_ACTION_.NET_FW_ACTION_ALLOW, NET_FW_RULE_DIRECTION_.NET_FW_RULE_DIR_OUT));
 
                 // Remove earlier rules
-                INetFwRules rules = fwPolicy2.Rules;
-                foreach (INetFwRule rule in rules)
+                var rules = fwPolicy2.Rules;
+
+                foreach (var rule in from INetFwRule rule in rules let ruleName = rule.Name where !string.IsNullOrEmpty(ruleName) && ruleName.Contains("TinyWall") && (ruleName != newRuleId) select rule)
                 {
-                    string ruleName = rule.Name;
-                    if (!string.IsNullOrEmpty(ruleName) && ruleName.Contains("TinyWall") && (ruleName != newRuleId))
-                        rules.Remove(rule.Name);
+                    rules.Remove(rule.Name);
                 }
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
         }
 
         private static void RestoreMpsSvc()
         {
             try
             {
-                INetFwPolicy2 fwPolicy2 = GetFwPolicy2();
+                var fwPolicy2 = GetFwPolicy2();
 
                 // Enable Windows Firewall notifications
                 MpsNotificationsDisable(fwPolicy2, false);
 
                 // Remove earlier rules
-                INetFwRules rules = fwPolicy2.Rules;
+                var rules = fwPolicy2.Rules;
+
                 foreach (INetFwRule rule in rules)
                 {
-                    if ((rule.Grouping != null) && rule.Grouping.Equals("TinyWall"))
+                    if (rule.Grouping is "TinyWall")
                         rules.Remove(rule.Name);
                 }
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
         }
     }
 }

@@ -436,12 +436,12 @@ namespace pylorak.Windows.WFP.Interop
         public long timestamp;
         public DateTime Local
         {
-            readonly get { return DateTime.FromFileTime(this.timestamp); }
+            get { return DateTime.FromFileTime(this.timestamp); }
             set { this.timestamp = value.ToFileTime(); }
         }
         public DateTime Utc
         {
-            readonly get { return DateTime.FromFileTimeUtc(this.timestamp); }
+            get { return DateTime.FromFileTimeUtc(this.timestamp); }
             set { this.timestamp = value.ToFileTimeUtc(); }
         }
     }
@@ -478,7 +478,7 @@ namespace pylorak.Windows.WFP.Interop
         [FieldOffset(0)]
         public fixed byte AddrV6[16];
 
-        public readonly System.Net.IPAddress ToIpV4()
+        public System.Net.IPAddress ToIpV4()
         {
             byte[] b = BitConverter.GetBytes(AddrV4);
             Array.Reverse(b);

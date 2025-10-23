@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.IO;
-using System.Resources;
+using System.Linq;
 using System.Reflection;
+using System.Resources;
 using System.Text;
 using System.Windows.Forms;
 
@@ -13,17 +13,17 @@ namespace pylorak.TinyWall
 {
     internal partial class DevelToolForm : Form
     {
-        private static readonly string[] SIGNING_FILE_PATTERNS = new string[] { "*.dll", "*.exe", "*.msi" };
+        private static readonly string[] SigningFilePatterns = { "*.dll", "*.exe", "*.msi" };
 
         // Key - The primary resource
         // Value - List of satellite resources
-        private readonly List<KeyValuePair<string, string[]>> ResXInputs = new();
+        private readonly List<KeyValuePair<string, string[]>> _resXInputs = new();
 
         internal DevelToolForm()
         {
-            System.Windows.Forms.MessageBox.Show(
-                "This tool is not meant for end-users. Only use this tool when instructed to do so by the application developer.",
-                "Warning: Not for users!",
+            MessageBox.Show(
+                @"This tool is not meant for end-users. Only use this tool when instructed to do so by the application developer.",
+                @"Warning: Not for users!",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Exclamation
                 );
@@ -33,8 +33,8 @@ namespace pylorak.TinyWall
 
         private void btnAssocBrowse_Click(object sender, EventArgs e)
         {
-            ofd.Filter = "All files (*)|*";
-            if (ofd.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+            ofd.Filter = @"All files (*)|*";
+            if (ofd.ShowDialog(this) == DialogResult.OK)
             {
                 txtAssocExePath.Text = ofd.FileName;
             }
@@ -45,26 +45,31 @@ namespace pylorak.TinyWall
             if (File.Exists(txtAssocExePath.Text))
             {
                 var exe = new ExecutableSubject(txtAssocExePath.Text);
-                var id = new DatabaseClasses.SubjectIdentity(exe);
-                id.AllowedSha1 = new List<string> { exe.HashSha1 };
-                if (exe.IsSigned && exe.CertValid)
+
+                var id = new DatabaseClasses.SubjectIdentity(exe)
+                {
+                    AllowedSha1 = new List<string> { exe.HashSha1 }
+                };
+
+                if (exe is { IsSigned: true, CertValid: true })
                 {
                     id.CertificateSubjects = new List<string>();
                     if (exe.CertSubject is not null)
                         id.CertificateSubjects.Add(exe.CertSubject);
                 }
-                var utf8bytes = SerializationHelper.Serialize(id);
-                txtAssocResult.Text = Encoding.UTF8.GetString(utf8bytes);
+
+                var utf8Bytes = SerialisationHelper.Serialise(id);
+                txtAssocResult.Text = Encoding.UTF8.GetString(utf8Bytes);
             }
             else
             {
-                MessageBox.Show(this, "No such file.", "File not found", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show(this, @"No such file.", @"File not found", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
 
         private void btnProfileFolderBrowse_Click(object sender, EventArgs e)
         {
-            if (fbd.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+            if (fbd.ShowDialog(this) == DialogResult.OK)
                 txtDBFolderPath.Text = fbd.SelectedPath;
         }
 
@@ -77,17 +82,9 @@ namespace pylorak.TinyWall
             string inputPath = txtDBFolderPath.Text;
             if (!Directory.Exists(inputPath))
             {
-                MessageBox.Show(this, "Input database folder not found.", "Directory not found", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show(this, @"Input database folder not found.", @"Directory not found", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
-
-            /*
-            // Merge profiles
-            foreach (string fpath in files)
-            {
-                Obsolete.Profile p = Deprecated.SerializationHelper.LoadFromXMLFile<Obsolete.Profile>(fpath);
-                Manager.AvailableProfiles.Add(p);
-            }*/
 
             var defAppInst = new DatabaseClasses.Application();
             var files = Directory.GetFiles(inputPath, "*.json", SearchOption.AllDirectories);
@@ -95,16 +92,18 @@ namespace pylorak.TinyWall
             {
                 try
                 {
-                    var loadedAppInst = SerializationHelper.DeserializeFromFile(fpath, defAppInst);
+                    var loadedAppInst = SerialisationHelper.DeserialiseFromFile(fpath, defAppInst);
                     if (loadedAppInst.Components.Count > 0)
                         db.KnownApplications.Add(loadedAppInst);
                 }
-                catch { }
+                catch
+                {
+                    // ignored
+                }
             }
 
             db.Save(Path.Combine(outputPath, "profiles.json"));
-            //Manager.ToNewFormat().Save(Path.Combine(outputPath, Path.GetFileName(DatabaseClasses.AppDatabase.DBPath)));
-            MessageBox.Show(this, "Creation of collections finished.", "Success.", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this, @"Creation of collections finished.", @"Success.", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void btnExit_Click(object sender, EventArgs e)
@@ -114,24 +113,24 @@ namespace pylorak.TinyWall
 
         private void btnStrongNameBrowse_Click(object sender, EventArgs e)
         {
-            ofd.Filter = ".Net binaries (*.exe,*.dll)|*.dll;*.exe|All files (*)|*";
-            if (ofd.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+            ofd.Filter = @".Net binaries (*.exe,*.dll)|*.dll;*.exe|All files (*)|*";
+
+            if (ofd.ShowDialog(this) != DialogResult.OK) return;
+
+            try
             {
-                try
-                {
-                    Assembly a = Assembly.ReflectionOnlyLoadFrom(ofd.FileName);
-                    txtStrongName.Text = a.FullName;
-                }
-                catch
-                {
-                    txtStrongName.Text = "Bad assembly";
-                }
+                Assembly a = Assembly.ReflectionOnlyLoadFrom(ofd.FileName);
+                txtStrongName.Text = a.FullName;
+            }
+            catch
+            {
+                txtStrongName.Text = @"Bad assembly";
             }
         }
 
         private void btnAssocOutputBrowse_Click(object sender, EventArgs e)
         {
-            if (fbd.ShowDialog(this) == System.Windows.Forms.DialogResult.Cancel)
+            if (fbd.ShowDialog(this) == DialogResult.Cancel)
                 return;
 
             txtAssocOutputPath.Text = fbd.SelectedPath;
@@ -144,8 +143,9 @@ namespace pylorak.TinyWall
 
         private void btnUpdateInstallerBrowse_Click(object sender, EventArgs e)
         {
-            ofd.Filter = "All files (*)|*";
-            if (ofd.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+            ofd.Filter = @"All files (*)|*";
+
+            if (ofd.ShowDialog(this) == DialogResult.OK)
             {
                 txtUpdateInstallerProjectDir.Text = ofd.FileName;
             }
@@ -154,7 +154,7 @@ namespace pylorak.TinyWall
         private void btnUpdateOutputBrowse_Click(object sender, EventArgs e)
         {
             fbd.SelectedPath = txtUpdateOutput.Text;
-            if (fbd.ShowDialog(this) == System.Windows.Forms.DialogResult.Cancel)
+            if (fbd.ShowDialog(this) == DialogResult.Cancel)
                 return;
 
             txtUpdateOutput.Text = fbd.SelectedPath;
@@ -177,64 +177,72 @@ namespace pylorak.TinyWall
 
             string twAssemblyPath = Path.Combine(projectDir, @"Sources\ProgramFiles\TinyWall\TinyWall.exe");
 
-            void showUpdateFileNotFoundMsg(string file)
+            void ShowUpdateFileNotFoundMsg(string file)
             {
-                MessageBox.Show(this, "File\n\n" + file + "\n\nnot found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, $@"File\n\n{file}\n\nnot found.", @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
-            void showUpdateDirectoryNotFoundMsg(string file)
+            void ShowUpdateDirectoryNotFoundMsg(string file)
             {
-                MessageBox.Show(this, "Directory\n\n" + file + "\n\nnot found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, $@"Directory\n\n{file}\n\nnot found.", @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             if (!File.Exists(msiPath))
             {
-                showUpdateFileNotFoundMsg(msiPath);
+                ShowUpdateFileNotFoundMsg(msiPath);
                 return;
             }
             if (!File.Exists(hostsPath))
             {
-                showUpdateFileNotFoundMsg(hostsPath);
+                ShowUpdateFileNotFoundMsg(hostsPath);
                 return;
             }
             if (!File.Exists(profilesPath))
             {
-                showUpdateFileNotFoundMsg(profilesPath);
+                ShowUpdateFileNotFoundMsg(profilesPath);
                 return;
             }
             if (!File.Exists(twAssemblyPath))
             {
-                showUpdateFileNotFoundMsg(twAssemblyPath);
+                ShowUpdateFileNotFoundMsg(twAssemblyPath);
                 return;
             }
             if (!Directory.Exists(txtUpdateOutput.Text))
             {
-                showUpdateDirectoryNotFoundMsg(txtUpdateOutput.Text);
+                ShowUpdateDirectoryNotFoundMsg(txtUpdateOutput.Text);
                 return;
             }
 
             FileVersionInfo installerInfo = FileVersionInfo.GetVersionInfo(twAssemblyPath);
 
-            var update = new UpdateDescriptor();
-            update.Modules = new UpdateModule[3];
+            var update = new UpdateDescriptor
+            {
+                Modules = new UpdateModule[3]
+            };
 
-            update.Modules[0] = new UpdateModule();
-            update.Modules[0].Component = "TinyWall";
-            update.Modules[0].ComponentVersion = installerInfo.ProductVersion.ToString().Trim();
-            update.Modules[0].DownloadHash = Hasher.HashFile(msiPath);
-            update.Modules[0].UpdateURL = txtUpdateURL.Text + MSI_FILENAME;
+            update.Modules[0] = new UpdateModule
+            {
+                Component = "TinyWall",
+                ComponentVersion = installerInfo.ProductVersion.Trim(),
+                DownloadHash = Hasher.HashFile(msiPath),
+                UpdateUrl = txtUpdateURL.Text + MSI_FILENAME
+            };
 
-            update.Modules[1] = new UpdateModule();
-            update.Modules[1].Component = "Database";
-            update.Modules[1].ComponentVersion = PLACEHOLDER;
-            update.Modules[1].DownloadHash = Hasher.HashFile(profilesPath);
-            update.Modules[1].UpdateURL = txtUpdateURL.Text + DB_OUT_NAME;
+            update.Modules[1] = new UpdateModule
+            {
+                Component = "Database",
+                ComponentVersion = PLACEHOLDER,
+                DownloadHash = Hasher.HashFile(profilesPath),
+                UpdateUrl = txtUpdateURL.Text + DB_OUT_NAME
+            };
 
-            update.Modules[2] = new UpdateModule();
-            update.Modules[2].Component = "HostsFile";
-            update.Modules[2].ComponentVersion = PLACEHOLDER;
-            update.Modules[2].DownloadHash = Hasher.HashFile(hostsPath);
-            update.Modules[2].UpdateURL = txtUpdateURL.Text + HOSTS_OUT_NAME;
+            update.Modules[2] = new UpdateModule
+            {
+                Component = "HostsFile",
+                ComponentVersion = PLACEHOLDER,
+                DownloadHash = Hasher.HashFile(hostsPath),
+                UpdateUrl = txtUpdateURL.Text + HOSTS_OUT_NAME
+            };
 
             File.Copy(msiPath, Path.Combine(txtUpdateOutput.Text, MSI_FILENAME), true);
 
@@ -245,67 +253,64 @@ namespace pylorak.TinyWall
             Utils.CompressDeflate(hostsPath, hostsOut);
 
             string updOut = Path.Combine(txtUpdateOutput.Text, DESCRIPTOR_NAME);
-            SerializationHelper.SerializeToFile(update, updOut);
+            SerialisationHelper.SerialiseToFile(update, updOut);
 
             update.Modules[2].DownloadHash = HOSTS_PLACEHOLDER;
             updOut = Path.Combine(txtUpdateOutput.Text, DESCRIPTOR_TEMPLATE_NAME);
-            SerializationHelper.SerializeToFile(update, updOut);
+            SerialisationHelper.SerialiseToFile(update, updOut);
 
-            MessageBox.Show(this, "Update created.", "Success.", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this, @"Update created.", @"Success.", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private static int CountOccurence(string haystack, char needle)
+        private static int CountOccurrence(string haystack, char needle)
         {
-            int count = 0;
-            foreach (char c in haystack)
-                if (c == needle) count++;
-
-            return count;
+            return haystack.Count(c => c == needle);
         }
 
         private void btnAddPrimaries_Click(object sender, EventArgs e)
         {
-            ofd.Filter = "XML resources (*.resx)|*.resx|All files (*)|*";
+            ofd.Filter = @"XML resources (*.resx)|*.resx|All files (*)|*";
             ofd.AutoUpgradeEnabled = true;
             ofd.Multiselect = true;
-            if (ofd.ShowDialog(this) == System.Windows.Forms.DialogResult.Cancel)
+            if (ofd.ShowDialog(this) == DialogResult.Cancel)
                 return;
 
-            for (int i = 0; i < ofd.FileNames.Length; ++i)
+            foreach (var primary in ofd.FileNames)
             {
-                string primary = ofd.FileNames[i];
-                if (CountOccurence(Path.GetFileName(primary), '.') != 1)
+                if (CountOccurrence(Path.GetFileName(primary), '.') != 1)
                     continue;   // This is not a primary at all...
 
-                string dir = Path.GetDirectoryName(primary);
+                string dir = Path.GetDirectoryName(primary) ?? string.Empty;
                 string primaryBase = Path.GetFileNameWithoutExtension(primary);
                 string[] satellites = Directory.GetFiles(dir, primaryBase + ".*.resx", SearchOption.TopDirectoryOnly);
-                ResXInputs.Add(new KeyValuePair<string, string[]>(primary, satellites));
+                _resXInputs.Add(new KeyValuePair<string, string[]>(primary, satellites));
             }
 
             listPrimaries.Items.Clear();
-            for (int i = 0; i < ResXInputs.Count; ++i)
-                listPrimaries.Items.Add(Path.GetFileName(ResXInputs[i].Key));
+
+            foreach (var t in _resXInputs)
+                listPrimaries.Items.Add(Path.GetFileName(t.Key));
         }
 
         private void listPrimaries_SelectedIndexChanged(object sender, EventArgs e)
         {
             listSatellites.Items.Clear();
-            if (listPrimaries.SelectedIndices.Count > 0)
-            {
-                KeyValuePair<string, string[]> pair = ResXInputs[listPrimaries.SelectedIndex];
-                object[] sats = new object[pair.Value.Length];
-                for (int i = 0; i < sats.Length; ++i)
-                    sats[i] = Path.GetFileName(pair.Value[i]);
-                listSatellites.Items.AddRange(sats);
-            }
+            if (listPrimaries.SelectedIndices.Count <= 0) return;
+
+            KeyValuePair<string, string[]> pair = _resXInputs[listPrimaries.SelectedIndex];
+            object[] sats = new object[pair.Value.Length];
+
+            for (int i = 0; i < sats.Length; ++i)
+                sats[i] = Path.GetFileName(pair.Value[i]);
+
+            listSatellites.Items.AddRange(sats);
         }
 
         private void btnClear_Click(object sender, EventArgs e)
         {
             listPrimaries.Items.Clear();
             listSatellites.Items.Clear();
-            ResXInputs.Clear();
+            _resXInputs.Clear();
         }
 
         private static Dictionary<string, ResXDataNode> ReadResXFile(string filePath)
@@ -313,12 +318,15 @@ namespace pylorak.TinyWall
             var resxContents = new Dictionary<string, ResXDataNode>();
             using var resxReader = new ResXResourceReader(filePath);
             resxReader.UseResXDataNodes = true;
-            IDictionaryEnumerator dict = resxReader.GetEnumerator();
-            while (dict.MoveNext())
+            var dictionaryEnumerator = resxReader.GetEnumerator();
+            using var dict1 = dictionaryEnumerator as IDisposable;
+
+            while (dictionaryEnumerator.MoveNext())
             {
-                ResXDataNode node = (ResXDataNode)dict.Value;
+                var node = (ResXDataNode)dictionaryEnumerator.Value;
                 resxContents.Add(node.Name, node);
             }
+
             return resxContents;
         }
 
@@ -326,64 +334,62 @@ namespace pylorak.TinyWall
         {
             ITypeResolutionService? trs = null;
 
-            for (int i = 0; i < ResXInputs.Count; ++i)  // for each main resource file
+            foreach (var pair in _resXInputs)
             {
-                var pair = ResXInputs[i];
                 var primary = ReadResXFile(pair.Key);
 
-                for (int s = 0; s < pair.Value.Length; ++s)  // for each localization
+                foreach (var t in pair.Value)
                 {
                     { // Replace Windows Forms control versions to 4.0.0.0.
-                        using var sr = new StreamReader(pair.Value[s], Encoding.UTF8);
+                        using var sr = new StreamReader(t, Encoding.UTF8);
                         var a = sr.ReadToEnd();
                         a = a.Replace(", Version=2.0.0.0,", ", Version=4.0.0.0,");
 
-                        using var sw = new StreamWriter(pair.Value[s], false, Encoding.UTF8);
+                        using var sw = new StreamWriter(t, false, Encoding.UTF8);
                         sw.Write(a);
                     }
 
-                    var satellite = ReadResXFile(pair.Value[s]);
+                    var satellite = ReadResXFile(t);
                     var newSatellite = new Dictionary<string, ResXDataNode>();
 
                     // Iterate over all contents of primary.
                     // For each entry, check if one with same name, type and contents is available in
                     // satellite, and if so, don't save it to output.
-                    var primaryEnum = primary.GetEnumerator();
+                    using var primaryEnum = primary.GetEnumerator();
                     while (primaryEnum.MoveNext())
                     {
                         ResXDataNode primaryItem = primaryEnum.Current.Value;
+
                         if (!satellite.ContainsKey(primaryItem.Name))
                             continue;
 
                         ResXDataNode satelliteItem = satellite[primaryItem.Name];
 
-                        // Only save localized resource if it is different from the default 
+                        // Only save localized resource if it is different from the default
                         if (!satelliteItem.GetValue(trs).Equals(primaryItem.GetValue(trs)))
                             newSatellite.Add(satelliteItem.Name, satelliteItem);
-                        else
-                        {
-                        }
+
                     }
 
                     // Write output ResX file
-                    string outPath = Path.Combine(txtOutputPath.Text, Path.GetFileName(pair.Value[s]));
+                    string outPath = Path.Combine(txtOutputPath.Text, Path.GetFileName(t));
                     using var resxWriter = new ResXResourceWriter(outPath);
-                    Dictionary<string, ResXDataNode>.Enumerator outputEnum = newSatellite.GetEnumerator();
+                    using Dictionary<string, ResXDataNode>.Enumerator outputEnum = newSatellite.GetEnumerator();
+
                     while (outputEnum.MoveNext())
                         resxWriter.AddResource(outputEnum.Current.Value);
+
                     resxWriter.Generate();
-                } // for each localization
-            } // for each primary
+                }
+            }
         }
 
         private void btnCertBrowse_Click(object sender, EventArgs e)
         {
-            ofd.Filter = "All files (*)|*";
-            if (File.Exists(txtCert.Text) || Directory.Exists(txtCert.Text))
-            {
-                ofd.InitialDirectory = Path.GetDirectoryName(txtCert.Text);
-            }
-            if (ofd.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+            ofd.InitialDirectory = Path.GetDirectoryName(txtCert.Text);
+            ofd.Filter = @"All files (*)|*";
+
+            if (ofd.ShowDialog(this) == DialogResult.OK)
             {
                 txtCert.Text = ofd.FileName;
             }
@@ -392,7 +398,8 @@ namespace pylorak.TinyWall
         private void btnSignDir_Click(object sender, EventArgs e)
         {
             fbd.SelectedPath = Path.GetDirectoryName(txtCert.Text);
-            if (fbd.ShowDialog(this) == System.Windows.Forms.DialogResult.Cancel)
+
+            if (fbd.ShowDialog(this) == DialogResult.Cancel)
                 return;
 
             txtSignDir.Text = fbd.SelectedPath;
@@ -400,19 +407,26 @@ namespace pylorak.TinyWall
 
         private void btnBatchSign_Click(object sender, EventArgs e)
         {
-            if (!Directory.Exists(txtSignDir.Text))
+            if (!File.Exists(txtCert.Text))
             {
-                MessageBox.Show(this, "Signing directory is invalid!");
+                MessageBox.Show(this, @"Certificate not found!");
                 return;
             }
+
+            if (!Directory.Exists(txtSignDir.Text))
+            {
+                MessageBox.Show(this, @"Signing directory is invalid!");
+                return;
+            }
+
             if (!File.Exists(txtSigntool.Text))
             {
-                MessageBox.Show(this, "Signtool.exe not found!");
+                MessageBox.Show(this, @"Signtool.exe not found!");
                 return;
             }
 
             btnBatchSign.Enabled = false;
-            SignFiles(txtSignDir.Text, SIGNING_FILE_PATTERNS);
+            SignFiles(txtSignDir.Text, SigningFilePatterns);
             btnBatchSign.Enabled = true;
         }
 
@@ -425,14 +439,15 @@ namespace pylorak.TinyWall
                 string[] candidateFiles = Directory.GetFiles(dirPath, pattern, SearchOption.AllDirectories);
                 foreach (var filePath in candidateFiles)
                 {
-                    var signedStatus = pylorak.Windows.WinTrust.VerifyFileAuthenticode(filePath);
+                    var signedStatus = Windows.WinTrust.VerifyFileAuthenticode(filePath);
                     if (signedStatus == Windows.WinTrust.VerifyResult.SIGNATURE_MISSING)
                     {
                         filesToSign.Add("\"" + filePath + "\"");
                     }
                     else if (signedStatus == Windows.WinTrust.VerifyResult.SIGNATURE_INVALID)
                     {
-                        MessageBox.Show(this, string.Format("File \"{0}\" has pre-existing INVALID certificate. Signing will be aborted for all files.", filePath), "Signing result", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(this,
+                            $@"File {filePath} has pre-existing INVALID certificate. Signing will be aborted for all files.", @"Signing result", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
                 }
@@ -440,33 +455,33 @@ namespace pylorak.TinyWall
 
             if (filesToSign.Count == 0)
             {
-                MessageBox.Show(this, "No files to sign, or all files are already signed.", "Signing result", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show(this, @"No files to sign, or all files are already signed.", @"Signing result", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
 
             // Assemble signtool command
-            string signParams = string.Format("sign /d TinyWall /du \"https://tinywall.pados.hu\" /n \"{0}\" /tr \"{1}\" /td sha256 /fd sha256 /v {2}",
-                    txtCert.Text,
-                    txtTimestampingServ.Text,
-                    string.Join(" ", filesToSign));
+            var signParams =
+                $"sign /d TinyWall /du \"https://tinywall.pados.hu\" /n \"{txtCert.Text}\" /tr \"{txtTimestampingServ.Text}\" /td sha256 /fd sha256 /v {string.Join(" ", filesToSign)}";
 
             // Execute signing process
             bool signSuccess;
-            using (Process p = Utils.StartProcess(txtSigntool.Text, signParams, false))
+            using (var p = Utils.StartProcess(txtSigntool.Text, signParams, false))
             {
                 p.WaitForExit();
                 signSuccess = (p.ExitCode == 0);
             }
+
             if (signSuccess)
-                MessageBox.Show(this, "Files successfully signed.", "Signing result", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this, @"Files successfully signed.", @"Signing result", MessageBoxButtons.OK, MessageBoxIcon.Information);
             else
-                MessageBox.Show(this, "Failed to sign files.", "Signing result", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, @"Failed to sign files.", @"Signing result", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void btnSigntoolBrowse_Click(object sender, EventArgs e)
         {
-            ofd.Filter = "Executables (*.exe)|*.exe|All files (*)|*";
-            if (ofd.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+            ofd.Filter = @"Executables (*.exe)|*.exe|All files (*)|*";
+
+            if (ofd.ShowDialog(this) == DialogResult.OK)
             {
                 txtSigntool.Text = ofd.FileName;
             }

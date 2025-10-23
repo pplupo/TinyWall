@@ -33,11 +33,11 @@ namespace pylorak.Utilities
             ScanStart = 0;
         }
 
-        public readonly ReadOnlySpanSplitEnumerator<T> GetEnumerator() => this;
+        public ReadOnlySpanSplitEnumerator<T> GetEnumerator() => this;
 
-        public readonly ReadOnlySpan<T> Current => CurrentItem;
+        public ReadOnlySpan<T> Current => CurrentItem;
 
-        public readonly void Dispose()
+        public void Dispose()
         {
             // Empty on purpose
         }

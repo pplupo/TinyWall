@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using pylorak.Utilities;
 
 namespace pylorak.TinyWall
 {
@@ -24,6 +22,7 @@ namespace pylorak.TinyWall
             serverState = null;
 
             var resp = Endpoint.QueueMessage(TwMessageGetSettings.CreateRequest(clientChangeset)).Response;
+
             if (resp.Type == MessageType.GET_SETTINGS)
             {
                 var respArgs = (TwMessageGetSettings)resp;

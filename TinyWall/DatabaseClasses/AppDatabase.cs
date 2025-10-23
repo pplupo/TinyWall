@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Microsoft.Samples;
+using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using System.Globalization;
-using Microsoft.Samples;
+using System.Linq;
+using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 
@@ -21,12 +22,12 @@ namespace pylorak.TinyWall.DatabaseClasses
 
         public static AppDatabase Load()
         {
-            return SerializationHelper.DeserializeFromFile(DBPath, new AppDatabase());
+            return SerialisationHelper.DeserialiseFromFile(DBPath, new AppDatabase());
         }
 
         public void Save(string filePath)
         {
-            SerializationHelper.SerializeToFile(this, filePath);
+            SerialisationHelper.SerialiseToFile(this, filePath);
         }
 
         [JsonConstructor]
@@ -140,30 +141,30 @@ namespace pylorak.TinyWall.DatabaseClasses
                 {
 
                     // Try to get localized name
-                    string localizedAppName = Resources.Exceptions.ResourceManager.GetString(app.Name);
-                    localizedAppName = string.IsNullOrEmpty(localizedAppName) ? app.Name : localizedAppName;
+                    string localisedAppName = Resources.Exceptions.ResourceManager.GetString(app.Name);
+                    localisedAppName = string.IsNullOrWhiteSpace(localisedAppName) ? app.Name : localisedAppName;
 
-                    Utils.SplitFirstLine(string.Format(CultureInfo.InvariantCulture, Resources.Messages.UnblockApp, localizedAppName), out string firstLine, out string contentLines);
+                    Utils.SplitFirstLine(string.Format(CultureInfo.InvariantCulture, Resources.Messages.UnblockApp, localisedAppName), out string firstLine, out string contentLines);
 
-                    var dialog = new TaskDialog();
-                    dialog.CustomMainIcon = Resources.Icons.firewall;
-                    dialog.WindowTitle = Resources.Messages.TinyWall;
-                    dialog.MainInstruction = firstLine;
-                    dialog.Content = contentLines;
-                    dialog.DefaultButton = 1;
-                    dialog.ExpandedControlText = Resources.Messages.UnblockAppShowRelated;
-                    dialog.ExpandFooterArea = true;
-                    dialog.AllowDialogCancellation = false;
-                    dialog.UseCommandLinks = true;
+                    var dialog = new TaskDialog
+                    {
+                        CustomMainIcon = Resources.Icons.firewall,
+                        WindowTitle = Resources.Messages.TinyWall,
+                        MainInstruction = firstLine,
+                        Content = contentLines,
+                        DefaultButton = 1,
+                        ExpandedControlText = Resources.Messages.UnblockAppShowRelated,
+                        ExpandFooterArea = true,
+                        AllowDialogCancellation = false,
+                        UseCommandLinks = true
+                    };
 
                     var button1 = new TaskDialogButton(101, Resources.Messages.UnblockAppUnblockAllRecommended);
                     var button2 = new TaskDialogButton(102, Resources.Messages.UnblockAppUnblockOnlySelected);
                     var button3 = new TaskDialogButton(103, Resources.Messages.UnblockAppCancel);
                     dialog.Buttons = new TaskDialogButton[] { button1, button2, button3 };
 
-                    string fileListStr = string.Empty;
-                    foreach (FirewallExceptionV3 fwex in exceptions)
-                        fileListStr += fwex.Subject.ToString() + Environment.NewLine;
+                    var fileListStr = exceptions.Aggregate(string.Empty, (current, fwex) => current + (fwex.Subject.ToString() + Environment.NewLine));
                     dialog.ExpandedInformation = fileListStr.Trim();
 
                     switch (dialog.Show())
@@ -172,15 +173,14 @@ namespace pylorak.TinyWall.DatabaseClasses
                             break;
                         case 102:
                             // Remove all exceptions with a different subject than the input argument
-                            for (int i = exceptions.Count - 1; i >= 0; --i)
+                            for (var i = exceptions.Count - 1; i >= 0; --i)
                             {
                                 if (exceptions[i].Subject is ExecutableSubject exesub)
                                 {
-                                    if (!exesub.ExecutablePath.Equals(exeSubject.ExecutablePath, StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        exceptions.RemoveAt(i);
-                                        continue;
-                                    }
+                                    if (exesub.ExecutablePath.Equals(exeSubject.ExecutablePath, StringComparison.OrdinalIgnoreCase)) continue;
+
+                                    exceptions.RemoveAt(i);
+                                    continue;
                                 }
                                 else
                                 {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization.Metadata;
 
@@ -20,13 +21,13 @@ namespace pylorak.TinyWall
     public sealed class BlockListSettings
     {
         [DataMember(EmitDefaultValue = false)]
-        public bool EnableBlocklists = false;
+        public bool EnableBlocklists;
 
         [DataMember(EmitDefaultValue = false)]
-        public bool EnablePortBlocklist = false;
+        public bool EnablePortBlocklist;
 
         [DataMember(EmitDefaultValue = false)]
-        public bool EnableHostsBlocklist = false;
+        public bool EnableHostsBlocklist;
     }
 
     [DataContract(Namespace = "TinyWall")]
@@ -36,16 +37,16 @@ namespace pylorak.TinyWall
         public string ProfileName { get; set; } = string.Empty;
 
         [DataMember(EmitDefaultValue = false)]
-        public List<string> SpecialExceptions { get; set; } = new List<string>();
+        public List<string> SpecialExceptions { get; set; } = new();
 
         [DataMember(EmitDefaultValue = false)]
-        public bool AllowLocalSubnet { get; set; } = false;
+        public bool AllowLocalSubnet { get; set; }
 
         [DataMember(EmitDefaultValue = false)]
-        public List<FirewallExceptionV3> AppExceptions { get; set; } = new List<FirewallExceptionV3>();
+        public List<FirewallExceptionV3> AppExceptions { get; set; } = new();
 
         [DataMember(EmitDefaultValue = false)]
-        public bool DisplayOffBlock { get; set; } = false;
+        public bool DisplayOffBlock { get; set; }
 
         public ServerProfileConfiguration()
         { }
@@ -100,15 +101,15 @@ namespace pylorak.TinyWall
             AppExceptions.AddRange(newList);
         } // method
 
-        public void Normalize()
+        public void Normalise()
         {
-            for (int i = 0; i < AppExceptions.Count; ++i)
+            for (var i = 0; i < AppExceptions.Count; ++i)
             {
-                FirewallExceptionV3 app1 = AppExceptions[i];
+                var app1 = AppExceptions[i];
 
-                for (int j = AppExceptions.Count - 1; j > i; --j)
+                for (var j = AppExceptions.Count - 1; j > i; --j)
                 {
-                    FirewallExceptionV3 app2 = AppExceptions[j];
+                    var app2 = AppExceptions[j];
 
                     if (app1.Id.Equals(app2.Id))
                     {
@@ -126,13 +127,13 @@ namespace pylorak.TinyWall
                     )
                     {
                         // Merge rules
-                        ExceptionPolicy targetPolicy = app1.Policy;
-                        if (app2.Policy.MergeRulesTo(ref targetPolicy))
-                        {
-                            AppExceptions.Remove(app2);
-                            app1.Policy = targetPolicy;
-                            app1.RegenerateId();
-                        }
+                        var targetPolicy = app1.Policy;
+
+                        if (!app2.Policy.MergeRulesTo(ref targetPolicy)) continue;
+
+                        AppExceptions.Remove(app2);
+                        app1.Policy = targetPolicy;
+                        app1.RegenerateId();
                     }
                 }
             } // for all exceptions
@@ -146,7 +147,7 @@ namespace pylorak.TinyWall
 
         // Machine settings
         [DataMember(EmitDefaultValue = false)]
-        public BlockListSettings Blocklists { get; set; } = new BlockListSettings();
+        public BlockListSettings Blocklists { get; set; } = new();
 
         [DataMember(EmitDefaultValue = false)]
         public bool LockHostsFile { get; set; } = true;
@@ -158,26 +159,26 @@ namespace pylorak.TinyWall
         public FirewallMode StartupMode { get; set; } = FirewallMode.Normal;
 
         [DataMember(EmitDefaultValue = false)]
-        public List<ServerProfileConfiguration> Profiles { get; set; } = new List<ServerProfileConfiguration>();
+        public List<ServerProfileConfiguration> Profiles { get; set; } = new();
 
-        private string _ActiveProfileName = string.Empty;
+        private string _activeProfileName = string.Empty;
 
         [DataMember(EmitDefaultValue = false)]
         public string ActiveProfileName
         {
-            get => _ActiveProfileName;
+            get => _activeProfileName;
             set
             {
                 if (string.IsNullOrEmpty(value))
                     throw new ArgumentException($"Argument {nameof(value)} may not be null or empty.");
 
-                _ActiveProfileName = value;
-                _ActiveProfile = null;
+                _activeProfileName = value;
+                _activeProfile = null;
             }
         }
 
 
-        private ServerProfileConfiguration? _ActiveProfile;
+        private ServerProfileConfiguration? _activeProfile;
         public ServerProfileConfiguration ActiveProfile
         {
             get
@@ -185,25 +186,20 @@ namespace pylorak.TinyWall
                 if (string.IsNullOrEmpty(ActiveProfileName))
                     throw new InvalidOperationException();
 
-                if (_ActiveProfile is null)
-                {
-                    foreach (ServerProfileConfiguration profile in Profiles)
-                    {
-                        if (profile.ProfileName.Equals(ActiveProfileName, StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            _ActiveProfile = profile;
-                            break;
-                        }
-                    }
+                if (_activeProfile is not null) return _activeProfile;
 
-                    if (_ActiveProfile is null)
-                    {
-                        _ActiveProfile = new ServerProfileConfiguration(ActiveProfileName);
-                        Profiles.Add(_ActiveProfile);
-                    }
+                foreach (var profile in Profiles.Where(profile => profile.ProfileName.Equals(ActiveProfileName, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    _activeProfile = profile;
+                    break;
                 }
 
-                return _ActiveProfile;
+                if (_activeProfile is not null) return _activeProfile;
+
+                _activeProfile = new ServerProfileConfiguration(ActiveProfileName);
+                Profiles.Add(_activeProfile);
+
+                return _activeProfile;
             }
         }
 
@@ -212,21 +208,21 @@ namespace pylorak.TinyWall
 
         public void Save(string filePath)
         {
-            string key = Hasher.HashString(ENC_SALT).Substring(0, 16);
-            SerializationHelper.SerializeToEncryptedFile(this, filePath, key, ENC_IV);
+            var key = Hasher.HashString(ENC_SALT).Substring(0, 16);
+            SerialisationHelper.SerialiseToEncryptedFile(this, filePath, key, ENC_IV);
         }
 
         public static ServerConfiguration Load(string filePath)
         {
-            string key = Hasher.HashString(ENC_SALT).Substring(0, 16);
-            return SerializationHelper.DeserializeFromEncryptedFile(filePath, key, ENC_IV, new ServerConfiguration());
+            var key = Hasher.HashString(ENC_SALT).Substring(0, 16);
+            return SerialisationHelper.DeserialiseFromEncryptedFile(filePath, key, ENC_IV, new ServerConfiguration());
         }
 
         public void Normalize()
         {
-            foreach (ServerProfileConfiguration profile in Profiles)
+            foreach (var profile in Profiles)
             {
-                profile.Normalize();
+                profile.Normalise();
             }
         }
 
@@ -240,7 +236,7 @@ namespace pylorak.TinyWall
             get
             {
 #if DEBUG
-                return Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+                return Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly()!.Location)!;
 #else
                 string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "TinyWall");
                 if (!Directory.Exists(dir))
@@ -249,8 +245,5 @@ namespace pylorak.TinyWall
 #endif
             }
         }
-
-        public ServerConfiguration() { }
-
     } // class
 }
