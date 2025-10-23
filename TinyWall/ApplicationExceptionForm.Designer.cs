@@ -64,9 +64,20 @@
             this.radOnlySpecifiedPorts = new System.Windows.Forms.RadioButton();
             this.panel3 = new System.Windows.Forms.Panel();
             this.chkInheritToChildren = new System.Windows.Forms.CheckBox();
+            this.radOnlySpecifiedHosts = new System.Windows.Forms.RadioButton();
+            this.grpAllowedHosts = new System.Windows.Forms.GroupBox();
+            this.panelHostButtons = new System.Windows.Forms.FlowLayoutPanel();
+            this.btnAddHost = new System.Windows.Forms.Button();
+            this.btnModifyHost = new System.Windows.Forms.Button();
+            this.btnRemoveHost = new System.Windows.Forms.Button();
+            this.btnRemoveAllHosts = new System.Windows.Forms.Button();
+            this.listAllowedHosts = new System.Windows.Forms.ListView();
+            this.columnHeaderHost = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
+            this.grpAllowedHosts.SuspendLayout();
+            this.panelHostButtons.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnCancel
@@ -139,8 +150,12 @@
             this.btnChooseService.Click += new System.EventHandler(this.btnChooseService_Click);
             // 
             // ofd
-            // 
+            //
             resources.ApplyResources(this.ofd, "ofd");
+            this.ofd.CheckFileExists = false;
+            this.ofd.CheckPathExists = false;
+            this.ofd.ValidateNames = false;
+            this.ofd.FileOk += new System.ComponentModel.CancelEventHandler(this.ofd_FileOk);
             // 
             // label6
             // 
@@ -186,7 +201,132 @@
             this.panel2.Controls.Add(this.btnProcess);
             this.panel2.Controls.Add(this.btnChooseService);
             this.panel2.Name = "panel2";
-            // 
+            //
+            // grpAllowedHosts
+            //
+            this.grpAllowedHosts.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.grpAllowedHosts.Controls.Add(this.panelHostButtons);
+            this.grpAllowedHosts.Controls.Add(this.listAllowedHosts);
+            this.grpAllowedHosts.Enabled = false;
+            this.grpAllowedHosts.Location = new System.Drawing.Point(552, 262);
+            this.grpAllowedHosts.Name = "grpAllowedHosts";
+            this.grpAllowedHosts.Size = new System.Drawing.Size(256, 282);
+            this.grpAllowedHosts.TabIndex = 180;
+            this.grpAllowedHosts.TabStop = false;
+            this.grpAllowedHosts.Text = "Allowed IPs/Hosts";
+            //
+            // panelHostButtons
+            //
+            this.panelHostButtons.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.panelHostButtons.AutoSize = true;
+            this.panelHostButtons.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.panelHostButtons.Controls.Add(this.btnAddHost);
+            this.panelHostButtons.Controls.Add(this.btnModifyHost);
+            this.panelHostButtons.Controls.Add(this.btnRemoveHost);
+            this.panelHostButtons.Controls.Add(this.btnRemoveAllHosts);
+            this.panelHostButtons.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.panelHostButtons.Location = new System.Drawing.Point(173, 22);
+            this.panelHostButtons.Margin = new System.Windows.Forms.Padding(0);
+            this.panelHostButtons.Name = "panelHostButtons";
+            this.panelHostButtons.Size = new System.Drawing.Size(0, 0);
+            this.panelHostButtons.TabIndex = 10;
+            this.panelHostButtons.WrapContents = false;
+            //
+            // btnAddHost
+            //
+            this.btnAddHost.AutoSize = true;
+            this.btnAddHost.BackColor = System.Drawing.Color.AliceBlue;
+            this.btnAddHost.FlatAppearance.BorderSize = 0;
+            this.btnAddHost.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnAddHost.Image = global::pylorak.TinyWall.Resources.Icons.add;
+            this.btnAddHost.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnAddHost.Margin = new System.Windows.Forms.Padding(0, 0, 0, 6);
+            this.btnAddHost.Name = "btnAddHost";
+            this.btnAddHost.Size = new System.Drawing.Size(111, 27);
+            this.btnAddHost.TabIndex = 0;
+            this.btnAddHost.Text = "Add IP/Host";
+            this.btnAddHost.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.btnAddHost.UseVisualStyleBackColor = false;
+            this.btnAddHost.Click += new System.EventHandler(this.btnAddHost_Click);
+            //
+            // btnModifyHost
+            //
+            this.btnModifyHost.AutoSize = true;
+            this.btnModifyHost.BackColor = System.Drawing.Color.AliceBlue;
+            this.btnModifyHost.FlatAppearance.BorderSize = 0;
+            this.btnModifyHost.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnModifyHost.Image = global::pylorak.TinyWall.Resources.Icons.modify;
+            this.btnModifyHost.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnModifyHost.Margin = new System.Windows.Forms.Padding(0, 0, 0, 6);
+            this.btnModifyHost.Name = "btnModifyHost";
+            this.btnModifyHost.Size = new System.Drawing.Size(82, 27);
+            this.btnModifyHost.TabIndex = 1;
+            this.btnModifyHost.Text = "Modify";
+            this.btnModifyHost.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.btnModifyHost.UseVisualStyleBackColor = false;
+            this.btnModifyHost.Enabled = false;
+            this.btnModifyHost.Click += new System.EventHandler(this.btnModifyHost_Click);
+            //
+            // btnRemoveHost
+            //
+            this.btnRemoveHost.AutoSize = true;
+            this.btnRemoveHost.BackColor = System.Drawing.Color.AliceBlue;
+            this.btnRemoveHost.FlatAppearance.BorderSize = 0;
+            this.btnRemoveHost.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnRemoveHost.Image = global::pylorak.TinyWall.Resources.Icons.remove;
+            this.btnRemoveHost.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnRemoveHost.Margin = new System.Windows.Forms.Padding(0, 0, 0, 6);
+            this.btnRemoveHost.Name = "btnRemoveHost";
+            this.btnRemoveHost.Size = new System.Drawing.Size(91, 27);
+            this.btnRemoveHost.TabIndex = 2;
+            this.btnRemoveHost.Text = "Remove";
+            this.btnRemoveHost.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.btnRemoveHost.UseVisualStyleBackColor = false;
+            this.btnRemoveHost.Enabled = false;
+            this.btnRemoveHost.Click += new System.EventHandler(this.btnRemoveHost_Click);
+            //
+            // btnRemoveAllHosts
+            //
+            this.btnRemoveAllHosts.AutoSize = true;
+            this.btnRemoveAllHosts.BackColor = System.Drawing.Color.AliceBlue;
+            this.btnRemoveAllHosts.FlatAppearance.BorderSize = 0;
+            this.btnRemoveAllHosts.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnRemoveAllHosts.Image = global::pylorak.TinyWall.Resources.Icons.delete;
+            this.btnRemoveAllHosts.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnRemoveAllHosts.Margin = new System.Windows.Forms.Padding(0);
+            this.btnRemoveAllHosts.Name = "btnRemoveAllHosts";
+            this.btnRemoveAllHosts.Size = new System.Drawing.Size(110, 27);
+            this.btnRemoveAllHosts.TabIndex = 3;
+            this.btnRemoveAllHosts.Text = "Remove all";
+            this.btnRemoveAllHosts.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.btnRemoveAllHosts.UseVisualStyleBackColor = false;
+            this.btnRemoveAllHosts.Enabled = false;
+            this.btnRemoveAllHosts.Click += new System.EventHandler(this.btnRemoveAllHosts_Click);
+            //
+            // listAllowedHosts
+            //
+            this.listAllowedHosts.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
+            this.listAllowedHosts.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeaderHost});
+            this.listAllowedHosts.FullRowSelect = true;
+            this.listAllowedHosts.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            this.listAllowedHosts.HideSelection = false;
+            this.listAllowedHosts.Location = new System.Drawing.Point(13, 22);
+            this.listAllowedHosts.MultiSelect = false;
+            this.listAllowedHosts.Name = "listAllowedHosts";
+            this.listAllowedHosts.ShowGroups = false;
+            this.listAllowedHosts.Size = new System.Drawing.Size(151, 244);
+            this.listAllowedHosts.TabIndex = 0;
+            this.listAllowedHosts.UseCompatibleStateImageBehavior = false;
+            this.listAllowedHosts.View = System.Windows.Forms.View.Details;
+            this.listAllowedHosts.SelectedIndexChanged += new System.EventHandler(this.listAllowedHosts_SelectedIndexChanged);
+            this.listAllowedHosts.DoubleClick += new System.EventHandler(this.listAllowedHosts_DoubleClick);
+            //
+            // columnHeaderHost
+            //
+            this.columnHeaderHost.Text = "IP/Host";
+            this.columnHeaderHost.Width = 140;
+            //
             // btnSelectUwpApp
             // 
             resources.ApplyResources(this.btnSelectUwpApp, "btnSelectUwpApp");
@@ -216,6 +356,7 @@
             this.radTcpUdpOut.TabStop = true;
             this.radTcpUdpOut.UseVisualStyleBackColor = true;
             this.radTcpUdpOut.CheckedChanged += new System.EventHandler(this.radRestriction_CheckedChanged);
+            this.radTcpUdpOut.Location = new System.Drawing.Point(22, 337);
             // 
             // radTcpUdpUnrestricted
             // 
@@ -225,6 +366,7 @@
             this.radTcpUdpUnrestricted.TabStop = true;
             this.radTcpUdpUnrestricted.UseVisualStyleBackColor = true;
             this.radTcpUdpUnrestricted.CheckedChanged += new System.EventHandler(this.radRestriction_CheckedChanged);
+            this.radTcpUdpUnrestricted.Location = new System.Drawing.Point(22, 360);
             // 
             // radUnrestricted
             // 
@@ -233,6 +375,7 @@
             this.radUnrestricted.TabStop = true;
             this.radUnrestricted.UseVisualStyleBackColor = true;
             this.radUnrestricted.CheckedChanged += new System.EventHandler(this.radRestriction_CheckedChanged);
+            this.radUnrestricted.Location = new System.Drawing.Point(22, 383);
             // 
             // label5
             // 
@@ -292,13 +435,25 @@
             this.label10.Name = "label10";
             // 
             // radOnlySpecifiedPorts
-            // 
+            //
             resources.ApplyResources(this.radOnlySpecifiedPorts, "radOnlySpecifiedPorts");
             this.radOnlySpecifiedPorts.Name = "radOnlySpecifiedPorts";
             this.radOnlySpecifiedPorts.TabStop = true;
             this.radOnlySpecifiedPorts.UseVisualStyleBackColor = true;
             this.radOnlySpecifiedPorts.CheckedChanged += new System.EventHandler(this.radRestriction_CheckedChanged);
-            // 
+            //
+            // radOnlySpecifiedHosts
+            //
+            this.radOnlySpecifiedHosts.AutoSize = true;
+            this.radOnlySpecifiedHosts.Location = new System.Drawing.Point(22, 314);
+            this.radOnlySpecifiedHosts.Name = "radOnlySpecifiedHosts";
+            this.radOnlySpecifiedHosts.Size = new System.Drawing.Size(199, 17);
+            this.radOnlySpecifiedHosts.TabIndex = 85;
+            this.radOnlySpecifiedHosts.TabStop = true;
+            this.radOnlySpecifiedHosts.Text = "Allow only specified IPs/Hosts";
+            this.radOnlySpecifiedHosts.UseVisualStyleBackColor = true;
+            this.radOnlySpecifiedHosts.CheckedChanged += new System.EventHandler(this.radRestriction_CheckedChanged);
+            //
             // panel3
             // 
             resources.ApplyResources(this.panel3, "panel3");
@@ -325,10 +480,13 @@
             // 
             this.AcceptButton = this.btnOK;
             resources.ApplyResources(this, "$this");
+            this.ClientSize = new System.Drawing.Size(820, 598);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
             this.ControlBox = false;
             this.Controls.Add(this.chkInheritToChildren);
+            this.Controls.Add(this.grpAllowedHosts);
+            this.Controls.Add(this.radOnlySpecifiedHosts);
             this.Controls.Add(this.radOnlySpecifiedPorts);
             this.Controls.Add(this.radUnrestricted);
             this.Controls.Add(this.radTcpUdpUnrestricted);
@@ -352,6 +510,10 @@
             this.panel2.PerformLayout();
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
+            this.grpAllowedHosts.ResumeLayout(false);
+            this.grpAllowedHosts.PerformLayout();
+            this.panelHostButtons.ResumeLayout(false);
+            this.panelHostButtons.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -394,5 +556,14 @@
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.CheckBox chkInheritToChildren;
         private System.Windows.Forms.Button btnSelectUwpApp;
+        private System.Windows.Forms.RadioButton radOnlySpecifiedHosts;
+        private System.Windows.Forms.GroupBox grpAllowedHosts;
+        private System.Windows.Forms.FlowLayoutPanel panelHostButtons;
+        private System.Windows.Forms.Button btnAddHost;
+        private System.Windows.Forms.Button btnModifyHost;
+        private System.Windows.Forms.Button btnRemoveHost;
+        private System.Windows.Forms.Button btnRemoveAllHosts;
+        private System.Windows.Forms.ListView listAllowedHosts;
+        private System.Windows.Forms.ColumnHeader columnHeaderHost;
     }
 }

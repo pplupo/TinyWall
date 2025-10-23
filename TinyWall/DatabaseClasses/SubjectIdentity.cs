@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization.Metadata;
+using System.Text.RegularExpressions;
 using pylorak.Windows;
 using pylorak.TinyWall.Parser;
+using pylorak.TinyWall;
 
 namespace pylorak.TinyWall.DatabaseClasses
 {
@@ -130,6 +132,21 @@ namespace pylorak.TinyWall.DatabaseClasses
                 || NetworkPath.IsNetworkPath(path));    // Network resource
         }
 
+        [IgnoreDataMember]
+        private Regex? _compiledSubjectRegex;
+        [IgnoreDataMember]
+        private string? _compiledSubjectRegexSource;
+
+        private Regex GetCompiledSubjectRegex(string rule)
+        {
+            if ((_compiledSubjectRegex != null) && string.Equals(_compiledSubjectRegexSource, rule, StringComparison.Ordinal))
+                return _compiledSubjectRegex;
+
+            _compiledSubjectRegex = PathRuleRegex.BuildRegexFromRule(rule);
+            _compiledSubjectRegexSource = rule;
+            return _compiledSubjectRegex;
+        }
+
         public bool DoesExecutableSatisfy(ExceptionSubject subject)
         {
             if (null == subject)
@@ -139,7 +156,14 @@ namespace pylorak.TinyWall.DatabaseClasses
             {
                 reference = reference.ToResolved();
 
-                if (reference.ExecutablePath == reference.ExecutableName)   // This condition checks whether the reference is just a file name or a full path
+                string referencePath = reference.ExecutablePath;
+                if (PathRuleRegex.ContainsRegex(referencePath))
+                {
+                    var pathRegex = GetCompiledSubjectRegex(referencePath);
+                    if (!pathRegex.IsMatch(testee.ExecutablePath))
+                        return false;
+                }
+                else if (referencePath == reference.ExecutableName)   // This condition checks whether the reference is just a file name or a full path
                 {
                     // File name must match
                     if (string.Compare(reference.ExecutableName, testee.ExecutableName, StringComparison.OrdinalIgnoreCase) != 0)
