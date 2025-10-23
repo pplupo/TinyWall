@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Management;
@@ -31,6 +32,131 @@ namespace pylorak.TinyWall
 
         private static readonly Guid TINYWALL_PROVIDER_KEY = new("{66CA412C-4453-4F1E-A973-C16E433E34D0}");
 
+        private sealed class SubjectPathRuleSet
+        {
+            private readonly HashSet<string> _literal = new(StringComparer.OrdinalIgnoreCase);
+            private readonly List<(string Pattern, Regex Regex)> _regex = new();
+
+            public void Clear()
+            {
+                _literal.Clear();
+                _regex.Clear();
+            }
+
+            public void Add(string path)
+            {
+                if (string.IsNullOrEmpty(path))
+                    return;
+
+                if (PathRuleRegex.ContainsRegex(path))
+                {
+                    foreach (var entry in _regex)
+                    {
+                        if (string.Equals(entry.Pattern, path, StringComparison.OrdinalIgnoreCase))
+                            return;
+                    }
+
+                    _regex.Add((path, PathRuleRegex.BuildRegexFromRule(path)));
+                }
+                else
+                {
+                    _literal.Add(path);
+                }
+            }
+
+            public bool Contains(string path)
+            {
+                if (_literal.Contains(path))
+                    return true;
+
+                foreach (var entry in _regex)
+                {
+                    if (entry.Regex.IsMatch(path))
+                        return true;
+                }
+
+                return false;
+            }
+        }
+
+        private sealed class SubjectPathRuleMultiMap<T>
+        {
+            private sealed class RegexMapEntry
+            {
+                public RegexMapEntry(string pattern, Regex regex)
+                {
+                    Pattern = pattern;
+                    Regex = regex;
+                    Values = new List<T>();
+                }
+
+                public string Pattern { get; }
+                public Regex Regex { get; }
+                public List<T> Values { get; }
+            }
+
+            private readonly Dictionary<string, List<T>> _literal = new(StringComparer.OrdinalIgnoreCase);
+            private readonly List<RegexMapEntry> _regex = new();
+
+            public void Clear()
+            {
+                _literal.Clear();
+                _regex.Clear();
+            }
+
+            public int Count => _literal.Count + _regex.Count;
+
+            public void Add(string path, T value)
+            {
+                if (string.IsNullOrEmpty(path))
+                    return;
+
+                if (PathRuleRegex.ContainsRegex(path))
+                {
+                    var entry = FindOrCreateRegexEntry(path);
+                    entry.Values.Add(value);
+                }
+                else
+                {
+                    if (!_literal.TryGetValue(path, out var list))
+                    {
+                        list = new List<T>();
+                        _literal.Add(path, list);
+                    }
+                    list.Add(value);
+                }
+            }
+
+            public bool TryGetValue(string path, out List<T> matches)
+            {
+                matches = new List<T>();
+
+                if (_literal.TryGetValue(path, out var literalList))
+                    matches.AddRange(literalList);
+
+                foreach (var entry in _regex)
+                {
+                    if (entry.Regex.IsMatch(path))
+                        matches.AddRange(entry.Values);
+                }
+
+                return matches.Count > 0;
+            }
+
+            private RegexMapEntry FindOrCreateRegexEntry(string pattern)
+            {
+                foreach (var entry in _regex)
+                {
+                    if (string.Equals(entry.Pattern, pattern, StringComparison.OrdinalIgnoreCase))
+                        return entry;
+                }
+
+                var newEntry = new RegexMapEntry(pattern, PathRuleRegex.BuildRegexFromRule(pattern));
+                _regex.Add(newEntry);
+                return newEntry;
+            }
+        }
+
         private readonly BlockingCollection<TwRequest> Q = new(32);
         private readonly PipeServerEndpoint ServerPipe;
         private readonly Timer MinuteTimer;
@@ -47,8 +173,8 @@ namespace pylorak.TinyWall
 
         // Context for auto rule inheritance
         private readonly object InheritanceGuard = new();
-        private readonly HashSet<string> UserSubjectExes = new(StringComparer.OrdinalIgnoreCase);        // All executables with pre-configured rules.
-        private readonly Dictionary<string, List<FirewallExceptionV3>> ChildInheritance = new(StringComparer.OrdinalIgnoreCase);
+        private readonly SubjectPathRuleSet UserSubjectExes = new();        // All executables with pre-configured rules.
+        private readonly SubjectPathRuleMultiMap<FirewallExceptionV3> ChildInheritance = new();
         private readonly Dictionary<string, HashSet<string>> ChildInheritedSubjectExes = new(StringComparer.OrdinalIgnoreCase);   // Executables that have been already auto-whitelisted due to inheritance
         private readonly ThreadThrottler FirewallThreadThrottler = new(Thread.CurrentThread, ThreadPriority.Highest, false);
         private StringBuilder? ProcessStartWatcher_Sbuilder;
@@ -175,15 +301,21 @@ namespace pylorak.TinyWall
                         string exePath = exe.ExecutablePath;
                         UserSubjectExes.Add(exePath);
                         if (ex.ChildProcessesInherit)
-                        {
-                            // We might have multiple rules with the same exePath, so we maintain a list of exceptions
-                            if (!ChildInheritance.ContainsKey(exePath))
-                                ChildInheritance.Add(exePath, new List<FirewallExceptionV3>());
-                            ChildInheritance[exePath].Add(ex);
-                        }
+                            ChildInheritance.Add(exePath, ex);
                     }
 
-                    GetRulesForException(ex, rules, rawSocketExceptions, (ulong)FilterWeights.UserPermit, (ulong)FilterWeights.UserBlock);
+                    foreach (var resolved in ExpandExceptionSubjects(ex))
+                    {
+                        if (resolved.Subject is ExecutableSubject resolvedExe)
+                        {
+                            string resolvedPath = resolvedExe.ExecutablePath;
+                            UserSubjectExes.Add(resolvedPath);
+                            if (resolved.ChildProcessesInherit)
+                                ChildInheritance.Add(resolvedPath, resolved);
+                        }
+
+                        GetRulesForException(resolved, rules, rawSocketExceptions, (ulong)FilterWeights.UserPermit, (ulong)FilterWeights.UserBlock);
+                    }
                 }
 
                 if (ChildInheritance.Count != 0)
@@ -286,6 +418,30 @@ namespace pylorak.TinyWall
             }
 
             return rules;
+        }
+
+        private IEnumerable<FirewallExceptionV3> ExpandExceptionSubjects(FirewallExceptionV3 ex)
+        {
+            if (ex.Subject is ExecutableSubject exe && PathRuleRegex.ContainsRegex(exe.ExecutablePath))
+            {
+                var resolvedPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var match in PathRuleRegex.ResolveMatches(exe.ExecutablePath))
+                {
+                    if (resolvedPaths.Add(match))
+                    {
+                        var clone = Utils.DeepClone(ex);
+                        clone.Subject = new ExecutableSubject(match);
+                        yield return clone;
+                    }
+                }
+
+                if (resolvedPaths.Count == 0)
+                    yield return ex;
+            }
+            else
+            {
+                yield return ex;
+            }
         }
 
         private void InstallRules(List<RuleDef> rules, List<RuleDef> rawSocketExceptions, bool useTransaction)

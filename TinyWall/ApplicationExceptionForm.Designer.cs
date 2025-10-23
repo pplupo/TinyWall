@@ -150,8 +150,11 @@
             this.btnChooseService.Click += new System.EventHandler(this.btnChooseService_Click);
             // 
             // ofd
-            // 
+            //
             resources.ApplyResources(this.ofd, "ofd");
+            this.ofd.CheckFileExists = false;
+            this.ofd.CheckPathExists = false;
+            this.ofd.ValidateNames = false;
             // 
             // label6
             // 
