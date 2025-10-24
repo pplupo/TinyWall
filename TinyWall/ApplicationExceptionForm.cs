@@ -218,6 +218,8 @@ namespace pylorak.TinyWall
 
             chkInheritToChildren.Checked = ExceptionSettings[index].ChildProcessesInherit;
 
+            ResetAllowedHosts(clearList: true);
+
             switch (ExceptionSettings[index].Policy.PolicyType)
             {
                 case PolicyType.HardBlock:
@@ -262,6 +264,7 @@ namespace pylorak.TinyWall
                     txtOutboundPortUDP.Text = (pol.AllowedRemoteUdpConnectPorts is null) ? string.Empty : pol.AllowedRemoteUdpConnectPorts.Replace(",", ", ");
                     txtListenPortTCP.Text = (pol.AllowedLocalTcpListenerPorts is null) ? string.Empty : pol.AllowedLocalTcpListenerPorts.Replace(",", ", ");
                     txtListenPortUDP.Text = (pol.AllowedLocalUdpListenerPorts is null) ? string.Empty : pol.AllowedLocalUdpListenerPorts.Replace(",", ", ");
+                    PopulateAllowedHosts(pol);
                     break;
                 case PolicyType.Unrestricted:
                     UnrestrictedPolicy upol = (UnrestrictedPolicy)ExceptionSettings[index].Policy;
@@ -273,6 +276,8 @@ namespace pylorak.TinyWall
                 default:
                     throw new NotImplementedException();
             }
+
+            UpdateAllowedHostsState();
         }
 
         private static string CleanupPortsList(string str)
@@ -323,6 +328,193 @@ namespace pylorak.TinyWall
             return res;
         }
 
+        private void PopulateAllowedHosts(TcpUdpPolicy policy)
+        {
+            listAllowedHosts.BeginUpdate();
+            listAllowedHosts.Items.Clear();
+
+            if (!string.IsNullOrWhiteSpace(policy.AllowedRemoteHosts))
+            {
+                foreach (string host in policy.AllowedRemoteHosts.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    string trimmed = host.Trim();
+                    if (!string.IsNullOrEmpty(trimmed))
+                        listAllowedHosts.Items.Add(new ListViewItem(trimmed));
+                }
+
+                if (listAllowedHosts.Items.Count > 0)
+                    radOnlySpecifiedHosts.Checked = true;
+                else
+                    radAllowAnyHost.Checked = true;
+            }
+            else
+            {
+                radAllowAnyHost.Checked = true;
+            }
+
+            listAllowedHosts.EndUpdate();
+            UpdateAllowedHostsState();
+        }
+
+        private void ResetAllowedHosts(bool clearList)
+        {
+            if (clearList)
+            {
+                listAllowedHosts.Items.Clear();
+            }
+
+            radAllowAnyHost.Checked = true;
+            UpdateAllowedHostsState();
+        }
+
+        private string? BuildAllowedHostList()
+        {
+            if (listAllowedHosts.Items.Count == 0)
+                return null;
+
+            var hosts = new List<string>(listAllowedHosts.Items.Count);
+            foreach (ListViewItem item in listAllowedHosts.Items)
+            {
+                string value = item.Text.Trim();
+                if (!string.IsNullOrEmpty(value))
+                    hosts.Add(value);
+            }
+
+            if (hosts.Count == 0)
+                return null;
+
+            return string.Join(",", hosts);
+        }
+
+        private bool ContainsHostEntry(string entry, ListViewItem? exclude = null)
+        {
+            foreach (ListViewItem item in listAllowedHosts.Items)
+            {
+                if (item == exclude)
+                    continue;
+
+                if (string.Equals(item.Text, entry, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private void UpdateHostButtons()
+        {
+            bool enabled = grpAllowedHosts.Enabled;
+            bool hasSelection = listAllowedHosts.SelectedItems.Count > 0;
+            bool hasItems = listAllowedHosts.Items.Count > 0;
+
+            btnModifyHost.Enabled = enabled && hasSelection;
+            btnRemoveHost.Enabled = enabled && hasSelection;
+            btnRemoveAllHosts.Enabled = enabled && hasItems;
+        }
+
+        private void UpdateAllowedHostsState()
+        {
+            bool policyAllowsHosts = !(radBlock.Checked || radUnrestricted.Checked);
+
+            radAllowAnyHost.Enabled = policyAllowsHosts;
+            radOnlySpecifiedHosts.Enabled = policyAllowsHosts;
+
+            if (!policyAllowsHosts && !radAllowAnyHost.Checked)
+                radAllowAnyHost.Checked = true;
+
+            bool enableList = policyAllowsHosts && radOnlySpecifiedHosts.Checked;
+            grpAllowedHosts.Enabled = enableList;
+
+            if (policyAllowsHosts && radOnlySpecifiedHosts.Checked)
+            {
+                if (chkRestrictToLocalNetwork.Checked)
+                    chkRestrictToLocalNetwork.Checked = false;
+                chkRestrictToLocalNetwork.Enabled = false;
+            }
+            else if (policyAllowsHosts && !radBlock.Checked)
+            {
+                chkRestrictToLocalNetwork.Enabled = true;
+            }
+
+            UpdateHostButtons();
+        }
+
+        private void AllowedHostOption_CheckedChanged(object? sender, EventArgs e)
+        {
+            UpdateAllowedHostsState();
+        }
+
+        private void btnAddHost_Click(object sender, EventArgs e)
+        {
+            using var dialog = new HostEntryForm("Add IP/Host", null);
+            if (dialog.ShowDialog(this) != DialogResult.OK)
+                return;
+
+            if (ContainsHostEntry(dialog.EntryValue))
+            {
+                Utils.ShowMessageBox(
+                    "The specified IP or host already exists in the list.",
+                    Resources.Messages.TinyWall,
+                    Microsoft.Samples.TaskDialogCommonButtons.Ok,
+                    Microsoft.Samples.TaskDialogIcon.Warning,
+                    this);
+                return;
+            }
+
+            listAllowedHosts.Items.Add(new ListViewItem(dialog.EntryValue));
+            UpdateHostButtons();
+        }
+
+        private void btnModifyHost_Click(object sender, EventArgs e)
+        {
+            if (listAllowedHosts.SelectedItems.Count == 0)
+                return;
+
+            ListViewItem item = listAllowedHosts.SelectedItems[0];
+            using var dialog = new HostEntryForm("Edit IP/Host", item.Text);
+            if (dialog.ShowDialog(this) != DialogResult.OK)
+                return;
+
+            if (ContainsHostEntry(dialog.EntryValue, item))
+            {
+                Utils.ShowMessageBox(
+                    "The specified IP or host already exists in the list.",
+                    Resources.Messages.TinyWall,
+                    Microsoft.Samples.TaskDialogCommonButtons.Ok,
+                    Microsoft.Samples.TaskDialogIcon.Warning,
+                    this);
+                return;
+            }
+
+            item.Text = dialog.EntryValue;
+            UpdateHostButtons();
+        }
+
+        private void btnRemoveHost_Click(object sender, EventArgs e)
+        {
+            if (listAllowedHosts.SelectedItems.Count == 0)
+                return;
+
+            listAllowedHosts.Items.Remove(listAllowedHosts.SelectedItems[0]);
+            UpdateHostButtons();
+        }
+
+        private void btnRemoveAllHosts_Click(object sender, EventArgs e)
+        {
+            listAllowedHosts.Items.Clear();
+            UpdateHostButtons();
+        }
+
+        private void listAllowedHosts_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            UpdateHostButtons();
+        }
+
+        private void listAllowedHosts_DoubleClick(object sender, EventArgs e)
+        {
+            if (listAllowedHosts.SelectedItems.Count > 0)
+                btnModifyHost_Click(sender, e);
+        }
+
         private async void btnOK_Click(object sender, EventArgs e)
         {
             Parallel.For(0, ExceptionSettings.Count - 1, (i, _) =>
@@ -348,6 +540,24 @@ namespace pylorak.TinyWall
                     pol.AllowedRemoteUdpConnectPorts = await Task.Run(() => CleanupPortsList(txtOutboundPortUDP.Text));
                     pol.AllowedLocalTcpListenerPorts = await Task.Run(() => CleanupPortsList(txtListenPortTCP.Text));
                     pol.AllowedLocalUdpListenerPorts = await Task.Run(() => CleanupPortsList(txtListenPortUDP.Text));
+
+                    string? allowedHosts = null;
+                    if (radOnlySpecifiedHosts.Checked)
+                    {
+                        allowedHosts = BuildAllowedHostList();
+                        if (string.IsNullOrEmpty(allowedHosts))
+                        {
+                            Utils.ShowMessageBox(
+                                "Please add at least one IP or host.",
+                                Resources.Messages.TinyWall,
+                                Microsoft.Samples.TaskDialogCommonButtons.Ok,
+                                Microsoft.Samples.TaskDialogIcon.Warning,
+                                this);
+                            return;
+                        }
+                    }
+
+                    pol.AllowedRemoteHosts = allowedHosts;
 
                     Parallel.For(0, ExceptionSettings.Count - 1, (i, _) =>
                     {
@@ -518,6 +728,8 @@ namespace pylorak.TinyWall
             {
                 throw new InvalidOperationException();
             }
+
+            UpdateAllowedHostsState();
         }
 
         private void btnRemoveSoftware_Click(object sender, EventArgs e)

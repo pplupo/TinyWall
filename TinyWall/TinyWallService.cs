@@ -936,14 +936,25 @@ namespace pylorak.TinyWall
                     {
                         var pol = (TcpUdpPolicy)ex.Policy;
 
+                        void ApplyRemoteAddresses(RuleDef def)
+                        {
+                            if (!string.IsNullOrEmpty(pol.AllowedRemoteHosts))
+                            {
+                                def.RemoteAddresses = pol.AllowedRemoteHosts;
+                            }
+                            else if (pol.LocalNetworkOnly)
+                            {
+                                def.RemoteAddresses = RuleDef.LOCALSUBNET_ID;
+                            }
+                        }
+
                         // Incoming
                         if (!string.IsNullOrEmpty(pol.AllowedLocalTcpListenerPorts) && (pol.AllowedLocalTcpListenerPorts == pol.AllowedLocalUdpListenerPorts))
                         {
                             var def = new RuleDef(ex.Id, "TCP/UDP Listen Ports", ex.Subject, RuleAction.Allow, RuleDirection.In, Protocol.TcpUdp, permitWeight);
                             if (!string.Equals(pol.AllowedLocalTcpListenerPorts, "*"))
                                 def.LocalPorts = pol.AllowedLocalTcpListenerPorts;
-                            if (pol.LocalNetworkOnly)
-                                def.RemoteAddresses = RuleDef.LOCALSUBNET_ID;
+                            ApplyRemoteAddresses(def);
                             results.Add(def);
                         }
                         else
@@ -953,8 +964,7 @@ namespace pylorak.TinyWall
                                 var def = new RuleDef(ex.Id, "TCP Listen Ports", ex.Subject, RuleAction.Allow, RuleDirection.In, Protocol.TCP, permitWeight);
                                 if (!string.Equals(pol.AllowedLocalTcpListenerPorts, "*"))
                                     def.LocalPorts = pol.AllowedLocalTcpListenerPorts;
-                                if (pol.LocalNetworkOnly)
-                                    def.RemoteAddresses = RuleDef.LOCALSUBNET_ID;
+                                ApplyRemoteAddresses(def);
                                 results.Add(def);
                             }
                             if (!string.IsNullOrEmpty(pol.AllowedLocalUdpListenerPorts))
@@ -962,8 +972,7 @@ namespace pylorak.TinyWall
                                 var def = new RuleDef(ex.Id, "UDP Listen Ports", ex.Subject, RuleAction.Allow, RuleDirection.In, Protocol.UDP, permitWeight);
                                 if (!string.Equals(pol.AllowedLocalUdpListenerPorts, "*"))
                                     def.LocalPorts = pol.AllowedLocalUdpListenerPorts;
-                                if (pol.LocalNetworkOnly)
-                                    def.RemoteAddresses = RuleDef.LOCALSUBNET_ID;
+                                ApplyRemoteAddresses(def);
                                 results.Add(def);
                             }
                         }
@@ -974,8 +983,7 @@ namespace pylorak.TinyWall
                             var def = new RuleDef(ex.Id, "TCP/UDP Outbound Ports", ex.Subject, RuleAction.Allow, RuleDirection.Out, Protocol.TcpUdp, permitWeight);
                             if (!string.Equals(pol.AllowedRemoteTcpConnectPorts, "*"))
                                 def.RemotePorts = pol.AllowedRemoteTcpConnectPorts;
-                            if (pol.LocalNetworkOnly)
-                                def.RemoteAddresses = RuleDef.LOCALSUBNET_ID;
+                            ApplyRemoteAddresses(def);
                             results.Add(def);
                         }
                         else
@@ -985,8 +993,7 @@ namespace pylorak.TinyWall
                                 var def = new RuleDef(ex.Id, "TCP Outbound Ports", ex.Subject, RuleAction.Allow, RuleDirection.Out, Protocol.TCP, permitWeight);
                                 if (!string.Equals(pol.AllowedRemoteTcpConnectPorts, "*"))
                                     def.RemotePorts = pol.AllowedRemoteTcpConnectPorts;
-                                if (pol.LocalNetworkOnly)
-                                    def.RemoteAddresses = RuleDef.LOCALSUBNET_ID;
+                                ApplyRemoteAddresses(def);
                                 results.Add(def);
                             }
                             if (!string.IsNullOrEmpty(pol.AllowedRemoteUdpConnectPorts))
@@ -994,8 +1001,7 @@ namespace pylorak.TinyWall
                                 var def = new RuleDef(ex.Id, "UDP Outbound Ports", ex.Subject, RuleAction.Allow, RuleDirection.Out, Protocol.UDP, permitWeight);
                                 if (!string.Equals(pol.AllowedRemoteUdpConnectPorts, "*"))
                                     def.RemotePorts = pol.AllowedRemoteUdpConnectPorts;
-                                if (pol.LocalNetworkOnly)
-                                    def.RemoteAddresses = RuleDef.LOCALSUBNET_ID;
+                                ApplyRemoteAddresses(def);
                                 results.Add(def);
                             }
                         }
