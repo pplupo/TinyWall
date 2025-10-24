@@ -168,6 +168,9 @@ namespace pylorak.TinyWall
         [DataMember(EmitDefaultValue = false)]
         public string? AllowedLocalUdpListenerPorts { get; set; }
 
+        [DataMember(EmitDefaultValue = false)]
+        public string? AllowedRemoteHosts { get; set; }
+
         public override bool MergeRulesTo(ref ExceptionPolicy target)
         {
             switch (target.PolicyType)
@@ -200,6 +203,7 @@ namespace pylorak.TinyWall
             other.AllowedRemoteUdpConnectPorts = MergeStringList(this.AllowedRemoteUdpConnectPorts, other.AllowedRemoteUdpConnectPorts);
             other.AllowedLocalTcpListenerPorts = MergeStringList(this.AllowedLocalTcpListenerPorts, other.AllowedLocalTcpListenerPorts);
             other.AllowedLocalUdpListenerPorts = MergeStringList(this.AllowedLocalUdpListenerPorts, other.AllowedLocalUdpListenerPorts);
+            other.AllowedRemoteHosts = MergeStringList(this.AllowedRemoteHosts, other.AllowedRemoteHosts);
 
             return true;
         }
