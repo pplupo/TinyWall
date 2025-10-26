@@ -39,8 +39,7 @@ jobs:
 
       - name: Build Solution
         run: |
-          msbuild.exe $env:SOLUTION_FILE /p:Platform="Any CPU" /p:Configuration="Release" /p:DeployOnBuild="true" /p:PublishProfile="FolderProfile" /p:PublishProfileRootFolder="TinyWall\PublishProfiles"
-
+          msbuild.exe $env:SOLUTION_FILE /p:Platform="Any CPU" /p:Configuration="Release" /p:DeployOnBuild="true" /p:PublishProfile="FolderProfile" /p:PublishProfileRootFolder="TinyWall\Properties\PublishProfiles"
       - name: Determine release metadata
         id: release-metadata
         shell: pwsh
