@@ -123,7 +123,7 @@ jobs:
           files: ${{ steps.package-assets.outputs.paths }}
 
       - name: Upload workflow artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: TinyWall-release-assets
           path: |
