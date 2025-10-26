@@ -1,0 +1,132 @@
+name: Release TinyWall (.NET Framework 4.8.1)
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag to apply to the release (for example, v1.0.0)'
+        required: true
+      release_name:
+        description: 'Optional release title (defaults to the tag name)'
+        required: false
+      prerelease:
+        description: 'Mark the release as a pre-release'
+        required: false
+        default: 'false'
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  create-release:
+    runs-on: windows-latest
+
+    env:
+      SOLUTION_FILE: TinyWall.sln
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v1.1.1
+
+      - name: Restore NuGet Packages
+        run: nuget restore $env:SOLUTION_FILE
+
+      - name: Build Solution
+        run: |
+          msbuild.exe $env:SOLUTION_FILE /p:Platform="Any CPU" /p:Configuration="Release" /p:DeployOnBuild="true" /p:PublishProfile="FolderProfile" /p:PublishProfileRootFolder="TinyWall\Properties\PublishProfiles"
+
+      - name: Determine release metadata
+        id: release-metadata
+        shell: pwsh
+        run: |
+          if ("${{ github.event_name }}" -eq "workflow_dispatch") {
+            $tag = "${{ inputs.tag_name }}".Trim()
+            if ([string]::IsNullOrWhiteSpace($tag)) {
+              throw 'The tag_name input is required when manually dispatching the workflow.'
+            }
+            $name = if ([string]::IsNullOrWhiteSpace("${{ inputs.release_name }}")) { $tag } else { "${{ inputs.release_name }}".Trim() }
+            $isPrerelease = [System.Convert]::ToBoolean("${{ inputs.prerelease }}")
+          } else {
+            $tag = "${{ github.ref_name }}"
+            $name = $tag
+            $isPrerelease = $false
+          }
+
+          "tag=$tag" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "name=$name" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "prerelease=$isPrerelease" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Package release assets
+        id: package-assets
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ steps.release-metadata.outputs.tag }}
+        run: |
+          $assetPaths = @()
+
+          $publishDir = "TinyWall\bin\Publish"
+          if (Test-Path $publishDir) {
+            $archiveName = "TinyWall-$env:RELEASE_TAG.zip"
+            $archivePath = Join-Path (Get-Location) $archiveName
+            if (Test-Path $archivePath) {
+              Remove-Item $archivePath -Force
+            }
+            Compress-Archive -Path (Join-Path $publishDir '*') -DestinationPath $archivePath -Force
+            $assetPaths += (Resolve-Path $archivePath).Path
+          } else {
+            Write-Host "Publish directory not found at $publishDir."
+          }
+
+          $setupDir = "TinyWallSetup\Release"
+          if (Test-Path $setupDir) {
+            $setupFiles = Get-ChildItem $setupDir -File
+            foreach ($file in $setupFiles) {
+              $assetPaths += $file.FullName
+            }
+          } else {
+            Write-Host "Setup release directory not found at $setupDir."
+          }
+
+          if ($assetPaths.Count -eq 0) {
+            throw 'No release assets were produced during the build.'
+          }
+
+          $normalized = $assetPaths | ForEach-Object { $_ -replace '\\','/' }
+          $content = $normalized -join "`n"
+          "paths<<EOF" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          $content | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "EOF" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Create GitHub release
+        id: create-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.release-metadata.outputs.tag }}
+          release_name: ${{ steps.release-metadata.outputs.name }}
+          draft: false
+          prerelease: ${{ steps.release-metadata.outputs.prerelease }}
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.release-metadata.outputs.tag }}
+          files: ${{ steps.package-assets.outputs.paths }}
+
+      - name: Upload workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: TinyWall-release-assets
+          path: |
+            TinyWall/bin/Publish
+            TinyWallSetup/Release
+          if-no-files-found: warn
