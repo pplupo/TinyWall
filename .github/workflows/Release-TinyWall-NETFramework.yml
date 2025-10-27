@@ -39,7 +39,12 @@ jobs:
 
       - name: Build Solution
         run: |
-          msbuild.exe $env:SOLUTION_FILE /p:Platform="Any CPU" /p:Configuration="Release" /p:DeployOnBuild="true" /p:PublishProfile="FolderProfile" /p:PublishProfileRootFolder="TinyWall\Properties\PublishProfiles"
+          msbuild.exe $env:SOLUTION_FILE /p:Platform="Any CPU" /p:Configuration="Release"
+
+      - name: Publish TinyWall
+        run: |
+          msbuild.exe TinyWall\TinyWall.csproj /t:Publish /p:Platform="Any CPU" /p:Configuration="Release" /p:PublishProfile="FolderProfile"
+
       - name: Determine release metadata
         id: release-metadata
         shell: pwsh
